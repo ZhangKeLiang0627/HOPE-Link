@@ -91,6 +91,7 @@ DSTATUS USER_initialize (
   /* USER CODE BEGIN INIT */
   // Stat = STA_NOINIT;
   w25qxx_init(&w25qxx, &hspi2, SPI2_CS_GPIO_Port, SPI2_CS_Pin);
+
   Stat = USER_status(pdrv);
   return Stat;
   /* USER CODE END INIT */

@@ -34,6 +34,17 @@ void MX_FATFS_Init(void)
 
   /* USER CODE BEGIN Init */
   /* additional user code for init */
+  FRESULT res;
+  BYTE buff[4096];
+  res = f_mount(&USERFatFS, "0:", 1);
+  if (res != FR_OK)
+  {
+    res = f_mkfs("0:", FM_FAT, 0, buff, sizeof(buff));
+    if (res == FR_OK)
+    {
+      res = f_mount(&USERFatFS, "0:", 1);
+    }
+  }
   /* USER CODE END Init */
 }
 

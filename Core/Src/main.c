@@ -37,10 +37,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define FILE_NAME "HOPE.txt"         // 测试文件名
-#define FILE_CONTENT "Hello, FATFS!" // 测试写入内容
-#define WORK_BUFFER_SIZE 4096        // mkfs 工作缓冲区大小
-#define READ_BUF_SIZE 16            // 读文件缓冲区大小
+#define FILE_NAME "yes.txt"        
+#define FILE_CONTENT "Hello, FATFS!" 
+#define WORK_BUFFER_SIZE 4096       
+#define READ_BUF_SIZE 16          
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -66,17 +66,14 @@ void SystemClock_Config(void);
 static FRESULT fatfs_init(void)
 {
   FRESULT res;
-  BYTE work_buf[WORK_BUFFER_SIZE]; // mkfs 工作缓冲区
+  BYTE buff[4096];
 
-  // 尝试挂载文件系统
   res = f_mount(&USERFatFS, "0:", 1);
   if (res != FR_OK)
   {
-    // 挂载失败，执行格式化（FAT格式，簇大小自动适配）
-    res = f_mkfs("0:", FM_FAT, 0, work_buf, sizeof(work_buf));
+    res = f_mkfs("0:", FM_FAT, 0, buff, sizeof(buff));
     if (res == FR_OK)
     {
-      // 格式化成功后重新挂载
       res = f_mount(&USERFatFS, "0:", 1);
     }
   }
@@ -93,17 +90,13 @@ static FRESULT fatfs_rw_test(void)
   UINT bytes_read = 0;
   size_t content_len = strlen(FILE_CONTENT);
 
-  // 1. 打开/创建文件并写入数据
   res = f_open(&file, FILE_NAME, FA_CREATE_ALWAYS | FA_WRITE);
   if (res == FR_OK)
   {
-    // 写入数据（仅写入有效长度，避免多余操作）
     res = f_write(&file, FILE_CONTENT, content_len, &bytes_written);
 
-    // 无论写入成功与否，都要关闭文件（避免资源泄漏）
     f_close(&file);
 
-    // 写入失败直接返回
     if (res != FR_OK)
     {
       return res;
@@ -114,14 +107,11 @@ static FRESULT fatfs_rw_test(void)
     return res;
   }
 
-  // 2. 打开文件并读取数据
   res = f_open(&file, FILE_NAME, FA_READ);
   if (res == FR_OK)
   {
-    // 读取文件内容（预留1字节给结束符）
     res = f_read(&file, read_buf, sizeof(read_buf) - 1, &bytes_read);
 
-    // 关闭文件
     f_close(&file);
   }
 
@@ -158,14 +148,14 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
-  MX_USB_DEVICE_Init();
   MX_SPI2_Init();
   MX_FATFS_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-	HAL_Delay(100);
+	HAL_Delay(10);
 
   FRESULT res;
-  res = fatfs_init();
+  // res = fatfs_init();
   res = fatfs_rw_test();
 
   u8g2_init(&disp);
