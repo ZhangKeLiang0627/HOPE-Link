@@ -1,6 +1,11 @@
 #ifndef W25QXX_H_
 #define W25QXX_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #ifdef DEBUGxxx
 #define W25_DBG(...) printf(__VA_ARGS__);\
                      printf("\n")
@@ -40,6 +45,8 @@ typedef struct {
     uint32_t pages_in_sector;
 } W25QXX_HandleTypeDef;
 
+extern W25QXX_HandleTypeDef w25qxx;
+
 typedef enum {
     W25QXX_Ok,     // 0
     W25QXX_Err,    // 1
@@ -55,9 +62,9 @@ W25QXX_result_t w25qxx_read(W25QXX_HandleTypeDef *w25qxx, uint32_t address, uint
 W25QXX_result_t w25qxx_write(W25QXX_HandleTypeDef *w25qxx, uint32_t address, uint8_t *buf, uint32_t len);
 W25QXX_result_t w25qxx_erase(W25QXX_HandleTypeDef *w25qxx, uint32_t address, uint32_t len);
 W25QXX_result_t w25qxx_chip_erase(W25QXX_HandleTypeDef *w25qxx);
+W25QXX_result_t w25qxx_write_with_erase(W25QXX_HandleTypeDef *w25qxx, uint32_t address, uint8_t *buf, uint32_t len);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* W25QXX_H_ */
-
-/*
- * vim: ts=4 et nowrap
- */

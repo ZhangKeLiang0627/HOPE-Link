@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "fatfs.h"
 #include "i2c.h"
 #include "spi.h"
 #include "usb_device.h"
@@ -48,7 +49,6 @@
 
 /* USER CODE BEGIN PV */
 u8g2_t disp; 
-W25QXX_HandleTypeDef w25qxx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -93,24 +93,14 @@ int main(void)
   MX_I2C1_Init();
   MX_USB_DEVICE_Init();
   MX_SPI2_Init();
+  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 	HAL_Delay(100);
-	W25QXX_result_t res;
-  res = w25qxx_init(&w25qxx, &hspi2, SPI2_CS_GPIO_Port, SPI2_CS_Pin);
 	
 	u8g2_init(&disp);
 	u8g2_SetFont(&disp, u8g2_font_wqy13_t_gb2312a); 
 	u8g2_ClearBuffer(&disp);
 	u8g2_DrawUTF8(&disp, 30, 15, "HelloHOPE");
-	// u8g2_DrawStr(&disp, 30, 30, "HelloHOPE");
-	
-	if (res == W25QXX_Ok) {
-			uint8_t dispBuf[32] = {0};
-			sprintf((char *)dispBuf, "0x%4x", w25qxx.device_id);
-			u8g2_DrawUTF8(&disp, 30, 15, "HelloHOPE");
-      u8g2_DrawUTF8(&disp, 30, 30, (const char *)dispBuf);
-	} 
-
 	u8g2_SendBuffer(&disp);
   /* USER CODE END 2 */
 

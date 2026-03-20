@@ -7,6 +7,9 @@
 #include <stdio.h>
 #endif
 
+#define W25QXX_SECTOR_BUF_SIZE 4096 // 扇区大小4096字节
+static uint8_t W25QXX_SECTOR_BUFFER[W25QXX_SECTOR_BUF_SIZE];
+
 /*
  * Internal functions
  */
@@ -321,6 +324,103 @@ W25QXX_result_t w25qxx_erase(W25QXX_HandleTypeDef *w25qxx, uint32_t address, uin
     return ret;
 }
 
+/**
+ * @brief  w25qxx_write_with_erase / 智能擦写
+ * 1. 读取扇区原有数据 
+ * 2. 校验待写入区域是否全为0XFF
+ * 3. 仅擦除需要改写的扇区 
+ * 4. 合并新旧数据写入
+ *
+ * @param  w25qxx: W25QXX句柄
+ * @param  address: 起始写入地址（24bit）
+ * @param  buf: 待写入数据缓冲区
+ * @param  len: 要写入的字节数
+ * @retval W25QXX_result_t: 操作结果（W25QXX_Ok/W25QXX_Err/W25QXX_Timeout）
+ */
+W25QXX_result_t w25qxx_write_with_erase(W25QXX_HandleTypeDef *w25qxx, uint32_t address, uint8_t *buf, uint32_t len)
+{
+    // 1. 入参合法性检查
+    if (w25qxx == NULL || buf == NULL || len == 0 || w25qxx->sector_size != W25QXX_SECTOR_BUF_SIZE)
+    {
+        W25_DBG("w25qxx_write_with_erase: invalid parameters");
+        return W25QXX_Err;
+    }
+
+    uint32_t secpos;               // 写入地址所在的扇区编号
+    uint32_t secoff;               // 写入地址在扇区内的偏移
+    uint32_t secremain;            // 扇区内剩余可写入的字节数
+    uint32_t write_len;            // 当前次要写入的字节数
+    uint8_t *pbuf = buf;           // 数据缓冲区指针
+    uint32_t write_addr = address; // 当前写入地址
+    uint32_t remain_len = len;     // 剩余待写入字节数
+
+    // 2. 按扇区循环处理
+    while (remain_len > 0)
+    {
+        // 计算当前写入地址对应的扇区信息
+        secpos = write_addr / w25qxx->sector_size;                     // 扇区编号 = 地址 / 扇区大小
+        secoff = write_addr % w25qxx->sector_size;                     // 扇区内偏移 = 地址 % 扇区大小
+        secremain = w25qxx->sector_size - secoff;                      // 扇区剩余空间 = 扇区大小 - 偏移
+        write_len = (remain_len < secremain) ? remain_len : secremain; // 本次写入长度（不超过剩余空间）
+
+        // 3. 读取当前扇区的原有数据
+        if (w25qxx_read(w25qxx, secpos * w25qxx->sector_size, W25QXX_SECTOR_BUFFER, w25qxx->sector_size) != W25QXX_Ok)
+        {
+            W25_DBG("w25qxx_write_with_erase: read sector failed (sec:%lu)", secpos);
+            return W25QXX_Err;
+        }
+
+        // 4. 校验扇区内待写入区域是否全为0XFF（判断是否需要擦除）
+        uint8_t need_erase = 0;
+        for (uint32_t i = 0; i < write_len; i++)
+        {
+            if (W25QXX_SECTOR_BUFFER[secoff + i] != 0XFF)
+            {
+                need_erase = 1; // 存在非0XFF数据，需要擦除扇区
+                break;
+            }
+        }
+
+        // 5. 若需要擦除，则先擦除当前扇区
+        if (need_erase)
+        {
+            if (w25qxx_erase(w25qxx, secpos * w25qxx->sector_size, w25qxx->sector_size) != W25QXX_Ok)
+            {
+                W25_DBG("w25qxx_write_with_erase: erase sector failed (sec:%lu)", secpos);
+                return W25QXX_Err;
+            }
+            // 擦除后扇区全为0XFF，直接覆盖待写入区域的数据
+            for (uint32_t i = 0; i < write_len; i++)
+            {
+                W25QXX_SECTOR_BUFFER[secoff + i] = pbuf[i];
+            }
+            // 写入整个扇区
+            if (w25qxx_write(w25qxx, secpos * w25qxx->sector_size, W25QXX_SECTOR_BUFFER, w25qxx->sector_size) != W25QXX_Ok)
+            {
+                W25_DBG("w25qxx_write_with_erase: write sector failed (sec:%lu)", secpos);
+                return W25QXX_Err;
+            }
+        }
+        else
+        {
+            // 无需擦除，直接写入当前区域（和第一个库 W25QXX_Write_Page 逻辑一致）
+            if (w25qxx_write(w25qxx, write_addr, pbuf, write_len) != W25QXX_Ok)
+            {
+                W25_DBG("w25qxx_write_with_erase: write data failed (addr:0x%08lx)", write_addr);
+                return W25QXX_Err;
+            }
+        }
+
+        // 6. 更新指针和长度，处理下一段数据
+        remain_len -= write_len; // 剩余长度递减
+        write_addr += write_len; // 写入地址后移
+        pbuf += write_len;       // 数据指针后移
+    }
+
+    W25_DBG("w25qxx_write_with_erase: success (addr:0x%08lx, len:0x%04lx)", address, len);
+    return W25QXX_Ok;
+}
+
 W25QXX_result_t w25qxx_chip_erase(W25QXX_HandleTypeDef *w25qxx) {
     if (w25qxx_write_enable(w25qxx) == W25QXX_Ok) {
         uint8_t tx[1] = {
@@ -337,6 +437,5 @@ W25QXX_result_t w25qxx_chip_erase(W25QXX_HandleTypeDef *w25qxx) {
     return W25QXX_Ok;
 }
 
-/*
- * vim: ts=4 et nowrap
- */
+// user's handle
+W25QXX_HandleTypeDef w25qxx;
