@@ -36,15 +36,17 @@
 #include <string.h>
 #include "ff_gen_drv.h"
 
+#include "main.h"
+#include "spi.h"
+
 #include "w25qxx.h"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-
-#define PAGE_SIZE       256
-#define SECTOR_SIZE     4096
-#define SECTOR_COUNT	  256 * 16
-#define BLOCK_SIZE	    65536
-#define FLASH_PAGES_PER_SECTOR	SECTOR_SIZE / PAGE_SIZE
+#define USER_PAGE_SIZE        256
+#define USER_SECTOR_SIZE      4096
+#define USER_SECTOR_COUNT     256 * 16
+#define USER_BLOCK_SIZE       16
+// #define USER_FLASH_PAGES_PER_SECTOR USER_SECTOR_SIZE / USER_PAGE_SIZE
 /* Private variables ---------------------------------------------------------*/
 /* Disk status */
 static volatile DSTATUS Stat = STA_NOINIT;
@@ -87,8 +89,10 @@ DSTATUS USER_initialize (
 )
 {
   /* USER CODE BEGIN INIT */
-    Stat = STA_NOINIT;
-    return Stat;
+  // Stat = STA_NOINIT;
+  w25qxx_init(&w25qxx, &hspi2, SPI2_CS_GPIO_Port, SPI2_CS_Pin);
+  Stat = USER_status(pdrv);
+  return Stat;
   /* USER CODE END INIT */
 }
 
@@ -103,6 +107,10 @@ DSTATUS USER_status (
 {
   /* USER CODE BEGIN STATUS */
     Stat = STA_NOINIT;
+    if(w25qxx.device_id != 0)
+    {
+      Stat &= ~STA_NOINIT;
+    }
     return Stat;
   /* USER CODE END STATUS */
 }
@@ -123,7 +131,8 @@ DRESULT USER_read (
 )
 {
   /* USER CODE BEGIN READ */
-    return RES_OK;
+  w25qxx_read(&w25qxx, sector * USER_SECTOR_SIZE, (uint8_t *)buff, count * USER_SECTOR_SIZE);
+  return RES_OK;
   /* USER CODE END READ */
 }
 
@@ -145,7 +154,8 @@ DRESULT USER_write (
 {
   /* USER CODE BEGIN WRITE */
   /* USER CODE HERE */
-    return RES_OK;
+  w25qxx_write_with_erase(&w25qxx, sector * USER_SECTOR_SIZE, (uint8_t *)buff, count * USER_SECTOR_SIZE);
+  return RES_OK;
   /* USER CODE END WRITE */
 }
 #endif /* _USE_WRITE == 1 */
@@ -165,7 +175,26 @@ DRESULT USER_ioctl (
 )
 {
   /* USER CODE BEGIN IOCTL */
-    DRESULT res = RES_ERROR;
+    DRESULT res = RES_OK;
+
+    switch(cmd)
+    {
+      case CTRL_SYNC: 
+        break;
+      case GET_SECTOR_COUNT:
+        *(DWORD *)buff = USER_SECTOR_COUNT;
+        break;
+      case GET_SECTOR_SIZE:
+        *(DWORD *)buff = USER_SECTOR_SIZE;
+        break;
+      case GET_BLOCK_SIZE:
+        *(DWORD *)buff = USER_BLOCK_SIZE;
+        break;
+      default: 
+        res = RES_PARERR; 
+        break;
+    }
+
     return res;
   /* USER CODE END IOCTL */
 }

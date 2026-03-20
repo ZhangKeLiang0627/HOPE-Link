@@ -37,7 +37,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define FILE_NAME "HOPE.txt"         // 测试文件名
+#define FILE_CONTENT "Hello, FATFS!" // 测试写入内容
+#define WORK_BUFFER_SIZE 4096        // mkfs 工作缓冲区大小
+#define READ_BUF_SIZE 100            // 读文件缓冲区大小
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -48,7 +51,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-u8g2_t disp; 
+u8g2_t disp;
+FIL file;        
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,7 +63,69 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+static FRESULT fatfs_init(void)
+{
+  FRESULT res;
+  BYTE work_buf[WORK_BUFFER_SIZE]; // mkfs 工作缓冲区
 
+  // 尝试挂载文件系统
+  res = f_mount(&USERFatFS, "0:", 1);
+  if (res != FR_OK)
+  {
+    // 挂载失败，执行格式化（FAT格式，簇大小自动适配）
+    res = f_mkfs("0:", FM_FAT, 0, work_buf, sizeof(work_buf));
+    if (res == FR_OK)
+    {
+      // 格式化成功后重新挂载
+      res = f_mount(&USERFatFS, "0:", 1);
+    }
+  }
+
+  return res;
+}
+
+static FRESULT fatfs_rw_test(void)
+{
+  FRESULT res;
+  UINT bytes_written = 0;
+  UINT bytes_read = 0;
+  char read_buf[READ_BUF_SIZE] = {0};
+  size_t content_len = strlen(FILE_CONTENT);
+
+  // 1. 打开/创建文件并写入数据
+  res = f_open(&file, FILE_NAME, FA_CREATE_ALWAYS | FA_WRITE);
+  if (res == FR_OK)
+  {
+    // 写入数据（仅写入有效长度，避免多余操作）
+    res = f_write(&file, FILE_CONTENT, content_len, &bytes_written);
+
+    // 无论写入成功与否，都要关闭文件（避免资源泄漏）
+    f_close(&file);
+
+    // 写入失败直接返回
+    if (res != FR_OK)
+    {
+      return res;
+    }
+  }
+  else
+  {
+    return res;
+  }
+
+  // 2. 打开文件并读取数据
+  res = f_open(&file, FILE_NAME, FA_READ);
+  if (res == FR_OK)
+  {
+    // 读取文件内容（预留1字节给结束符）
+    res = f_read(&file, read_buf, sizeof(read_buf) - 1, &bytes_read);
+
+    // 关闭文件
+    f_close(&file);
+  }
+
+  return res;
+}
 /* USER CODE END 0 */
 
 /**
@@ -96,12 +162,23 @@ int main(void)
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 	HAL_Delay(100);
-	
-	u8g2_init(&disp);
+
+  FRESULT res;
+  res = fatfs_init();
+  res = fatfs_rw_test();
+
+  u8g2_init(&disp);
 	u8g2_SetFont(&disp, u8g2_font_wqy13_t_gb2312a); 
 	u8g2_ClearBuffer(&disp);
 	u8g2_DrawUTF8(&disp, 30, 15, "HelloHOPE");
-	u8g2_SendBuffer(&disp);
+	
+  if(res == FR_OK)
+  {
+    u8g2_DrawUTF8(&disp, 30, 30, "FatFs OK!");
+  }
+  
+  u8g2_SendBuffer(&disp);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
