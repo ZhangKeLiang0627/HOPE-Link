@@ -40,7 +40,7 @@
 #define FILE_NAME "HOPE.txt"         // 测试文件名
 #define FILE_CONTENT "Hello, FATFS!" // 测试写入内容
 #define WORK_BUFFER_SIZE 4096        // mkfs 工作缓冲区大小
-#define READ_BUF_SIZE 100            // 读文件缓冲区大小
+#define READ_BUF_SIZE 16            // 读文件缓冲区大小
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -84,12 +84,13 @@ static FRESULT fatfs_init(void)
   return res;
 }
 
+char read_buf[READ_BUF_SIZE] = {0};
+
 static FRESULT fatfs_rw_test(void)
 {
   FRESULT res;
   UINT bytes_written = 0;
   UINT bytes_read = 0;
-  char read_buf[READ_BUF_SIZE] = {0};
   size_t content_len = strlen(FILE_CONTENT);
 
   // 1. 打开/创建文件并写入数据
@@ -175,6 +176,7 @@ int main(void)
   if(res == FR_OK)
   {
     u8g2_DrawUTF8(&disp, 30, 30, "FatFs OK!");
+    u8g2_DrawUTF8(&disp, 30, 45, read_buf);
   }
   
   u8g2_SendBuffer(&disp);
