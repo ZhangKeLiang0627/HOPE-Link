@@ -2,9 +2,12 @@
 CAD.formats=
 CAD.pinconfig=
 CAD.provider=
-FATFS.IPParameters=_MAX_SS,_MIN_SS
+FATFS.IPParameters=_MAX_SS,_MIN_SS,_CODE_PAGE,_USE_LFN,_FS_EXFAT
+FATFS._CODE_PAGE=936
+FATFS._FS_EXFAT=1
 FATFS._MAX_SS=4096
 FATFS._MIN_SS=4096
+FATFS._USE_LFN=2
 File.Version=6
 GPIO.groupedBy=Group By Peripherals
 I2C1.I2C_Mode=I2C_Fast

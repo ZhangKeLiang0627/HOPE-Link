@@ -44,9 +44,7 @@
 /* Private define ------------------------------------------------------------*/
 #define USER_PAGE_SIZE        256
 #define USER_SECTOR_SIZE      4096
-#define USER_SECTOR_COUNT     256 * 16
-#define USER_BLOCK_SIZE       16
-// #define USER_FLASH_PAGES_PER_SECTOR USER_SECTOR_SIZE / USER_PAGE_SIZE
+#define USER_SECTOR_COUNT     4096
 /* Private variables ---------------------------------------------------------*/
 /* Disk status */
 static volatile DSTATUS Stat = STA_NOINIT;
@@ -189,7 +187,7 @@ DRESULT USER_ioctl (
         *(DWORD *)buff = USER_SECTOR_SIZE;
         break;
       case GET_BLOCK_SIZE:
-        *(DWORD *)buff = USER_BLOCK_SIZE;
+        *(DWORD *)buff = 65536; 
         break;
       default: 
         res = RES_PARERR; 

@@ -152,7 +152,7 @@ int main(void)
   MX_FATFS_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-	HAL_Delay(10);
+	HAL_Delay(3000); // give USB_DEVICE some times
 
   FRESULT res;
   // res = fatfs_init();

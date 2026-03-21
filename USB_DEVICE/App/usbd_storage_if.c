@@ -35,7 +35,7 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 #define USER_STORAGE_LUN_NBR 1
-#define USER_STORAGE_BLK_NBR 256 * 16
+#define USER_STORAGE_BLK_NBR 4096
 #define USER_STORAGE_BLK_SIZ 4096
 /* USER CODE END PV */
 
