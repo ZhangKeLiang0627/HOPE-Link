@@ -1,5 +1,6 @@
 #include "common_inc.h"
 #include "oled_wrapper.h"
+#include "interface_uart.h"
 
 /* Thread Definitions -----------------------------------------------------*/
 
@@ -21,6 +22,8 @@ void Main(void)
 
     while (true)
     {
-
+        uint8_t ch[32] = "this is HOPE-Link speaking!\n";
+        Usart_SendString(&huart1, ch);
+        HAL_Delay(5000); // give USB_DEVICE some times
     }
 }

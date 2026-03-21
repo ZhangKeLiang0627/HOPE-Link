@@ -8,6 +8,7 @@
 extern "C" {
 #endif
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "main.h"
 #include "usb_device.h"

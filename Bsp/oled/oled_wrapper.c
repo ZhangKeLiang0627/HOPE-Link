@@ -7,12 +7,12 @@ void oledInit(void)
     u8g2_init(&u8g2);
 }
 
-void oledDrawStr(uint16_t x, uint16_t y, char *str)
+void oledDrawStr(uint16_t x, uint16_t y, const char *str)
 {
     u8g2_DrawStr(&u8g2, x, y, str);
 }
 
-void oledDrawUTF8(uint16_t x, uint16_t y, char *str)
+void oledDrawUTF8(uint16_t x, uint16_t y, const char *str)
 {
     u8g2_DrawUTF8(&u8g2, x, y, str);
 }

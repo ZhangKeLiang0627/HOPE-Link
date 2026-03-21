@@ -16,8 +16,8 @@ extern "C"
 
 /* API -----------------------------------------------------*/
 void oledInit(void);
-void oledDrawStr(uint16_t x, uint16_t y, char *str);
-void oledDrawUTF8(uint16_t x, uint16_t y, char *str);
+void oledDrawStr(uint16_t x, uint16_t y, const char *str);
+void oledDrawUTF8(uint16_t x, uint16_t y, const char *str);
 void oledDrawFloat(uint16_t x, uint16_t y, float dat, uint8_t num, uint8_t pointNum);
 void oledDrawNum(uint16_t x, uint16_t y, uint16_t dat);
 void oledDrawPoint(uint16_t x, uint16_t y);
