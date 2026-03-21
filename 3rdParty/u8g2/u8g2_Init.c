@@ -11,10 +11,12 @@
 extern I2C_HandleTypeDef hi2c1;
 
 /* SPI Interface */
-// SPI_HandleTypeDef *U8G2_SPI_HANDLE;
+SPI_HandleTypeDef *U8G2_SPI_HANDLE;
 
 /* I2C Interface */
 I2C_HandleTypeDef *U8G2_I2C_HANDLE;
+
+u8g2_t u8g2;
 
 uint8_t u8x8_stm32_gpio_and_delay(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
 {

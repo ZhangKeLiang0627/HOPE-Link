@@ -26,6 +26,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "common_inc.h"
 #include "u8g2_init.h"
 #include "w25qxx.h"
 /* USER CODE END Includes */
@@ -37,10 +38,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define FILE_NAME "yes.txt"        
-#define FILE_CONTENT "Hello, FATFS!" 
-#define WORK_BUFFER_SIZE 4096       
-#define READ_BUF_SIZE 16          
+   
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -51,8 +49,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-u8g2_t disp;
-FIL file;        
+uint64_t serialNumber;
+char serialNumberStr[13];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -63,60 +61,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static FRESULT fatfs_init(void)
-{
-  FRESULT res;
-  BYTE buff[4096];
 
-  res = f_mount(&USERFatFS, "0:", 1);
-  if (res != FR_OK)
-  {
-    res = f_mkfs("0:", FM_FAT, 0, buff, sizeof(buff));
-    if (res == FR_OK)
-    {
-      res = f_mount(&USERFatFS, "0:", 1);
-    }
-  }
-
-  return res;
-}
-
-char read_buf[READ_BUF_SIZE] = {0};
-
-static FRESULT fatfs_rw_test(void)
-{
-  FRESULT res;
-  UINT bytes_written = 0;
-  UINT bytes_read = 0;
-  size_t content_len = strlen(FILE_CONTENT);
-
-  res = f_open(&file, FILE_NAME, FA_CREATE_ALWAYS | FA_WRITE);
-  if (res == FR_OK)
-  {
-    res = f_write(&file, FILE_CONTENT, content_len, &bytes_written);
-
-    f_close(&file);
-
-    if (res != FR_OK)
-    {
-      return res;
-    }
-  }
-  else
-  {
-    return res;
-  }
-
-  res = f_open(&file, FILE_NAME, FA_READ);
-  if (res == FR_OK)
-  {
-    res = f_read(&file, read_buf, sizeof(read_buf) - 1, &bytes_read);
-
-    f_close(&file);
-  }
-
-  return res;
-}
 /* USER CODE END 0 */
 
 /**
@@ -126,6 +71,23 @@ static FRESULT fatfs_rw_test(void)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+
+  // This procedure of building a USB serial number should be identical
+  // to the way the STM's built-in USB bootloader does it. This means
+  // that the device will have the same serial number in normal and DFU mode.
+  uint32_t uuid0 = *(uint32_t *)(UID_BASE + 0);
+  uint32_t uuid1 = *(uint32_t *)(UID_BASE + 4);
+  uint32_t uuid2 = *(uint32_t *)(UID_BASE + 8);
+  uint32_t uuid_mixed_part = uuid0 + uuid2;
+  serialNumber = ((uint64_t)uuid_mixed_part << 16) | (uint64_t)(uuid1 >> 16);
+
+  uint64_t val = serialNumber;
+  for (size_t i = 0; i < 12; ++i)
+  {
+    serialNumberStr[i] = "0123456789ABCDEF"[(val >> (48 - 4)) & 0xf];
+    val <<= 4;
+  }
+  serialNumberStr[12] = 0;
 
   /* USER CODE END 1 */
 
@@ -152,25 +114,10 @@ int main(void)
   MX_FATFS_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-	HAL_Delay(3000); // give USB_DEVICE some times
 
-  FRESULT res;
-  // res = fatfs_init();
-  res = fatfs_rw_test();
-
-  u8g2_init(&disp);
-	u8g2_SetFont(&disp, u8g2_font_wqy13_t_gb2312a); 
-	u8g2_ClearBuffer(&disp);
-	u8g2_DrawUTF8(&disp, 30, 15, "HelloHOPE");
-	
-  if(res == FR_OK)
-  {
-    u8g2_DrawUTF8(&disp, 30, 30, "FatFs OK!");
-    u8g2_DrawUTF8(&disp, 30, 45, read_buf);
-  }
+  // Invoke cpp-version main().
+  Main();
   
-  u8g2_SendBuffer(&disp);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
