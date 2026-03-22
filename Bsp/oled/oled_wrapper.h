@@ -14,7 +14,7 @@ extern "C"
 #define OLED_SCREEN_WIDTH  128
 #define OLED_SCREEN_HEIGHT 64
 
-/* API -----------------------------------------------------*/
+/* API ------------------------------------------------------------------------*/
 void oledInit(void);
 void oledDrawStr(uint16_t x, uint16_t y, const char *str);
 void oledDrawUTF8(uint16_t x, uint16_t y, const char *str);

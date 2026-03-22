@@ -10,7 +10,7 @@
 using namespace HugoUI;
 
 /* 全局变量 ----------------------------------------------------------- */
-std::string HugoUIVersion = "v2.2.3";
+std::string HugoUIVersion = "v3.0.0";
 
 // 页面和Item列表
 std::vector<Page::Ptr> pages;
