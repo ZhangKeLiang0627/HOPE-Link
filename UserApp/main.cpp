@@ -2,11 +2,25 @@
 #include "oled_wrapper.h"
 #include "interface_uart.h"
 
+
+// 5 User-Timers, can choose from htim1/htim2/htim4/htim10/htim11
+Timer timerCtrlLoop(&htim4, 200);
+
 /* Thread Definitions -----------------------------------------------------*/
 
 
 /* Timer Callbacks -------------------------------------------------------*/
+void OnTimer4Callback()
+{
 
+    static uint8_t tempNum = 0;
+    tempNum ++;
+
+    oledClearBuffer();
+    oledDrawUTF8(30, 15, "HelloHOPE");
+    oledDrawNum(30, 30, tempNum);
+    oledSendBuffer();
+}
 
 /* Default Entry -------------------------------------------------------*/
 void Main(void)
@@ -20,10 +34,14 @@ void Main(void)
     oledDrawUTF8(30, 15, "HelloHOPE");
     oledSendBuffer();
 
+    // Start Timer Callbacks.
+    timerCtrlLoop.SetCallback(OnTimer4Callback);
+    timerCtrlLoop.Start();
+
     while (true)
     {
-        uint8_t ch[32] = "this is HOPE-Link speaking!\n";
-        Usart_SendString(&huart1, ch);
+        // uint8_t ch[32] = "this is HOPE-Link speaking!\n";
+        // Usart_SendString(&huart1, ch);
         HAL_Delay(5000); // give USB_DEVICE some times
     }
 }

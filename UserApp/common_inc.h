@@ -12,6 +12,7 @@ extern "C" {
 
 #include "main.h"
 #include "usb_device.h"
+#include "CommonMacro.h"
 
     void Main(void);
 
@@ -23,7 +24,7 @@ extern "C" {
 }
 
 /*---------------------------- C++ Scope ---------------------------*/
-
+#include "timer.hpp"
 
 
 #endif
