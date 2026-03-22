@@ -44,4 +44,5 @@ void Main(void)
         // uint8_t ch[32] = "this is HOPE-Link speaking!\n";
         // Usart_SendString(&huart1, ch);
         HAL_Delay(5000);
+		}
 }
