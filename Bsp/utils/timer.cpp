@@ -4,17 +4,17 @@ static TimerCallback_t timerCallbacks[5];
 
 Timer::Timer(TIM_HandleTypeDef *_htim, uint32_t _freqHz)
 {
-    htim7.Instance = TIM7;
+    htim1.Instance = TIM1;
+    htim2.Instance = TIM2;
+    htim4.Instance = TIM4;
     htim10.Instance = TIM10;
     htim11.Instance = TIM11;
-    htim13.Instance = TIM13;
-    htim14.Instance = TIM14;
 
-    if (!(_htim->Instance == TIM7 ||
+    if (!(_htim->Instance == TIM1 ||
+          _htim->Instance == TIM2 ||
+          _htim->Instance == TIM4 ||
           _htim->Instance == TIM10 ||
-          _htim->Instance == TIM11 ||
-          _htim->Instance == TIM13 ||
-          _htim->Instance == TIM14))
+          _htim->Instance == TIM11))
     {
         Error_Handler();
     }
@@ -55,33 +55,34 @@ void Timer::CalcRegister(uint32_t _freq)
         arr = 84000000.0f / psc / (float) _freq;
     } while (arr > 65535);
 
-    if (htim->Instance == TIM7 || htim->Instance == TIM13 || htim->Instance == TIM14) // APB1 @84MHz
+    if (htim->Instance == TIM1 || htim->Instance == TIM2 || htim->Instance == TIM4 || htim->Instance == TIM10 || htim->Instance == TIM11) // APB1 @84MHz // APB2 @84MHz
     {
         PSC = (uint16_t) round((double) psc);
         ARR = (uint16_t) (84000000.0f / (float) _freq / psc);
-    } else if (htim->Instance == TIM10 || htim->Instance == TIM11) // APB2 @168MHz
-    {
-        PSC = (uint16_t) round((double) psc) * 2;
-        ARR = (uint16_t) (84000000.0f / (float) _freq / psc);
-    }
+    } 
+    // else if (htim->Instance == TIM10 || htim->Instance == TIM11) // APB2 @168MHz
+    // {
+    //     PSC = (uint16_t) round((double) psc) * 2;
+    //     ARR = (uint16_t) (84000000.0f / (float) _freq / psc);
+    // }
 }
 
 
 void Timer::SetCallback(TimerCallback_t _timerCallback)
 {
-    if (htim->Instance == TIM7)
+    if (htim->Instance == TIM1)
     {
         timerCallbacks[0] = _timerCallback;
-    } else if (htim->Instance == TIM10)
+    } else if (htim->Instance == TIM2)
     {
         timerCallbacks[1] = _timerCallback;
-    } else if (htim->Instance == TIM11)
+    } else if (htim->Instance == TIM4)
     {
         timerCallbacks[2] = _timerCallback;
-    } else if (htim->Instance == TIM13)
+    } else if (htim->Instance == TIM10)
     {
         timerCallbacks[3] = _timerCallback;
-    } else if (htim->Instance == TIM14)
+    } else if (htim->Instance == TIM11)
     {
         timerCallbacks[4] = _timerCallback;
     }
@@ -91,19 +92,19 @@ void Timer::SetCallback(TimerCallback_t _timerCallback)
 extern "C"
 void OnTimerCallback(TIM_TypeDef *timInstance)
 {
-    if (timInstance == TIM7)
+    if (timInstance == TIM1)
     {
         timerCallbacks[0]();
-    } else if (timInstance == TIM10)
+    } else if (timInstance == TIM2)
     {
         timerCallbacks[1]();
-    } else if (timInstance == TIM11)
+    } else if (timInstance == TIM4)
     {
         timerCallbacks[2]();
-    } else if (timInstance == TIM13)
+    } else if (timInstance == TIM10)
     {
         timerCallbacks[3]();
-    } else if (timInstance == TIM14)
+    } else if (timInstance == TIM11)
     {
         timerCallbacks[4]();
     }

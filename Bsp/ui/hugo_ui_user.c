@@ -103,7 +103,7 @@ struct Slide_Bar Slide_space[] = {
 void HugoUI_InitLayout(void)
 {
     /* 注册 Page */
-    HugoUIPage_t *pageMain = AddPage(PAGE_CUSTOM, "pageMain");
+    HugoUIPage_t *pageMain = AddPage(PAGE_ICON, "pageMain");
     HugoUIPage_t *pageSetting = AddPage(PAGE_LIST, "pageSetting");
     HugoUIPage_t *pagePID = AddPage(PAGE_LIST, "pagePID");
     HugoUIPage_t *pageAnimation = AddPage(PAGE_LIST, "pageAnimation");

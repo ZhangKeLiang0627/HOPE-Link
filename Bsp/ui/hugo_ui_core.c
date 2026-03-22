@@ -393,7 +393,7 @@ HugoUIPage_t *AddPage(HugoUIPage_e mode, char *name)
  * @param  无
  * @retval 无
  */
-void HugoUI_TicksHandler(void)
+void HugoUI_TickInc(void)
 {
     page_timestamp++;
 }
@@ -886,51 +886,7 @@ void HugoUI_CommonEventProc(void)
     }
 }
 
-/* UI主控制函数 */
-/**
- * @brief HugoUI_Control
- * @brief 渲染当前Page
- * @param  none
- * @retval none
- */
-void HugoUI_Control(void)
-{
-    // if (HugoUI_ExecuteRate(&Rate60Hz))
-    if (1)
-    {
-        HugoUIClearBuffer(); // u8g2_ScreenClear
-
-        // 若当前Page没有开题图标化则使用普通文本list的模式进行渲染显示 || 开启了PageOnlyList（Page2List）标志位
-        if (currentPage->funcType == PAGE_LIST)
-        {
-            HugoUI_CommonListShow(currentPage, currentItem);
-        }
-        // 否则使用图形化模式渲染UI
-        // else if (currentPage->funcType == PAGE_CUSTOM && currentPage->PgaeUIShow == NULL)
-        else if (currentPage->funcType == PAGE_CUSTOM && currentPage->PageUIShow == NULL)
-        {
-            HugoUI_CommonIconShow(currentPage, currentItem);
-        }
-        else if (currentPage->funcType == PAGE_CUSTOM && currentPage->PageUIShow != NULL)
-        {
-            currentPage->PageUIShow(currentPage, currentItem);
-        }
-
-        HugoUISendBuffer(); // u8g2_ScreenRefresh
-    }
-
-    /* 执行当前页面的函数 */
-    if (currentPage->FuncCallBack != NULL)
-        currentPage->FuncCallBack();
-
-    /* Event */
-    if (currentPage->PageEventProc != NULL)
-        currentPage->PageEventProc();
-    else
-        HugoUI_CommonEventProc();
-}
-
-void HugoUI_System(void)
+void HugoUI_TaskHandler(void)
 {
     // Get ControlNum
     ui_Key_num = KeyNum;
@@ -978,6 +934,42 @@ void HugoUI_System(void)
     }
     else
     {
-        HugoUI_Control();
+        // Page Render
+        // if (HugoUI_ExecuteRate(&Rate60Hz))
+        if (1)
+        {
+            HugoUIClearBuffer(); // u8g2_ScreenClear
+
+            // 若当前Page没有开题图标化则使用普通文本list的模式进行渲染显示 || 开启了PageOnlyList（Page2List）标志位
+            if (currentPage->funcType == PAGE_LIST)
+            {
+                HugoUI_CommonListShow(currentPage, currentItem);
+            }
+            // 否则使用图形化模式渲染UI
+            else if (currentPage->funcType == PAGE_ICON)
+            {
+                HugoUI_CommonIconShow(currentPage, currentItem);
+            }
+            else if (currentPage->funcType == PAGE_CUSTOM && currentPage->PageUIShow == NULL)
+            {
+                HugoUI_CommonListShow(currentPage, currentItem);
+            }
+            else if (currentPage->funcType == PAGE_CUSTOM && currentPage->PageUIShow != NULL)
+            {
+                currentPage->PageUIShow(currentPage, currentItem);
+            }
+
+            HugoUISendBuffer(); // u8g2_ScreenRefresh
+        }
+
+        /* 执行当前页面的函数 */
+        if (currentPage->FuncCallBack != NULL)
+            currentPage->FuncCallBack();
+
+        /* Event */
+        if (currentPage->PageEventProc != NULL)
+            currentPage->PageEventProc();
+        else
+            HugoUI_CommonEventProc();
     }
 }

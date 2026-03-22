@@ -95,6 +95,7 @@ typedef int32_t paramType; // 先使用int32_t
     typedef enum
     {
         PAGE_LIST,   // 该页是列表
+        PAGE_ICON, // 该页是ICON
         PAGE_CUSTOM, // 该页是定做的(icon)
     } HugoUIPage_e;
 
