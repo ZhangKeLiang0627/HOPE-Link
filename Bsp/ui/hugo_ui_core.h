@@ -16,20 +16,6 @@ extern "C"
 #define SCROLL_BAR_WIDTH 3
 
 /* USER_NEED_TO_FILL_THIESE_FUNCTION */
-#define HugoUIScreenInit() (OLED_Init())
-#define HugoUIDisplayStr(x, y, str) (Oled_u8g2_ShowStr(x, y, str))
-#define HugoUIDisplayFloat(x, y, dat, num, pointNum) (Oled_u8g2_ShowFloat(x, y, dat, num, pointNum))
-#define HugoUIDrawDot(x, y) (Oled_u8g2_DrawPoint(x, y))
-#define HugoUIDrawBox(x, y, width, height) (Oled_u8g2_DrawBox(x, y, width, height))
-#define HugoUIDrawFrame(x, y, width, height) (Oled_u8g2_DrawFrame(x, y, width, height))
-#define HugoUIDrawRFrame(x, y, width, height, r) (Oled_u8g2_DrawRFrame(x, y, width, height, r))
-#define HugoUIDrawRBox(x, y, width, height, r) (Oled_u8g2_DrawRBox(x, y, width, height, r))
-#define HugoUIClearBuffer() (Oled_u8g2_ClearBuffer())
-#define HugoUISendBuffer() (Oled_u8g2_SendBuffer())
-#define HugoUISetDrawColor(mode) (Oled_u8g2_SetDrawColor(mode))
-#define HugoUIDisplayBMP(x, y, width, height, pic) (Oled_u8g2_ShowBMP(x, y, width, height, pic))
-#define HugoUIModifyColor(mode) (Oled_u8g2_ModifyColor(mode))
-#define HugoUIShowUTF8(x, y, str) (Oled_u8g2_ShowUTF8(x, y, str))
 
 #define get_ticks() HAL_GetTick()
 #define delay(ms) HAL_Delay(ms)

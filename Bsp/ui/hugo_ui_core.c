@@ -120,16 +120,17 @@ uint8_t HugoUI_Animation_EasyIn(float *a, float *a_trg, uint16_t n)
 /**
  * @brief ui模糊转场效果
  * @param  none
- * @retval 1-未完成/0-已完成
+ * @return 1-未完成 / 0-已完成
  */
 uint8_t HugoUI_Animation_Blur(void)
 {
-    int len = 8 * Oled_u8g2_GetBufferTilHeight() * Oled_u8g2_GetBufferTileWidth();
-    uint8_t *p = Oled_u8g2_GetBufferPtr();
+    int len = 8 * oledGetBufferTilHeight() * oledGetBufferTileWidth();
+    uint8_t *p = oledGetBufferPtr();
     uint8_t return_flag = 0;
-    static uint8_t Blur_Effect_temp = 0; // UI模糊转场动效
 
-    if (Blur_Effect_temp >= 6)
+    static uint8_t blur_effect_temp = 0; // UI模糊转场动效
+
+    if (blur_effect_temp >= 6)
     {
         for (int i = 0; i < len; i++)
         {
@@ -137,7 +138,7 @@ uint8_t HugoUI_Animation_Blur(void)
                 p[i] = p[i] & (0x55);
         }
     }
-    if (Blur_Effect_temp >= 13)
+    if (blur_effect_temp >= 13)
     {
         for (int i = 0; i < len; i++)
         {
@@ -145,7 +146,7 @@ uint8_t HugoUI_Animation_Blur(void)
                 p[i] = p[i] & (0xaa);
         }
     }
-    if (Blur_Effect_temp >= 17)
+    if (blur_effect_temp >= 17)
     {
         for (int i = 0; i < len; i++)
         {
@@ -153,7 +154,7 @@ uint8_t HugoUI_Animation_Blur(void)
                 p[i] = p[i] & (0x00);
         }
     }
-    if (Blur_Effect_temp >= 20) // 这段可有可无了
+    if (blur_effect_temp >= 20) // 这段可有可无了
     {
         for (int i = 0; i < len; i++)
         {
@@ -161,11 +162,11 @@ uint8_t HugoUI_Animation_Blur(void)
                 p[i] = p[i] & (0x00);
         }
     }
-    Blur_Effect_temp += 1;
-    if (Blur_Effect_temp > 21)
+    blur_effect_temp += 1;
+    if (blur_effect_temp > 21)
     {
         return_flag = 1;
-        Blur_Effect_temp = 0;
+        blur_effect_temp = 0;
     }
     return return_flag ? 0 : 1;
 }
@@ -202,7 +203,6 @@ HugoUIItem_t *SetJumpId(uint8_t pageId, uint8_t itemLineId)
     pageTail->itemTail->JumpPage = pageId;
     pageTail->itemTail->JumpItem = itemLineId;
 
-    // printf("thisitemid:%d ", pageTail->itemTail->itemId);
     return pageTail->itemTail;
 }
 
@@ -250,8 +250,6 @@ HugoUIItem_t *AddItem(HugoUIPage_t *thisPage, char *title, HugoUIItem_e itemType
     ItemAdd->title = title;             // 给Item命名
     ItemAdd->funcType = itemType;       // 给Item赋予作用类型
     ItemAdd->inPage = thisPage->pageId; // 这个Item在哪一页
-    // ItemAdd->item_y = 0;
-    // ItemAdd->item_y_trg = 0;
 
     ItemAdd->SetIconSrc = SetIconSrc; // 初始化item的回调函数
     ItemAdd->SetDescripition = SetDescripition;
@@ -295,9 +293,6 @@ HugoUIItem_t *AddItem(HugoUIPage_t *thisPage, char *title, HugoUIItem_e itemType
         thisPage->itemTail->next = ItemAdd;
         thisPage->itemTail = thisPage->itemTail->next;
     }
-
-    // printf("thisitemIdInAddItem:%d    ", thisPage->itemTail->itemId);
-    // printf("thislineIdInAddItem:%d    ", thisPage->itemTail->lineId);
 
     va_list variableArg;             // 创建一个可变参数列表
     va_start(variableArg, itemType); // 把这个枚举赋值给可变参数列表
@@ -380,8 +375,6 @@ HugoUIPage_t *AddPage(HugoUIPage_e mode, char *name)
         pageTail = pageTail->next;
     }
 
-    // printf("thispageidInAddPage:%d    ", pageTail->pageId);
-
     /*返回Page结构体指针*/
     return pageAdd;
 }
@@ -439,12 +432,12 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
         // 绘制滑动条bar的分隔
         if (item->lineId % 2 == 0)
         {
-            Oled_u8g2_DrawLine(thispage->page_x + 125, thispage->page_y + item->lineId * ceil((float)SCREEN_HEIGHT / thispage->itemMax),
+            oled_draw_line(thispage->page_x + 125, thispage->page_y + item->lineId * ceil((float)SCREEN_HEIGHT / thispage->itemMax),
                                thispage->page_x + 127, thispage->page_y + item->lineId * ceil((float)SCREEN_HEIGHT / thispage->itemMax));
         }
         else
         {
-            Oled_u8g2_DrawLine(thispage->page_x + 125, thispage->page_y + item->lineId * ceil((float)SCREEN_HEIGHT / thispage->itemMax),
+            oled_draw_line(thispage->page_x + 125, thispage->page_y + item->lineId * ceil((float)SCREEN_HEIGHT / thispage->itemMax),
                                thispage->page_x + 126, thispage->page_y + item->lineId * ceil((float)SCREEN_HEIGHT / thispage->itemMax));
         }
 
@@ -455,7 +448,7 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
         Item_y = FONT_HEIGHT - 1 + thispage->page_y + item->lineId * FONT_HEIGHT + thispage->page_y_forlist;
         switch (item->funcType)
         {
-        // 此页的描述
+        // 描述
         case ITEM_DESCRIPTION: // 12是调整距离 // 这底下加的统统都是根据情况微调
             oled_draw_str(2 + Item_x, Item_y, "-");
             oled_draw_str(2 + 9 + Item_x, Item_y, item->title);
@@ -495,7 +488,7 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
             oled_draw_str(2 + Item_x, Item_y, "-");
             oled_draw_str(2 + 9 + Item_x, Item_y, item->title);
 
-            // 摆放 on/off的位置
+            // 摆放 on/off 的位置
             oled_draw_str(SCREEN_WIDTH - FONT_WIDTH * 3 + Item_x, Item_y, *item->flag == true ? "On" : "Off");
 
             break;
@@ -532,7 +525,7 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
     oled_set_draw_color(1);
 
     // 绘制滑动条slidbar
-    Oled_u8g2_DrawLine(thispage->page_x + 126, thispage->page_y, thispage->page_x + 126, thispage->page_y + SCREEN_HEIGHT);
+    oled_draw_line(thispage->page_x + 126, thispage->page_y, thispage->page_x + 126, thispage->page_y + SCREEN_HEIGHT);
     // 绘制滑动条里的会滚动的box
     oled_draw_box(thispage->page_x + 125, thispage->page_y + slidbar_y, thispage->page_x + 3, ceil((float)SCREEN_HEIGHT / thispage->itemMax));
 
@@ -563,7 +556,7 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
         if (ui_select == 0)
             frame_y_trg = 0; // 复位
 
-        frame_width_trg = Oled_u8g2_Get_UTF8_ASCII_PixLen(thisitem->title) + FONT_WIDTH;
+        frame_width_trg = oled_get_UTF8_width(thisitem->title) + FONT_WIDTH;
 
         // slidbar的滚动
         slidbar_y_trg = ui_select * ceil((float)SCREEN_HEIGHT / thispage->itemMax);
@@ -571,8 +564,8 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
         ui_state = STATE_NONE;
         break;
     }
-    case STATE_RUN_PAGE_UP: // ui 该page向上滚动
-
+    case STATE_RUN_PAGE_UP: 
+    {
         // textlist的滚动
         if (frame_y_trg == 0)
             thispage->page_y_forlist_trg = -ui_select * FONT_HEIGHT;
@@ -591,8 +584,9 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
 
         ui_state = STATE_NONE;
         break;
-
-    case STATE_READY_TO_JUMP_PAGE: // ui 准备跳转页面
+    }
+    case STATE_READY_TO_JUMP_PAGE: 
+    {
         // 设置page的位置
         thispage->page_x_trg = 0;
         thispage->page_x = 100;
@@ -621,8 +615,9 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
         ui_state = STATE_JUMP_PAGE;
 
         break;
-
-    case STATE_JUMP_PAGE: // 目前发现只显示当前页最流畅 // ui 正在跳转页面
+    }
+    case STATE_JUMP_PAGE: 
+    {
         if (HugoUI_Animation_EasyOut(&thispage->page_x, &thispage->page_x_trg, 85) == 0)
         {
             jumpPage_flag |= 0xff;
@@ -635,17 +630,22 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
         }
 
         break;
-
-    case STATE_JUMP_PAGE_ARRIVE: // ui跳转页面完成
+    }   
+    case STATE_JUMP_PAGE_ARRIVE: 
+    {
         frame_y_trg = (ui_select % (SCREEN_HEIGHT / 16)) * FONT_HEIGHT;
         frame_width_trg = Oled_u8g2_Get_UTF8_ASCII_PixLen(thisitem->title) + FONT_WIDTH;
         slidbar_y_trg = ui_select * ceil((float)SCREEN_HEIGHT / thispage->itemMax);
 
         ui_state = STATE_NONE;
         break;
+    }
 
     default:
+    {
+        ui_state = STATE_NONE;
         break;
+    }
     }
 }
 
@@ -653,18 +653,17 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
 void HugoUI_CommonIconShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
 {
     // 计算缓动动画
-    if (*Switch_space[SwitchSpace_SmoothAnimation]) // 缓动动画标志位 放在了HugoUI_User.c中(in HugoUI_User.c)
+    // if (*Switch_space[SwitchSpace_SmoothAnimation]) // 缓动动画标志位 放在了HugoUI_User.c中(in HugoUI_User.c)
+    if (1)
     {
-        HugoUI_Animation_Linear(&thispage->page_x, &thispage->page_x_trg, *Slide_space[Slide_space_Page_x_foricon_speed].val);
-        // HugoUI_Animation_Linear(&frame_y, &frame_y_trg, *Slide_space[Slide_space_Fre_y_speed].val);
-        HugoUI_Animation_Linear(&frame_x, &frame_x_trg, *Slide_space[Slide_space_Fre_x_speed].val);
+        HugoUI_Animation_Linear(&thispage->page_x, &thispage->page_x_trg, 65);
+        HugoUI_Animation_Linear(&frame_x, &frame_x_trg, 65);
         HugoUI_Animation_Linear(&icon_move_x, &icon_move_x_trg, 75);
         HugoUI_Animation_Linear(&icon_rectangle_x, &icon_rectangle_x_trg, 65);
     }
     else // 缓动动画标志位为False则没有缓动效果
     {
         thispage->page_x = thispage->page_x_trg;
-        // frame_y = frame_y_trg;
         frame_x = frame_x_trg;
         icon_move_x = icon_move_x_trg;
         icon_rectangle_x = icon_rectangle_x_trg;
@@ -673,7 +672,7 @@ void HugoUI_CommonIconShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
     int16_t Item_y = thispage->page_y;
     int16_t Item_x;
 
-    Oled_u8g2_SetBitmapMode(1);
+    oledSetBitmapMode(1);
     for (HugoUIItem_t *item = thispage->itemHead; (item->lineId < thispage->itemMax) && (item->inPage == thispage->pageId); item = item->next)
     {
         // no need to draw at all if we're offscreen
@@ -682,14 +681,13 @@ void HugoUI_CommonIconShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
 
         Item_x = 48 + thispage->page_x + icon_move_x * item->lineId;
 
-        oled_draw_bMP(Item_x, Item_y, 32, 32, item->pic);
+        oledDrawBMP(Item_x, Item_y, 32, 32, item->pic);
     }
-    Oled_u8g2_SetBitmapMode(0);
+    oledSetBitmapMode(0);
 
-    Oled_u8g2_SetFont(u8g2_font_luBS14_tr);
-    oled_draw_str((128 - Oled_u8g2_Get_UTF8_ASCII_PixLen(thisitem->title)) / 2,
-                     Item_y + SCREEN_HEIGHT / 2 + 22 + (FONT_HEIGHT - icon_rectangle_x), thisitem->title); // 居中显示项目名
-    Oled_u8g2_SetFont(u8g2_font_wqy13_t_gb2312a);
+    oled_set_font(u8g2_font_luBS14_tr);
+    oled_draw_str((128 - oled_get_UTF8_width(thisitem->title)) / 2, Item_y + SCREEN_HEIGHT / 2 + 22 + (FONT_HEIGHT - icon_rectangle_x), thisitem->title); // 居中显示项目名
+    oled_set_font(u8g2_font_wqy13_t_gb2312a);
 
     oled_set_draw_color(2);
     // 绘制frameBox选择框
@@ -701,11 +699,12 @@ void HugoUI_CommonIconShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
     // 项目滚动处理
     switch (ui_state)
     {
-    case STATE_NONE: // ui无状态
-
+    case STATE_NONE: 
+    {
         break;
-
-    case STATE_RUN_PAGE_DOWN: // ui该page向下滚动
+    }
+    case STATE_RUN_PAGE_DOWN: 
+    {
         // 判断该往下滚动多少
         thispage->page_x_trg = -(ui_select * 48); // 修改ICON的x位移
         frame_x -= 24;                            // frameBox的动效
@@ -719,8 +718,9 @@ void HugoUI_CommonIconShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
 
         ui_state = STATE_NONE;
         break;
-
-    case STATE_RUN_PAGE_UP: // ui 该page向上滚动
+    }
+    case STATE_RUN_PAGE_UP: 
+    {
         // 判断该往上滚动多少
         thispage->page_x_trg = -(ui_select * 48);
         frame_x += 24;
@@ -729,8 +729,9 @@ void HugoUI_CommonIconShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
 
         ui_state = STATE_NONE;
         break;
-
-    case STATE_READY_TO_JUMP_PAGE: // ui 准备跳转页面
+    }
+    case STATE_READY_TO_JUMP_PAGE: 
+    {
         // 设置page的位置
         thispage->page_y_trg = 0;
         thispage->page_y = 40;
@@ -744,9 +745,9 @@ void HugoUI_CommonIconShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
 
         ui_state = STATE_JUMP_PAGE;
         break;
-
-    case STATE_JUMP_PAGE: // 目前发现只显示当前页最流畅 // ui 正在跳转页面
-
+    }
+    case STATE_JUMP_PAGE: 
+    {
         if (HugoUI_Animation_EasyIn(&thispage->page_y, &thispage->page_y_trg, 75) == 0)
         {
             jumpPage_flag |= 0xff;
@@ -759,15 +760,19 @@ void HugoUI_CommonIconShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
         }
 
         break;
-
+    }
     case STATE_JUMP_PAGE_ARRIVE: // ui跳转页面完成
-
+    {
         thispage->page_x_trg = -(ui_select * 48); // 修改ICON的x位移
-
         ui_state = STATE_NONE;
         break;
+    }
+
     default:
+    {
+        ui_state = STATE_NONE;
         break;
+    }
     }
 }
 
@@ -776,17 +781,17 @@ void HugoUI_CommonEventProc(void)
     if (ui_state == STATE_NONE)
     {
         /* 设置按键操作 */
-        if (ui_Encoder_num == 2)
+        if (ui_Encoder_num == 2) // Enocder go down
         {
             if (ChangeVal_flag) // 如果改变值标志位开启
             {
-                *currentItem->param += Slide_space[findParam_forChangeVal(currentItem->param)].step;
-                // 限制param大小
-                if (*currentItem->param >= Slide_space[findParam_forChangeVal(currentItem->param)].max)
-                    *currentItem->param = Slide_space[findParam_forChangeVal(currentItem->param)].max;
-                // 执行当前Item的cb函数
-                if (currentItem->FuncCallBack != NULL)
-                    currentItem->FuncCallBack();
+                // *currentItem->param += Slide_space[findParam_forChangeVal(currentItem->param)].step;
+                // // 限制param大小
+                // if (*currentItem->param >= Slide_space[findParam_forChangeVal(currentItem->param)].max)
+                //     *currentItem->param = Slide_space[findParam_forChangeVal(currentItem->param)].max;
+                // // 执行当前Item的cb函数
+                // if (currentItem->FuncCallBack != NULL)
+                //     currentItem->FuncCallBack();
             }
             else
             {
@@ -794,20 +799,19 @@ void HugoUI_CommonEventProc(void)
                 ui_state = STATE_RUN_PAGE_DOWN;
                 if (ui_select > currentPage->itemTail->lineId)
                     ui_select = 0; // 回到currentPage的item头部
-                printf("Enocder Go\r\n");
             }
         }
-        else if (ui_Encoder_num == 1)
+        else if (ui_Encoder_num == 1) // Enocder go up
         {
             if (ChangeVal_flag) // 如果改变值标志位开启
             {
-                *currentItem->param -= Slide_space[findParam_forChangeVal(currentItem->param)].step;
-                // 限制param大小
-                if (*currentItem->param <= Slide_space[findParam_forChangeVal(currentItem->param)].min)
-                    *currentItem->param = Slide_space[findParam_forChangeVal(currentItem->param)].min;
-                // 执行当前Item的cb函数
-                if (currentItem->FuncCallBack != NULL)
-                    currentItem->FuncCallBack();
+                // *currentItem->param -= Slide_space[findParam_forChangeVal(currentItem->param)].step;
+                // // 限制param大小
+                // if (*currentItem->param <= Slide_space[findParam_forChangeVal(currentItem->param)].min)
+                //     *currentItem->param = Slide_space[findParam_forChangeVal(currentItem->param)].min;
+                // // 执行当前Item的cb函数
+                // if (currentItem->FuncCallBack != NULL)
+                //     currentItem->FuncCallBack();
             }
             else
             {
@@ -815,58 +819,62 @@ void HugoUI_CommonEventProc(void)
                 ui_state = STATE_RUN_PAGE_UP;
                 if (ui_select < 0)
                     ui_select = currentPage->itemTail->lineId; // 回到currentPage的item尾巴
-                printf("Enocder Back\r\n");
             }
         }
-        else if (ui_Key_num == 1)
+        else if (ui_Key_num == 1) // Key short clicked
         {
             switch (currentItem->funcType)
             {
             case ITEM_JUMP_PAGE:
+            {
                 // 页面跳转操作
                 ui_state = STATE_READY_TO_JUMP_PAGE; // 设置成准备跳转状态
                 ui_index = currentItem->JumpPage;
                 ui_select = currentItem->JumpItem;
                 // 保留上一页的信息
                 lastPage = currentPage;
-
                 // 设置跳转值(在switch(ui_state)的函数中完成)
                 break;
-
+            }
             case ITEM_CALL_FUNCTION:
+            {
+                // ready to jump into the item Callback
                 isItemFuncRunning = true;
                 break;
-
+            }
             case ITEM_CHECKBOX:
+            {
                 // 反转该item的flag
                 if (currentItem->flag != NULL)
                     *currentItem->flag = !*currentItem->flag;
                 // 执行该item的cb函数
                 if (currentItem->FuncCallBack != NULL)
                     currentItem->FuncCallBack();
-                break;
-
-            case ITEM_SWITCH:
-                // 反转该item的flag
-                if (currentItem->flag != NULL)
-                    *currentItem->flag = !*currentItem->flag;
-                // 执行该item的cb函数
-                if (currentItem->FuncCallBack != NULL)
-                    currentItem->FuncCallBack();
-                break;
-
-            case ITEM_CHANGE_VALUE:
-                // 反转ChangeVal_flag
-                ChangeVal_flag = !ChangeVal_flag;
-
-                break;
-
-            default:
                 break;
             }
-            printf("Key single press\r\n");
+            case ITEM_SWITCH:
+            {
+                // 反转该item的flag
+                if (currentItem->flag != NULL)
+                    *currentItem->flag = !*currentItem->flag;
+                // 执行该item的cb函数
+                if (currentItem->FuncCallBack != NULL)
+                    currentItem->FuncCallBack();
+                break;
+            }
+            case ITEM_CHANGE_VALUE:
+            {
+                // 反转ChangeVal_flag
+                ChangeVal_flag = !ChangeVal_flag;
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
         }
-        else if (ui_Key_num == 2)
+        else if (ui_Key_num == 2) // Key long press
         {
             // return Last_page or exit
             // 返回上一页面操作
@@ -881,7 +889,6 @@ void HugoUI_CommonEventProc(void)
 
                 ChangeVal_flag = 0; // 把改变值标志位置零 进行强制跳转 同时防止bug
             }
-            printf("Key long press\r\n");
         }
     }
 }
@@ -932,28 +939,19 @@ void HugoUI_TaskHandler(void)
     }
     else
     {
-        // Page UI Render
         // if (HugoUI_ExecuteRate(&Rate60Hz))
         if (1)
-        {
+        {   
+            // Page UI Render
             oled_clear_buffer();
-
-            // 若当前Page没有开题图标化则使用普通文本list的模式进行渲染显示 || 开启了PageOnlyList（Page2List）标志位
-            if (currentPage->funcType == PAGE_LIST)
-            {
+            
+            if (currentPage->funcType == PAGE_LIST) { // 若当前Page没有开题图标化则使用普通文本list的模式进行渲染显示 || 开启了PageOnlyList（Page2List）标志位
                 HugoUI_CommonListShow(currentPage, currentItem);
-            }
-            // 否则使用图形化模式渲染UI
-            else if (currentPage->funcType == PAGE_ICON)
-            {
+            } else if (currentPage->funcType == PAGE_ICON) { // 否则使用图形化模式渲染UI
                 HugoUI_CommonIconShow(currentPage, currentItem);
-            }
-            else if (currentPage->funcType == PAGE_CUSTOM && currentPage->PageUIShow == NULL)
-            {
+            } else if (currentPage->funcType == PAGE_CUSTOM && currentPage->PageUIShow == NULL) {
                 HugoUI_CommonListShow(currentPage, currentItem);
-            }
-            else if (currentPage->funcType == PAGE_CUSTOM && currentPage->PageUIShow != NULL)
-            {
+            } else if (currentPage->funcType == PAGE_CUSTOM && currentPage->PageUIShow != NULL) {
                 currentPage->PageUIShow(currentPage, currentItem);
             }
 
@@ -963,6 +961,10 @@ void HugoUI_TaskHandler(void)
         // Do current page's callback if it has
         if (currentPage->FuncCallBack != NULL)
             currentPage->FuncCallBack();
+        else
+        {
+            // do something...
+        }
 
         // Do current page's event if it has
         if (currentPage->PageEventProc != NULL)
