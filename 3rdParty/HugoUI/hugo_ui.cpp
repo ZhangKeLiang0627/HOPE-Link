@@ -63,7 +63,7 @@ static unsigned int uiTimestamp = 0; // UI渲染时间戳（ms）
  * @param n: 缓动系数
  * @retval 1-动画进行中，0-动画完成
  */
-uint8_t Animation_Linear(float *a, float *a_trg, uint8_t n)
+uint8_t HugoUI::Animation_Linear(float *a, float *a_trg, uint8_t n)
 {
     if (fabs(*a - *a_trg) < 0.001f) 
     {
@@ -82,7 +82,7 @@ uint8_t Animation_Linear(float *a, float *a_trg, uint8_t n)
 /**
  * @brief 缓出动画插值
  */
-uint8_t Animation_EasyOut(float *a, float *a_trg, uint16_t n)
+uint8_t HugoUI::Animation_EasyOut(float *a, float *a_trg, uint16_t n)
 {
     if (fabs(*a - *a_trg) < 0.001f)
     {
@@ -108,7 +108,7 @@ uint8_t Animation_EasyOut(float *a, float *a_trg, uint16_t n)
 /**
  * @brief 缓入动画插值
  */
-uint8_t Animation_EasyIn(float *a, float *a_trg, uint16_t n)
+uint8_t HugoUI::Animation_EasyIn(float *a, float *a_trg, uint16_t n)
 {
     if (fabs(*a - *a_trg) < 0.001f)
     {
@@ -134,7 +134,7 @@ uint8_t Animation_EasyIn(float *a, float *a_trg, uint16_t n)
 /**
  * @brief 模糊转场效果
  */
-uint8_t Animation_Blur(void)
+uint8_t HugoUI::Animation_Blur(void)
 {
     int len = 8 * oled_get_buffer_tile_height() * oled_get_buffer_tile_width();
     uint8_t *p = oled_get_buffer_ptr();
@@ -242,8 +242,8 @@ Item::Ptr Page::AddItem(const std::string& title, ItemType itemType, ...)
     switch (itemType)
     {
     case ItemType::JumpPage:
-        newItem->JumpPageId = va_arg(variableArg, uint8_t);
-        newItem->JumpItemLineId = va_arg(variableArg, uint8_t);
+        newItem->JumpPageId = static_cast<uint8_t>(va_arg(variableArg, int));
+        newItem->JumpItemLineId = static_cast<uint8_t>(va_arg(variableArg, int));
         break;
         
     case ItemType::Checkbox:
@@ -277,7 +277,7 @@ Item::Ptr Page::AddItem(const std::string& title, ItemType itemType, ...)
 /**
  * @brief 添加新页面
  */
-Page::Ptr AddPage(PageType mode, const std::string& name)
+Page::Ptr HugoUI::AddPage(PageType mode, const std::string& name)
 {
     if (name.empty())
         return nullptr;
@@ -517,7 +517,16 @@ void HugoUI::CommonListShow(Page* thispage, Item* thisitem)
     case State::JumpPage:
         if (Animation_EasyOut(&thispage->page_x, &thispage->page_x_trg, 85) == 0)
         {
-            jumpPage_flag |= 0xff;
+            jumpPage_flag |= 0x0f;
+        }
+
+        if((jumpPage_flag & 0xf0) != 0xf0)
+        {
+            oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            if(Animation_Blur() == 0)
+            {
+                jumpPage_flag |= 0xf0;
+            }
         }
 
         if (jumpPage_flag == 0xff)
@@ -645,7 +654,16 @@ void HugoUI::CommonIconShow(Page* thispage, Item* thisitem)
     case State::JumpPage:
         if (Animation_EasyIn(&thispage->page_y, &thispage->page_y_trg, 75) == 0)
         {
-            jumpPage_flag |= 0xff;
+            jumpPage_flag |= 0x0f;
+        }
+
+        if((jumpPage_flag & 0xf0) != 0xf0)
+        {
+            oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            if(Animation_Blur() == 0)
+            {
+                jumpPage_flag |= 0xf0;
+            }
         }
 
         if (jumpPage_flag == 0xff)
@@ -674,8 +692,7 @@ void HugoUI::CommonEventProc(void)
     if (uiState != State::None || !currentPage || !currentItem)
         return;
 
-    /* 编码器处理（修正逻辑：1=向下，-1=向上） */
-    if (uiEncoderNum > 0) // 向下
+    if (uiEncoderNum == 1) // 向下
     {
         if (ChangeVal_flag && currentItem->param)
         {
@@ -700,7 +717,7 @@ void HugoUI::CommonEventProc(void)
                 uiSelect = 0;
         }
     }
-    else if (uiEncoderNum < 0) // 向上
+    else if (uiEncoderNum == 2) // 向上
     {
         if (ChangeVal_flag && currentItem->param)
         {
@@ -819,7 +836,7 @@ void HugoUI::TaskHandler(void)
     else if (currentPage && currentItem)
     {
         // 60Hz刷新
-        if (ExecuteRate(&Rate60Hz))
+        if (true)
         {   
             oled_clear_buffer();
             

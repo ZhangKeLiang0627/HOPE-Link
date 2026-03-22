@@ -39,7 +39,7 @@ typedef int32_t     paramType;
 #define oled_draw_line(x1, y1, x2, y2) u8g2_DrawLine(&u8g2, x1, y1, x2, y2)
 #define oled_draw_H_dotted_line(x, y, l) u8g2_DrawHDottedLine(&u8g2, x, y, l)
 #define oled_draw_V_dotted_line(x, y, h) u8g2_DrawVDottedLine(&u8g2, x, y, h)
-#define oled_draw_bMP(x, y, w, h, bitMap) u8g2_DrawBMP(&u8g2, x, y, w, h, bitMap)
+#define oled_draw_bMP(x, y, w, h, bitMap) u8g2_DrawXBMP(&u8g2, x, y, w, h, bitMap)
 #define oled_set_draw_color(color) u8g2_SetDrawColor(&u8g2, color)
 #define oled_set_font_mode(mode) u8g2_SetFontMode(&u8g2, mode)
 #define oled_set_font_direction(dir) u8g2_SetFontDirection(&u8g2, dir)
@@ -207,14 +207,18 @@ void TaskHandler(void);
 void TickInc(void);
 uint8_t ExecuteRate(Rate *er);
 
-// 修复返回值类型：Page::Ptr 而非 PagePtr
 Page::Ptr AddPage(PageType mode, const std::string& name);
 
-// 修复动画函数声明（参数名/个数统一）
 uint8_t Animation_Linear(float *a, float *a_trg, uint8_t n);
 uint8_t Animation_EasyIn(float *a, float *a_trg, uint16_t n);
 uint8_t Animation_EasyOut(float *a, float *a_trg, uint16_t n);
 uint8_t Animation_Blur(void);
+
+void CommonListShow(Page* thispage, Item* thisitem);
+void CommonIconShow(Page* thispage, Item* thisitem);
+void CommonEventProc(void);
+
+
 
 } /* namespace HugoUI */
 
