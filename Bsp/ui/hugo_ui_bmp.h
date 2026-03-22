@@ -1,6 +1,6 @@
 #ifndef __HugoUI_BMP_H
 #define __HugoUI_BMP_H
-#include "stm32f4xx.h"                  // Device header
+#include "oled_wrapper.h"
 
 extern const uint8_t Setting_BMP[];
 extern const uint8_t Poet_BMP[];
