@@ -5,10 +5,9 @@
 #include <stdbool.h>
 #include <math.h>
 
-/* ---------- 关键变量存放区 ---------- */
-/* ---------- best not to change ---------- */
+/* 关键变量 ----------------------------------------------------------- */
 char *HugoUIVersion = "v2.2.3";
-/*定义指向Page结构体指针的头尾指针*/
+/* 定义指向Page结构体指针的头尾指针 */
 HugoUIPage_t *pageHead = NULL;
 HugoUIPage_t *pageTail = NULL;
 
@@ -26,7 +25,8 @@ static int16_t ui_index = 0, ui_select = 0, ui_state = STATE_NONE;
 static uint8_t jumpPage_flag = 0;
 static uint8_t ChangeVal_flag = 0;
 
-uint8_t ui_Key_num, ui_Encoder_num; // user可以将自己的实现函数的变量直接赋值给这两个Num
+/* 操控动作的关键变量 */
+uint8_t ui_key_num = 0, ui_encoder_num = 0; 
 
 float frame_y, frame_y_trg;
 float frame_x = 128.0f, frame_x_trg = 0.0f;
@@ -48,16 +48,19 @@ HugoUIRate_t Rate50Hz = {20, 0};
 HugoUIRate_t Rate100Hz = {10, 0};
 HugoUIRate_t Rate125Hz = {8, 0};
 HugoUIRate_t Rate1000Hz = {1, 0};
+static unsigned int ui_timestamp = 0; // UI渲染时间戳（mm）
 
-/* ---------- 动画函数 ---------- */
+/* 动画函数 ----------------------------------------------------------- */
+
 /**
- * @brief HugoUI_Effect实现滑动效果
+ * @brief HugoUI_Effect / 实现滑动效果
  * @param  *a			当前坐标
  * @param	*a_trg		目标坐标
  * @param 	step		运动速度
  * @param	n 	        减速
  * @retval
  */
+
 // 线性
 uint8_t HugoUI_Animation_Linear(float *a, float *a_trg, uint8_t n)
 {
@@ -95,6 +98,7 @@ uint8_t HugoUI_Animation_EasyOut(float *a, float *a_trg, uint16_t n)
     }
     return 1;
 }
+
 // 缓慢进入
 uint8_t HugoUI_Animation_EasyIn(float *a, float *a_trg, uint16_t n)
 {
@@ -191,6 +195,34 @@ uint8_t HugoUI_Animation_Blur(void)
 //     return 0;
 // }
 
+/* 关键函数 ----------------------------------------------------------- */
+
+/**
+ * @brief  提供页面时钟，每1毫秒调用一次
+ * @param  无
+ * @retval 无
+ */
+void HugoUI_TickInc(void)
+{
+    ui_timestamp++;
+}
+
+/**
+ * @brief  在页面循环中通过查询此函数的结果来获得指定的执行频率
+ * @param  执行频率相关的结构体指针
+ * @retval 无
+ */
+uint8_t HugoUI_ExecuteRate(HugoUIRate_t *er)
+{
+    if (ui_timestamp - er->last_timestamp >= er->executeT)
+    {
+        er->last_timestamp = ui_timestamp;
+        return 1;
+    }
+    else
+        return 0;
+}
+
 HugoUIItem_t *ReturnThisItem(HugoUIItem_t *thisItem)
 {
     thisItem = pageTail->itemTail;
@@ -212,12 +244,6 @@ HugoUIItem_t *SetIconSrc(const uint8_t *pic)
     return pageTail->itemTail;
 }
 
-HugoUIItem_t *SetDescripition(char *desc)
-{
-    pageTail->itemTail->desc = desc;
-    return pageTail->itemTail;
-}
-
 HugoUIPage_t *SetPageUIShow(void (*PageUIShow)(struct HugoUI_page *thispage, HugoUIItem_t *thisitem))
 {
     pageTail->PageUIShow = PageUIShow;
@@ -235,16 +261,17 @@ HugoUIPage_t *SetPgaeEventProc(void (*PageEventProc)(void))
     pageTail->PageEventProc = PageEventProc;
     return pageTail;
 }
+
 /**
- * @brief   HugoUI AddItem
- * @param   thisPage         把这个item要放在的page
- * @param   itemType         item的作用类型
- * @param   ...              根据item的作用类型来选填相应的参数
- * @return  void
+ * @brief   AddItem
+ * @param   thisPage         
+ * @param   itemType         
+ * @param   ...              
+ * @return  HugoUIItem_t *
  */
 HugoUIItem_t *AddItem(HugoUIPage_t *thisPage, char *title, HugoUIItem_e itemType, ...)
 {
-    /*初始化Item结构体，并分配内存*/
+    /* 初始化Item结构体，并分配内存 */
     HugoUIItem_t *ItemAdd = (HugoUIItem_t *)malloc(sizeof(HugoUIItem_t));
     ItemAdd->lineId = 0;
     ItemAdd->title = title;             // 给Item命名
@@ -252,7 +279,6 @@ HugoUIItem_t *AddItem(HugoUIPage_t *thisPage, char *title, HugoUIItem_e itemType
     ItemAdd->inPage = thisPage->pageId; // 这个Item在哪一页
 
     ItemAdd->SetIconSrc = SetIconSrc; // 初始化item的回调函数
-    ItemAdd->SetDescripition = SetDescripition;
     ItemAdd->ReturnThisItem = ReturnThisItem;
     ItemAdd->SetJumpId = NULL;
     ItemAdd->FuncCallBack = NULL;
@@ -261,8 +287,8 @@ HugoUIItem_t *AddItem(HugoUIPage_t *thisPage, char *title, HugoUIItem_e itemType
     /* 这个操作是为了在UI初始化函数中的item结构体回调函数连续指->->->做准备 */
     pageTail = thisPage;
 
-    /*给Item头指针赋值*/
-    /*生成所有item中的顺序itemid*/
+    /* 给Item头指针赋值 */
+    /* 生成所有item中的顺序 -> itemid */
     if (ItemHead == NULL)
     {
         ItemAdd->itemId = 0;
@@ -276,8 +302,8 @@ HugoUIItem_t *AddItem(HugoUIPage_t *thisPage, char *title, HugoUIItem_e itemType
         ItemTail = ItemTail->next;
     }
 
-    /*给thisPage的item头指针赋值*/
-    /*生成在thisPage中的item顺序lineid*/
+    /* 给thisPage的item头指针赋值 */
+    /* 生成在thisPage中的item顺序 -> lineid */
     if (thisPage->itemHead == NULL)
     {
         ItemAdd->lineId = 0;
@@ -326,14 +352,14 @@ HugoUIItem_t *AddItem(HugoUIPage_t *thisPage, char *title, HugoUIItem_e itemType
 }
 
 /**
- * @brief   HugoUI AddPage
- * @param   mode             List/Custom
+ * @brief   AddPage
+ * @param   mode             List / Icon / Custom / ...
  * @param   name             PageName
- * @return  HugoUIPage_t*    返回一个Page结构体指针
+ * @return  HugoUIPage_t*    
  */
 HugoUIPage_t *AddPage(HugoUIPage_e mode, char *name)
 {
-    /*初始化结构体,并分配内存*/
+    /* 初始化结构体,并分配内存 */
     HugoUIPage_t *pageAdd = (HugoUIPage_t *)malloc(sizeof(HugoUIPage_t));
 
     pageAdd->pageId = 0;
@@ -357,11 +383,12 @@ HugoUIPage_t *AddPage(HugoUIPage_e mode, char *name)
     pageAdd->itemTail = NULL;
     pageAdd->next = NULL;
 
-    /*给此page赋予功能和名字*/
+    /* 给此page赋予功能和名字 */
     pageAdd->funcType = mode;
     pageAdd->title = name;
 
-    /*给Page头指针赋值*/ /*生成在所有page中的顺序pageid*/
+    /* 给Page头指针赋值 */ 
+    /* 生成在所有page中的顺序 -> pageid */
     if (pageHead == NULL)
     {
         pageAdd->pageId = 0;
@@ -375,34 +402,8 @@ HugoUIPage_t *AddPage(HugoUIPage_e mode, char *name)
         pageTail = pageTail->next;
     }
 
-    /*返回Page结构体指针*/
+    /* 返回Page结构体指针 */
     return pageAdd;
-}
-
-/**
- * @brief  提供页面时钟，每1毫秒调用一次
- * @param  无
- * @retval 无
- */
-void HugoUI_TickInc(void)
-{
-    page_timestamp++;
-}
-
-/**
- * @brief  在页面循环中通过查询此函数的结果来获得指定的执行频率
- * @param  执行频率相关的结构体指针
- * @retval 无
- */
-uint8_t HugoUI_ExecuteRate(HugoUIRate_t *er)
-{
-    if (page_timestamp - er->last_timestamp >= er->executeT)
-    {
-        er->last_timestamp = page_timestamp;
-        return 1;
-    }
-    else
-        return 0;
 }
 
 // 通用List页面显示
@@ -536,7 +537,6 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
     {
         break;
     }
-
     case STATE_RUN_PAGE_DOWN:
     {
         // textlist的滚动
@@ -547,12 +547,10 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
 
         // framebox的滚动
         frame_y = frame_y_trg - FONT_HEIGHT * 1.5f;
-
         if (ui_select < SCREEN_HEIGHT / 16)
         {
             frame_y_trg += FONT_HEIGHT;
         }
-
         if (ui_select == 0)
             frame_y_trg = 0; // 复位
 
@@ -572,12 +570,10 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
 
         // framebox的滚动
         frame_y = frame_y_trg + FONT_HEIGHT * 1.5f;
-
         frame_y_trg -= FONT_HEIGHT;
         if (frame_y_trg <= 0)
             frame_y_trg = 0;
-
-        frame_width_trg = Oled_u8g2_Get_UTF8_ASCII_PixLen(thisitem->title) + FONT_WIDTH;
+        frame_width_trg = oled_get_UTF8_width(thisitem->title) + FONT_WIDTH;
 
         // slidbar的滚动
         slidbar_y_trg = ui_select * ceil((float)SCREEN_HEIGHT / thispage->itemMax);
@@ -591,10 +587,10 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
         thispage->page_x_trg = 0;
         thispage->page_x = 100;
 
-        // 设置frame的位置
+        // 设置framebox的位置
         frame_y = SCREEN_HEIGHT * 1.5f;
         frame_y_trg = (ui_select % (SCREEN_HEIGHT / 16)) * FONT_HEIGHT;
-        frame_width_trg = Oled_u8g2_Get_UTF8_ASCII_PixLen(thisitem->title) + FONT_WIDTH;
+        frame_width_trg = oled_get_UTF8_width(thisitem->title) + FONT_WIDTH;
 
         // 设置slidbar的位置
         slidbar_y = SCREEN_HEIGHT;
@@ -634,7 +630,7 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
     case STATE_JUMP_PAGE_ARRIVE: 
     {
         frame_y_trg = (ui_select % (SCREEN_HEIGHT / 16)) * FONT_HEIGHT;
-        frame_width_trg = Oled_u8g2_Get_UTF8_ASCII_PixLen(thisitem->title) + FONT_WIDTH;
+        frame_width_trg = oled_get_UTF8_width(thisitem->title) + FONT_WIDTH;
         slidbar_y_trg = ui_select * ceil((float)SCREEN_HEIGHT / thispage->itemMax);
 
         ui_state = STATE_NONE;
@@ -705,12 +701,10 @@ void HugoUI_CommonIconShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
     }
     case STATE_RUN_PAGE_DOWN: 
     {
-        // 判断该往下滚动多少
         thispage->page_x_trg = -(ui_select * 48); // 修改ICON的x位移
         frame_x -= 24;                            // frameBox的动效
 
         icon_rectangle_x = -4; // 复位icon_rectangle
-
         if (ui_select == 0)
         {
             icon_move_x = 0;
@@ -781,7 +775,7 @@ void HugoUI_CommonEventProc(void)
     if (ui_state == STATE_NONE)
     {
         /* 设置按键操作 */
-        if (ui_Encoder_num == 2) // Enocder go down
+        if (ui_encoder_num == 2) // Enocder go down
         {
             if (ChangeVal_flag) // 如果改变值标志位开启
             {
@@ -801,7 +795,7 @@ void HugoUI_CommonEventProc(void)
                     ui_select = 0; // 回到currentPage的item头部
             }
         }
-        else if (ui_Encoder_num == 1) // Enocder go up
+        else if (ui_encoder_num == 1) // Enocder go up
         {
             if (ChangeVal_flag) // 如果改变值标志位开启
             {
@@ -821,7 +815,7 @@ void HugoUI_CommonEventProc(void)
                     ui_select = currentPage->itemTail->lineId; // 回到currentPage的item尾巴
             }
         }
-        else if (ui_Key_num == 1) // Key short clicked
+        else if (ui_key_num == 1) // Key short clicked
         {
             switch (currentItem->funcType)
             {
@@ -874,7 +868,7 @@ void HugoUI_CommonEventProc(void)
             }
             }
         }
-        else if (ui_Key_num == 2) // Key long press
+        else if (ui_key_num == 2) // Key long press
         {
             // return Last_page or exit
             // 返回上一页面操作
@@ -896,8 +890,8 @@ void HugoUI_CommonEventProc(void)
 void HugoUI_TaskHandler(void)
 {
     // Get ControlNum
-    ui_Key_num = KeyNum;
-    ui_Encoder_num = EncoderNum;
+    ui_key_num = KeyNum;
+    ui_encoder_num = EncoderNum;
     KeyNum = 0;
     EncoderNum = 0;
 
@@ -932,7 +926,7 @@ void HugoUI_TaskHandler(void)
         else
             isItemFuncRunning = false; // If this item do not have callback, break!
 
-        if (ui_Key_num == 2)
+        if (ui_key_num == 2)
             isItemFuncRunning = false; // "Longpress" to break the item callback
 
         oled_send_buffer();
