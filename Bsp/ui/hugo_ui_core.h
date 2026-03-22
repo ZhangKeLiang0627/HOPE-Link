@@ -6,8 +6,6 @@ extern "C"
 {
 #endif
 
-/* User_Add */
-/*解决关键字不识别问题*/
 #include "oled_wrapper.h"
 
 /* 定义参数 */
@@ -63,63 +61,60 @@ extern "C"
 
 #ifdef FPU
     // typedef     double      paramType;
-    typedef float paramType; // 先使用float
+    typedef     float       paramType; 
 #else
-typedef int32_t paramType; // 先使用int32_t
+    typedef     int32_t     paramType;
 #endif
 
     /* UI_STATE 描述当前UI运行状态 */
     typedef enum
     {
-        STATE_NONE = 0,      // 当前无状态
-        STATE_RUN_PAGE_DOWN, // 当前正在运行菜单
-        STATE_RUN_PAGE_UP,
-        STATE_READY_TO_JUMP_PAGE, // 准备跳转状态 在此状态设置跳转参数
-        STATE_JUMP_PAGE,          // 当前进行页面跳转
-        STATE_JUMP_PAGE_ARRIVE,   // 当前页面跳转结束
+        STATE_NONE = 0,             // 当前页面无状态
+        STATE_RUN_PAGE_DOWN,        // 当前页面上滑（左滑）
+        STATE_RUN_PAGE_UP,          // 当前页面下滑（右滑）
+        STATE_READY_TO_JUMP_PAGE,   // 当前页面准备跳转（在此状态设置跳转参数）
+        STATE_JUMP_PAGE,            // 当前页面进行跳转
+        STATE_JUMP_PAGE_ARRIVE,     // 当前页面跳转结束（在此状态设置跳转结束参数）
     } HugoUIState_e;
 
-    /* Item的functype类型 */
+    /* UI_ITEM_TYPE 描述Item的functype类型 */
     typedef enum
     {
-        ITEM_PAGE_DESCRIPTION, // 此页的描述
-        ITEM_CALL_FUNCTION,    // 此挂件打开就是函数
-        ITEM_JUMP_PAGE,        // 跳转的下一页or上一页
-        ITEM_SWITCH,           // 开关on&off
-        ITEM_CHANGE_VALUE,     // 改变值
-        ITEM_CHECKBOX,
-        ITEM_MESSAGE,
+        ITEM_DESCRIPTION,       // 描述
+        ITEM_CALL_FUNCTION,     // 函数回调
+        ITEM_JUMP_PAGE,         // 页面跳转
+        ITEM_SWITCH,            // 开关
+        ITEM_CHANGE_VALUE,      // 改变值
+        ITEM_CHECKBOX,          // 勾选
+        ITEM_MESSAGE,           // 消息
     } HugoUIItem_e;
 
-    /* Page的functype类型 */
+    /* UI_PAGE_TYPE 描述Page的functype类型 */
     typedef enum
     {
-        PAGE_LIST,   // 该页是列表
-        PAGE_ICON, // 该页是ICON
-        PAGE_CUSTOM, // 该页是定做的(icon)
+        PAGE_LIST,          // 该页是列表
+        PAGE_ICON,          // 该页是ICON
+        PAGE_CUSTOM,        // 该页是定做
     } HugoUIPage_e;
 
     /* Item的结构体 */
-    typedef struct HugoUI_item // 小挂件的结构体
+    typedef struct HugoUI_item      
     {
         struct HugoUI_item *next;
-        HugoUIItem_e funcType; // 作用类型
-        uint16_t itemId;        // 小挂件的id
-        uint16_t lineId;        // 在每一页的id
-        // float item_x, item_x_trg;
-        // float item_y, item_y_trg;
+        HugoUIItem_e funcType;      // 作用类型
+        uint16_t itemId;            // 磁贴的id
+        uint16_t lineId;            // 在每一页的id
         uint8_t *pic;
-        // uint8_t step;
-        char *title; // 小挂件的名字
-        char *msg;   // ITEM_MESSAGE
+        char *title;                // 磁贴的名字
+        char *msg;                  // ITEM_MESSAGE
         char *desc;
-        bool *flag; // ITEM_CHECKBOX and ITEM_RADIO_BUTTON and ITEM_SWITCH //小挂件用于这些作用时的标志位
-        // bool flagDefault; // Factory default setting//恢复出厂设置
-        paramType *param;                                                     // ITEM_CHANGE_VALUE and ITEM_PROGRESS_BAR//小挂件可改变的参数
-        uint8_t inPage;                                                       // ITEM_JUMP_PAGE//Item在哪一页
+        bool *flag;                 // ITEM_CHECKBOX and ITEM_RADIO_BUTTON and ITEM_SWITCH //磁贴用于这些作用时的标志位
+        // bool flagDefault;        // Factory default setting
+        paramType *param;                                                     // ITEM_CHANGE_VALUE / 磁贴可改变的参数
+        uint8_t inPage;                                                       // ITEM_JUMP_PAGE / Item在哪一页
         uint8_t JumpPage;                                                     // 将要跳转到哪一个page
         uint8_t JumpItem;                                                     // 将要跳转到哪一个Item
-        void (*FuncCallBack)(void);                                           // 回调函数// ITEM_CHANGE_VALUE and ITEM_PROGRESS_BAR//该挂件的函数
+        void (*FuncCallBack)(void);                                           // 回调函数 / ITEM_CHANGE_VALUE / 该磁贴的函数
         struct HugoUI_item *(*SetIconSrc)(const uint8_t *pic);                // 传入图片
         struct HugoUI_item *(*SetJumpId)(uint8_t pageId, uint8_t itemLineId); // 传入PageId和ItemLineId
         struct HugoUI_item *(*SetDescripition)(char *desc);                   // 传入descripition

@@ -160,7 +160,7 @@ void HugoUI_InitLayout(void)
         ->SetIconSrc(Home_BMP);
 
     // PageSetting
-    pageSetting->AddItem(pageSetting, "Setting", ITEM_PAGE_DESCRIPTION);
+    pageSetting->AddItem(pageSetting, "Setting", ITEM_DESCRIPTION);
     pageSetting->AddItem(pageSetting, "PID Editor", ITEM_JUMP_PAGE)
         ->SetJumpId(pagePID->pageId, 0);
 
@@ -177,9 +177,9 @@ void HugoUI_InitLayout(void)
         ->SetJumpId(pageMain->pageId, 0);
 
     // PageAnimation
-    pageAnimation->AddItem(pageAnimation, "Animation", ITEM_PAGE_DESCRIPTION);
+    pageAnimation->AddItem(pageAnimation, "Animation", ITEM_DESCRIPTION);
     pageAnimation->AddItem(pageAnimation, "SmoothAnim", ITEM_SWITCH, &SmoothAnimation_Flag, NULL);
-    pageAnimation->AddItem(pageAnimation, "-PlsSetSpeed--", ITEM_PAGE_DESCRIPTION);
+    pageAnimation->AddItem(pageAnimation, "-PlsSetSpeed--", ITEM_DESCRIPTION);
     pageAnimation->AddItem(pageAnimation, "Fre_x", ITEM_CHANGE_VALUE, &frame_x_speed, NULL);
     pageAnimation->AddItem(pageAnimation, "Fre_y", ITEM_CHANGE_VALUE, &frame_y_speed, NULL);
     pageAnimation->AddItem(pageAnimation, "Fre_width", ITEM_CHANGE_VALUE, &frame_width_speed, NULL);
@@ -190,7 +190,7 @@ void HugoUI_InitLayout(void)
         ->SetJumpId(pageMain->pageId, 3);
 
     // PagePID
-    pagePID->AddItem(pagePID, "PID Editor", ITEM_PAGE_DESCRIPTION);
+    pagePID->AddItem(pagePID, "PID Editor", ITEM_DESCRIPTION);
     pagePID->AddItem(pagePID, "PID_Kp", ITEM_CHANGE_VALUE, &val1, NULL);
     pagePID->AddItem(pagePID, "PID_Ki", ITEM_CHANGE_VALUE, &val2, NULL);
     pagePID->AddItem(pagePID, "PID_Kd", ITEM_CHANGE_VALUE, &val3, NULL);
@@ -198,7 +198,7 @@ void HugoUI_InitLayout(void)
         ->SetJumpId(pageSetting->pageId, 1);
 
     // PageWS2812
-    pageWS2812->AddItem(pageWS2812, "WS2812RGBSet", ITEM_PAGE_DESCRIPTION);
+    pageWS2812->AddItem(pageWS2812, "WS2812RGBSet", ITEM_DESCRIPTION);
     pageWS2812->AddItem(pageWS2812, "SetRed", ITEM_CHANGE_VALUE, &WS2812_R, EventWS2812ColorControl);
     pageWS2812->AddItem(pageWS2812, "SetGreen", ITEM_CHANGE_VALUE, &WS2812_G, EventWS2812ColorControl);
     pageWS2812->AddItem(pageWS2812, "SetBlue", ITEM_CHANGE_VALUE, &WS2812_B, EventWS2812ColorControl);
@@ -325,7 +325,7 @@ void EventShowGyroUI(void)
         {
             GyroInit_flag1 = MPU_Init();
             printf("MPU_Init = %d\r\n", GyroInit_flag1);
-            HugoUISendBuffer();
+            oled_send_buffer();
         }
         if (GyroInit_flag2 == 1)
         {

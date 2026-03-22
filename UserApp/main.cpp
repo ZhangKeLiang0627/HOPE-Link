@@ -25,7 +25,8 @@ void OnTimer4Callback()
 /* Default Entry -------------------------------------------------------*/
 void Main(void)
 {
-    HAL_Delay(1000); // give USB_DEVICE some times
+    // give USB_DEVICE some times
+    HAL_Delay(1000); 
 
     oledInit();
     oledSetFont(u8g2_font_wqy13_t_gb2312a);
@@ -42,6 +43,5 @@ void Main(void)
     {
         // uint8_t ch[32] = "this is HOPE-Link speaking!\n";
         // Usart_SendString(&huart1, ch);
-        HAL_Delay(5000); // give USB_DEVICE some times
-    }
+        HAL_Delay(5000);
 }

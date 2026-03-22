@@ -11,7 +11,6 @@ extern "C" {
 #include <stdio.h>
 
 #include "main.h"
-#include "usb_device.h"
 #include "CommonMacro.h"
 
     void Main(void);

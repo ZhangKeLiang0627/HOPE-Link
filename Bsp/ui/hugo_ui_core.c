@@ -37,9 +37,7 @@ float icon_move_x = 0.0f, icon_move_x_trg = 48.0f;
 float icon_desc_y = 0.0f, icon_desc_y_trg = 24.0f;
 float icon_rectangle_x = 0.0f, icon_rectangle_x_trg = 13.0f;
 
-uint8_t disappear_flag = 0;
-
-uint8_t ItemUIisRunning = false;
+uint8_t isItemFuncRunning = false;
 
 /* 初始化速率变量 */
 HugoUIRate_t Rate5Hz = {200, 0};
@@ -458,95 +456,96 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
         switch (item->funcType)
         {
         // 此页的描述
-        case ITEM_PAGE_DESCRIPTION: // 12是调整距离 // 这底下加的统统都是根据情况微调
-            HugoUIDisplayStr(2 + Item_x, Item_y, "-");
-            HugoUIDisplayStr(2 + 9 + Item_x, Item_y, item->title);
+        case ITEM_DESCRIPTION: // 12是调整距离 // 这底下加的统统都是根据情况微调
+            oled_draw_str(2 + Item_x, Item_y, "-");
+            oled_draw_str(2 + 9 + Item_x, Item_y, item->title);
             break;
         // 页面跳转
         case ITEM_JUMP_PAGE:
-            HugoUIDisplayStr(2 + Item_x, Item_y, "+");
-            HugoUIDisplayStr(2 + 10 + Item_x, Item_y, item->title);
+            oled_draw_str(2 + Item_x, Item_y, "+");
+            oled_draw_str(2 + 10 + Item_x, Item_y, item->title);
             break;
         // 勾选框
         case ITEM_CHECKBOX:
-            HugoUIDisplayStr(2 + Item_x, Item_y, "-");
-            HugoUIDisplayStr(2 + 9 + Item_x, Item_y, item->title);
+            oled_draw_str(2 + Item_x, Item_y, "-");
+            oled_draw_str(2 + 9 + Item_x, Item_y, item->title);
 
             // 判断flag画框内的*标记
             if (*item->flag == true)
             {
-                HugoUISetDrawColor(2);
-                HugoUIDisplayStr(SCREEN_WIDTH - 18 + Item_x, Item_y + 1, "*");
-                HugoUISetDrawColor(1);
+                oled_set_draw_color(2);
+                oled_draw_str(SCREEN_WIDTH - 18 + Item_x, Item_y + 1, "*");
+                oled_set_draw_color(1);
             }
 
             // 画单选框
-            HugoUIDrawFrame(SCREEN_WIDTH - 20 + Item_x, Item_y - 12 + 3, 11, 11);
+            oled_draw_frame(SCREEN_WIDTH - 20 + Item_x, Item_y - 12 + 3, 11, 11);
 
             // 当前选项高亮
             if (item->lineId == ui_select)
             {
-                HugoUISetDrawColor(2);
-                HugoUIDrawBox(SCREEN_WIDTH - 21 + Item_x, Item_y - 12 + 2, 12, 12);
-                HugoUISetDrawColor(1);
+                oled_set_draw_color(2);
+                oled_draw_box(SCREEN_WIDTH - 21 + Item_x, Item_y - 12 + 2, 12, 12);
+                oled_set_draw_color(1);
             }
             break;
 
         // 开关控件
         case ITEM_SWITCH:
-            HugoUIDisplayStr(2 + Item_x, Item_y, "-");
-            HugoUIDisplayStr(2 + 9 + Item_x, Item_y, item->title);
+            oled_draw_str(2 + Item_x, Item_y, "-");
+            oled_draw_str(2 + 9 + Item_x, Item_y, item->title);
 
             // 摆放 on/off的位置
-            HugoUIDisplayStr(SCREEN_WIDTH - FONT_WIDTH * 3 + Item_x, Item_y, *item->flag == true ? "On" : "Off");
+            oled_draw_str(SCREEN_WIDTH - FONT_WIDTH * 3 + Item_x, Item_y, *item->flag == true ? "On" : "Off");
 
             break;
 
         // 改变值
         case ITEM_CHANGE_VALUE:
-            HugoUIDisplayStr(2 + Item_x, Item_y, "-");
-            HugoUIDisplayStr(2 + 9 + Item_x, Item_y, item->title);
+            oled_draw_str(2 + Item_x, Item_y, "-");
+            oled_draw_str(2 + 9 + Item_x, Item_y, item->title);
             // 打印浮点数 判断该浮点数正负来决定宽度
-            HugoUIDisplayFloat(*item->param < 100 ? SCREEN_WIDTH - FONT_WIDTH * 4 + Item_x : SCREEN_WIDTH - FONT_WIDTH * 5 + Item_x, Item_y, *item->param, 2, 1);
-            // HugoUIDisplayFloat(SCREEN_WIDTH - FONT_WIDTH * 5 , Item_y, *item->param, 2, 1);
+            // 注意：这里需要将浮点数转换为字符串后显示
+            char float_str[20];
+            sprintf(float_str, "%.1f", *item->param);
+            oled_draw_str(*item->param < 100 ? SCREEN_WIDTH - FONT_WIDTH * 4 + Item_x : SCREEN_WIDTH - FONT_WIDTH * 5 + Item_x, Item_y, float_str);
 
             // 当前数字高亮 // ps:如果想要闪烁效果需要获取定时器的时间
             if (item->lineId == ui_select && ChangeVal_flag)
             { // 判断该浮点数正负来决定宽度
-                HugoUISetDrawColor(2);
-                HugoUIDrawBox(*item->param < 0 ? SCREEN_WIDTH - FONT_WIDTH * 7 + Item_x : SCREEN_WIDTH - FONT_WIDTH * 5 + Item_x, Item_y - 12 + 2, *item->param < 0 ? FONT_WIDTH * 6 : FONT_WIDTH * 4, 11);
-                HugoUISetDrawColor(1);
+                oled_set_draw_color(2);
+                oled_draw_box(*item->param < 0 ? SCREEN_WIDTH - FONT_WIDTH * 7 + Item_x : SCREEN_WIDTH - FONT_WIDTH * 5 + Item_x, Item_y - 12 + 2, *item->param < 0 ? FONT_WIDTH * 6 : FONT_WIDTH * 4, 11);
+                oled_set_draw_color(1);
             }
             break;
 
         default:
-            HugoUIDisplayStr(2 + Item_x, Item_y, "-");
-            HugoUIDisplayStr(2 + 9 + Item_x, Item_y, item->title);
+            oled_draw_str(2 + Item_x, Item_y, "-");
+            oled_draw_str(2 + 9 + Item_x, Item_y, item->title);
             break;
         }
     }
 
     // 绘制frameBox反色选择框
-    HugoUISetDrawColor(2);
-    HugoUIDrawRBox(thispage->page_x, thispage->page_y + frame_y, thispage->page_x + frame_width + 5, FONT_HEIGHT + 2, 0);
-    HugoUISetDrawColor(1);
+    oled_set_draw_color(2);
+    oled_draw_R_box(thispage->page_x, thispage->page_y + frame_y, thispage->page_x + frame_width + 5, FONT_HEIGHT + 2, 0);
+    oled_set_draw_color(1);
 
     // 绘制滑动条slidbar
     Oled_u8g2_DrawLine(thispage->page_x + 126, thispage->page_y, thispage->page_x + 126, thispage->page_y + SCREEN_HEIGHT);
     // 绘制滑动条里的会滚动的box
-    HugoUIDrawBox(thispage->page_x + 125, thispage->page_y + slidbar_y, thispage->page_x + 3, ceil((float)SCREEN_HEIGHT / thispage->itemMax));
+    oled_draw_box(thispage->page_x + 125, thispage->page_y + slidbar_y, thispage->page_x + 3, ceil((float)SCREEN_HEIGHT / thispage->itemMax));
 
     // 项目滚动处理
     switch (ui_state)
     {
-    case STATE_NONE: // ui无状态
-
+    case STATE_NONE: 
+    {
         break;
+    }
 
-    case STATE_RUN_PAGE_DOWN: // ui该page向下滚动
-                              // 判断该往下滚动多少
-                              // 通用滚动顺序
-
+    case STATE_RUN_PAGE_DOWN:
+    {
         // textlist的滚动
         if (ui_select >= SCREEN_HEIGHT / 16)
             thispage->page_y_forlist_trg -= FONT_HEIGHT;
@@ -571,6 +570,7 @@ void HugoUI_CommonListShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
 
         ui_state = STATE_NONE;
         break;
+    }
     case STATE_RUN_PAGE_UP: // ui 该page向上滚动
 
         // textlist的滚动
@@ -682,21 +682,21 @@ void HugoUI_CommonIconShow(HugoUIPage_t *thispage, HugoUIItem_t *thisitem)
 
         Item_x = 48 + thispage->page_x + icon_move_x * item->lineId;
 
-        HugoUIDisplayBMP(Item_x, Item_y, 32, 32, item->pic);
+        oled_draw_bMP(Item_x, Item_y, 32, 32, item->pic);
     }
     Oled_u8g2_SetBitmapMode(0);
 
     Oled_u8g2_SetFont(u8g2_font_luBS14_tr);
-    HugoUIDisplayStr((128 - Oled_u8g2_Get_UTF8_ASCII_PixLen(thisitem->title)) / 2,
+    oled_draw_str((128 - Oled_u8g2_Get_UTF8_ASCII_PixLen(thisitem->title)) / 2,
                      Item_y + SCREEN_HEIGHT / 2 + 22 + (FONT_HEIGHT - icon_rectangle_x), thisitem->title); // 居中显示项目名
     Oled_u8g2_SetFont(u8g2_font_wqy13_t_gb2312a);
 
-    HugoUISetDrawColor(2);
+    oled_set_draw_color(2);
     // 绘制frameBox选择框
-    HugoUIDrawRBox(48 + frame_x, thispage->page_y, 32, 32, 0);
+    oled_draw_R_box(48 + frame_x, thispage->page_y, 32, 32, 0);
     // 绘制icon_rectangle
-    HugoUIDrawBox(0, thispage->page_y + SCREEN_HEIGHT / 2 + 4, icon_rectangle_x, 24);
-    HugoUISetDrawColor(1);
+    oled_draw_box(0, thispage->page_y + SCREEN_HEIGHT / 2 + 4, icon_rectangle_x, 24);
+    oled_set_draw_color(1);
 
     // 项目滚动处理
     switch (ui_state)
@@ -834,7 +834,7 @@ void HugoUI_CommonEventProc(void)
                 break;
 
             case ITEM_CALL_FUNCTION:
-                ItemUIisRunning = true;
+                isItemFuncRunning = true;
                 break;
 
             case ITEM_CHECKBOX:
@@ -902,7 +902,6 @@ void HugoUI_TaskHandler(void)
         {
             currentPage = currentPage->next;
         }
-        // printf("pageid:%d\r\n", currentPage->pageId);
     }
 
     // Get currentItem by id
@@ -913,32 +912,31 @@ void HugoUI_TaskHandler(void)
         {
             currentItem = currentItem->next;
         }
-        // printf("itemlid:%d\r\n", currentItem->lineId);
     }
 
-    if (ItemUIisRunning)
+    if (isItemFuncRunning)
     {
-        HugoUIClearBuffer();
+        // Item UI Render & Function Callback
+        // Item function UI rendering and do item callback here
+        oled_clear_buffer();
 
         if (currentItem->FuncCallBack != NULL)
             currentItem->FuncCallBack();
         else
-            ItemUIisRunning = false; // 如果该item没函数就直接退出 防止bug
+            isItemFuncRunning = false; // If this item do not have callback, break!
 
         if (ui_Key_num == 2)
-        {
-            ItemUIisRunning = false; // 长按退出应用
-        }
+            isItemFuncRunning = false; // "Longpress" to break the item callback
 
-        HugoUISendBuffer();
+        oled_send_buffer();
     }
     else
     {
-        // Page Render
+        // Page UI Render
         // if (HugoUI_ExecuteRate(&Rate60Hz))
         if (1)
         {
-            HugoUIClearBuffer(); // u8g2_ScreenClear
+            oled_clear_buffer();
 
             // 若当前Page没有开题图标化则使用普通文本list的模式进行渲染显示 || 开启了PageOnlyList（Page2List）标志位
             if (currentPage->funcType == PAGE_LIST)
@@ -959,14 +957,14 @@ void HugoUI_TaskHandler(void)
                 currentPage->PageUIShow(currentPage, currentItem);
             }
 
-            HugoUISendBuffer(); // u8g2_ScreenRefresh
+            oled_send_buffer();
         }
 
-        /* 执行当前页面的函数 */
+        // Do current page's callback if it has
         if (currentPage->FuncCallBack != NULL)
             currentPage->FuncCallBack();
 
-        /* Event */
+        // Do current page's event if it has
         if (currentPage->PageEventProc != NULL)
             currentPage->PageEventProc();
         else
