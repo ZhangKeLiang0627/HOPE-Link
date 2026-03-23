@@ -189,27 +189,27 @@ uint8_t HugoUI::Animation_Blur(void)
 /* 工具函数 ----------------------------------------------------------- */
 
 /**
- * @brief 时间戳递增（1ms调用一次）
- */
-void HugoUI::TickInc(void)
-{
-    uiTimestamp++;
-}
-
-/**
  * @brief 频率控制函数
  * @param er: 频率配置
  * @retval 1-到达执行时间，0-未到达
  */
 uint8_t HugoUI::ExecuteRate(Rate *er)
 {
+    uiTimestamp = get_ticks(); 
+    
+    if (er == nullptr) {
+        return 0;
+    }
+    
+    // 判断是否到达执行间隔
     if (uiTimestamp - er->last_timestamp >= er->executeT)
     {
-        er->last_timestamp = uiTimestamp;
+        er->last_timestamp = uiTimestamp;  // 更新上次执行时间
         return 1;
     }
-    else
+    else {
         return 0;
+    }
 }
 
 /* 核心功能函数 ------------------------------------------------------- */
@@ -693,7 +693,8 @@ void HugoUI::CommonEventProc(void)
     if (uiState != State::None || !currentPage || !currentItem)
         return;
 
-    if (uiEncoderNum == 1) // 向下
+    /* 编码器处理 */
+    if (uiEncoderNumInSide == 1) // 向下
     {
         if (ChangeVal_flag && currentItem->param)
         {
@@ -718,7 +719,7 @@ void HugoUI::CommonEventProc(void)
                 uiSelect = 0;
         }
     }
-    else if (uiEncoderNum == 2) // 向上
+    else if (uiEncoderNumInSide == 2) // 向上
     {
         if (ChangeVal_flag && currentItem->param)
         {
@@ -745,7 +746,7 @@ void HugoUI::CommonEventProc(void)
     }
     
     /* 按键处理 */
-    if (uiKeyNum == 1) // 短按
+    if (uiKeyNumInSide == 1) // 短按
     {
         switch (currentItem->funcType)
         {
@@ -780,7 +781,7 @@ void HugoUI::CommonEventProc(void)
             break;
         }
     }
-    else if (uiKeyNum == 2) // 长按
+    else if (uiKeyNumInSide == 2) // 长按
     {
         // 返回上一页
         if (lastPage)
@@ -835,14 +836,12 @@ void HugoUI::TaskHandler(void)
             isItemFuncRunning = false;
 
         oled_send_buffer();
-        // 清零输入
     }
     // 页面显示
     else if (currentPage && currentItem)
     {
-        // 60Hz刷新
-        if (true)
-        // if (ExecuteRate(&Rate60Hz))
+
+        if (ExecuteRate(&Rate60Hz)) // 60Hz刷新
         {   
             oled_clear_buffer();
             

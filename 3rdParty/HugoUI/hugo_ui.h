@@ -7,6 +7,7 @@
 #include <cstdarg>  
 
 #include "oled_wrapper.h"
+#include "main.h"
 
 /* define ------------------------------------------------------- */
 #define SCREEN_WIDTH 128
@@ -204,7 +205,6 @@ struct Rate {
 
 /* API-Function ------------------------------------------------------- */
 void TaskHandler(void);
-void TickInc(void);
 uint8_t ExecuteRate(Rate *er);
 
 Page::Ptr AddPage(PageType mode, const std::string& name);
