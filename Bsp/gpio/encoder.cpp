@@ -1,9 +1,8 @@
 #include "encoder.hpp"
 
-Encoder::Encoder(TIM_HandleTypeDef *_htim, uint16_t _cpr, bool _inverse) :
-    htim(_htim), config(Config_t{})
+Encoder::Encoder(TIM_HandleTypeDef *_htim, bool _inverse, uint16_t _threshold) :
+    htim(_htim), config(Config_t{}), lastCount(0), diffThreshold(_threshold), dir(NONE)
 {
-    config.cpr = _cpr;
     config.inverse = _inverse;
 }
 
@@ -14,16 +13,47 @@ int64_t Encoder::GetCount()
     return config.inverse ? -count : count;
 }
 
-float Encoder::GetAngle(bool _useRAD)
+void Encoder::Start(uint8_t *_userData)
 {
-    float angle = (float) GetCount() / (float) config.cpr;
-
-    return _useRAD ? angle / RAD_TO_DEG : angle;
-}
-
-void Encoder::Start()
-{
+    userData = _userData;
     ClearCntLoop(htim->Instance);
     htim->Instance->CNT = 0;
     HAL_TIM_Encoder_Start_IT(htim, TIM_CHANNEL_ALL);
+}
+
+void Encoder::Update()
+{
+    if(!userData)
+        return;
+
+    int64_t curCount = GetCount();
+    int64_t diff = curCount - lastCount;
+
+    if(!diff)
+        return;
+
+    dir = EncoDirect::NONE;
+
+    if (diff >= diffThreshold)
+    {
+        dir = EncoDirect::CW; // 正转
+        *userData = 2;
+    }
+    else if (diff <= -diffThreshold)
+    {
+        dir = EncoDirect::CCW; // 反转
+        *userData = 1;
+    }
+    // 更新上次计数值
+    if (dir != EncoDirect::NONE)
+    {
+        lastCount = curCount;
+    }
+}
+
+// 获取当前方向
+EncoDirect Encoder::GetDirection()
+{
+    Update();
+    return dir;
 }

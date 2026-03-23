@@ -29,7 +29,8 @@ static uint8_t jumpPage_flag = 0;
 static uint8_t ChangeVal_flag = 0;
 
 /* 输入变量 ----------------------------------------------------------- */
-uint8_t uiKeyNum = 0, uiEncoderNum = 0; 
+uint8_t uiKeyNum = 0, uiEncoderNum = 0;
+uint8_t uiKeyNumInSide = 0, uiEncoderNumInSide = 0;
 
 /* 动画变量 ----------------------------------------------------------- */
 float frame_y = 0.0f, frame_y_trg = 0.0f;
@@ -618,7 +619,7 @@ void HugoUI::CommonIconShow(Page* thispage, Item* thisitem)
         thispage->page_x_trg = -(uiSelect * 48);
         frame_x -= 24;
 
-        icon_rectangle_x = -4;
+        icon_rectangle_x = 0;
         if (uiSelect == 0)
         {
             icon_move_x = 0;
@@ -631,7 +632,7 @@ void HugoUI::CommonIconShow(Page* thispage, Item* thisitem)
         thispage->page_x_trg = -(uiSelect * 48);
         frame_x += 24;
 
-        icon_rectangle_x = -4;
+        icon_rectangle_x = 0;
 
         uiState = State::None;
         break;
@@ -646,7 +647,7 @@ void HugoUI::CommonIconShow(Page* thispage, Item* thisitem)
         frame_y = SCREEN_HEIGHT * 1.5f;
 
         thispage->page_x_trg = -(uiSelect * 48);
-        icon_rectangle_x = -4;
+        icon_rectangle_x = 0;
 
         uiState = State::JumpPage;
         break;
@@ -798,6 +799,9 @@ void HugoUI::CommonEventProc(void)
  */
 void HugoUI::TaskHandler(void)
 {
+    uiKeyNumInSide = uiKeyNum, uiEncoderNumInSide = uiEncoderNum;
+    uiKeyNum = 0, uiEncoderNum = 0;
+
     // 更新当前页面
     if (!currentPage || currentPage->pageId != uiIndex)
     {
@@ -827,16 +831,18 @@ void HugoUI::TaskHandler(void)
             isItemFuncRunning = false;
 
         // 长按退出
-        if (uiKeyNum == 2)
+        if (uiKeyNumInSide == 2)
             isItemFuncRunning = false;
 
         oled_send_buffer();
+        // 清零输入
     }
     // 页面显示
     else if (currentPage && currentItem)
     {
         // 60Hz刷新
         if (true)
+        // if (ExecuteRate(&Rate60Hz))
         {   
             oled_clear_buffer();
             
@@ -868,8 +874,4 @@ void HugoUI::TaskHandler(void)
         else
             CommonEventProc();
     }
-
-    // 清零输入
-    uiKeyNum = 0;
-    uiEncoderNum = 0;
 }

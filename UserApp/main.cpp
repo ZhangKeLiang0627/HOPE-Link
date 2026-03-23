@@ -14,20 +14,29 @@ Encoder encoder(&htim3);
 
 
 /* Timer Callbacks -------------------------------------------------------*/
+static uint32_t encoderTickCount = 0;
+static uint32_t buttonTickCount = 0;
+
 void OnTimer4Callback()
 {
     // multi_button
-    // static uint32_t buttonTickCount = 0;
-    // if (++buttonTickCount >= 5)
+    // if (++buttonTickCount >= 2)
     // {
     //     button_ticks();
     //     buttonTickCount = 0;
     // }
     button_ticks();
 
-
     // HugoUI
     // HugoUI::TickInc();
+
+    // Encoder
+    if (++encoderTickCount >= 2)
+    {
+        encoder.Update();
+        encoderTickCount = 0;
+    }
+    // encoder.Update();
 }
 
 /* Default Entry -------------------------------------------------------*/
@@ -37,10 +46,10 @@ void Main(void)
     HAL_Delay(1000); 
     
     keyInit(&uiKeyNum);
-    encoder.Start();
+    encoder.Start(&uiEncoderNum);
     oledInit();
     oledSetFont(u8g2_font_wqy13_t_gb2312a);
-    // HugoUI::InitLayout();
+    HugoUI::InitLayout();
 
     // oledClearBuffer();
     // oledDrawUTF8(30, 15, "HelloHOPE");
@@ -52,12 +61,11 @@ void Main(void)
 
     while (true)
     {   
-    //    HugoUI::TaskHandler();
-       
+       HugoUI::TaskHandler();
 
-       oledClearBuffer();
-       oledDrawUTF8(30, 15, "HelloHOPE");
-       oledDrawNum(30, 30, encoder.GetCount());
-       oledSendBuffer();
+    //    oledClearBuffer();
+    //    oledDrawUTF8(30, 15, "HelloHOPE");
+    //    oledDrawNum(30, 30, encoder.GetCount());
+    //    oledSendBuffer();
     }
 }
