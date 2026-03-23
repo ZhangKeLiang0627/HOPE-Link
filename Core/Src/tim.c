@@ -154,9 +154,9 @@ void MX_TIM3_Init(void)
   /* USER CODE BEGIN TIM3_Init 2 */
 
   TIM3->CNT = 32768;
-
   __HAL_TIM_CLEAR_FLAG(&htim3, TIM_FLAG_UPDATE);
   // HAL_TIM_Encoder_Start_IT(htim3, TIM_CHANNEL_ALL);
+  
   /* USER CODE END TIM3_Init 2 */
 
 }
