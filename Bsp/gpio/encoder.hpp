@@ -16,22 +16,14 @@ class Encoder
 private:
 
     TIM_HandleTypeDef *htim;
-    int64_t lastCount;          // 上一次的计数值，用于计算差值
-    uint16_t diffThreshold;     // 差值阈值，过滤抖动
-    EncoDirect dir;             // 当前旋转方向
-
     uint8_t *userData;
 
 public:
-    explicit Encoder(TIM_HandleTypeDef *_htim, bool _inverse = false, uint16_t _threshold = 2);
+    explicit Encoder(TIM_HandleTypeDef *_htim, bool _inverse = false);
 
     void Start(uint8_t *_userData);
 
     void Update();
-
-    int64_t GetCount();
-
-    EncoDirect GetDirection();
 
     struct Config_t
     {

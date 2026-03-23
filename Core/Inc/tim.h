@@ -56,9 +56,7 @@ void MX_TIM10_Init(void);
 void MX_TIM11_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-int64_t GetEncoderCount(TIM_TypeDef *tim);
-int64_t GetCntLoop(TIM_TypeDef *tim);
-void ClearCntLoop(TIM_TypeDef *tim);
+int16_t GetEncoderCount(TIM_TypeDef *tim);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

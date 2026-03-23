@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F401xE</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../USB_DEVICE/App;../USB_DEVICE/Target;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../3rdParty/u8g2;../Bsp/w25qxx;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Inc;../UserApp;../Bsp/oled;../Bsp/usart;../Bsp/utils;../3rdParty/MultiButton;../3rdParty/HugoUI;..\Bsp\gpio</IncludePath>
+              <IncludePath>../Core/Inc;../USB_DEVICE/App;../USB_DEVICE/Target;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../3rdParty/u8g2;../Bsp/w25qxx;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Inc;../UserApp;../Bsp/oled;../Bsp/usart;../Bsp/utils;../3rdParty/MultiButton;../3rdParty/HugoUI;../Bsp/gpio</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

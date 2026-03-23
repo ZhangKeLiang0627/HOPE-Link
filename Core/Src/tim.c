@@ -21,7 +21,7 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-volatile int64_t encCntLoop;
+
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim1;
@@ -136,7 +136,7 @@ void MX_TIM3_Init(void)
   sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC1Filter = 15;
+  sConfig.IC1Filter = 8;
   sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
@@ -152,8 +152,11 @@ void MX_TIM3_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM3_Init 2 */
-  TIM3->CNT = 0;
-  TIM3->SR = TIM3->SR & 0xFE; // clear flag
+
+  TIM3->CNT = 32768;
+
+  __HAL_TIM_CLEAR_FLAG(&htim3, TIM_FLAG_UPDATE);
+  // HAL_TIM_Encoder_Start_IT(htim3, TIM_CHANNEL_ALL);
   /* USER CODE END TIM3_Init 2 */
 
 }
@@ -338,9 +341,6 @@ void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef* tim_encoderHandle)
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /* TIM3 interrupt Init */
-    HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(TIM3_IRQn);
   /* USER CODE BEGIN TIM3_MspInit 1 */
 
   /* USER CODE END TIM3_MspInit 1 */
@@ -427,8 +427,6 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* tim_encoderHandle)
     */
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_4|GPIO_PIN_5);
 
-    /* TIM3 interrupt Deinit */
-    HAL_NVIC_DisableIRQ(TIM3_IRQn);
   /* USER CODE BEGIN TIM3_MspDeInit 1 */
 
   /* USER CODE END TIM3_MspDeInit 1 */
@@ -436,52 +434,14 @@ void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef* tim_encoderHandle)
 }
 
 /* USER CODE BEGIN 1 */
-
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+int16_t GetEncoderCount(TIM_TypeDef *tim)
 {
-  if (htim->Instance->SR & 0x01) // count overflow
-  {
-    if (htim->Instance->CR1 & 0x10) // count up
-    {
-      if (htim->Instance == TIM3)
-        encCntLoop--;
-    }
-    else // count down
-    {
-      if (htim->Instance == TIM3)
-        encCntLoop++;
-    }
-
-    htim->Instance->SR = htim->Instance->SR & 0xFE; // clear flag
-  }
-}
-
-int64_t GetCntLoop(TIM_TypeDef *tim)
-{
+  int16_t value = 0;
   if (tim == TIM3)
   {
-    return encCntLoop;
+    value = (int16_t)(TIM3->CNT - 32768);
+    TIM3->CNT = 32768;
   }
-
-  return 0;
-}
-
-void ClearCntLoop(TIM_TypeDef *tim)
-{
-  if (tim == TIM3)
-  {
-    encCntLoop = 0;
-  }
-  
-}
-
-int64_t GetEncoderCount(TIM_TypeDef *tim)
-{
-  if (tim == TIM3)
-  {
-    return encCntLoop * 65536 + TIM3->CNT;
-  }
-
-  return 0;
+  return value;
 }
 /* USER CODE END 1 */
