@@ -24,7 +24,7 @@ extern "C" {
 
 /*---------------------------- C++ Scope ---------------------------*/
 #include "timer.hpp"
-
+#include "encoder.hpp"
 
 #endif
 #endif

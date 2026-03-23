@@ -7,6 +7,9 @@
 // 5 User-Timers, can choose from htim1/htim2/htim4/htim10/htim11
 Timer timerCtrlLoop(&htim4, 200);
 
+// Encoder
+Encoder encoder(&htim3);
+
 /* Thread Definitions -----------------------------------------------------*/
 
 
@@ -24,7 +27,7 @@ void OnTimer4Callback()
 
 
     // HugoUI
-    HugoUI::TickInc();
+    // HugoUI::TickInc();
 }
 
 /* Default Entry -------------------------------------------------------*/
@@ -34,10 +37,10 @@ void Main(void)
     HAL_Delay(1000); 
     
     keyInit(&uiKeyNum);
-
+    encoder.Start();
     oledInit();
     oledSetFont(u8g2_font_wqy13_t_gb2312a);
-    HugoUI::InitLayout();
+    // HugoUI::InitLayout();
 
     // oledClearBuffer();
     // oledDrawUTF8(30, 15, "HelloHOPE");
@@ -49,6 +52,12 @@ void Main(void)
 
     while (true)
     {   
-        HugoUI::TaskHandler();
+    //    HugoUI::TaskHandler();
+       
+
+       oledClearBuffer();
+       oledDrawUTF8(30, 15, "HelloHOPE");
+       oledDrawNum(30, 30, encoder.GetCount());
+       oledSendBuffer();
     }
 }
