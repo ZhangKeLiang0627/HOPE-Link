@@ -36,7 +36,6 @@ void OnTimer4Callback()
         encoder.Update();
         encoderTickCount = 0;
     }
-    // encoder.Update();
 }
 
 /* Default Entry -------------------------------------------------------*/
@@ -59,13 +58,8 @@ void Main(void)
     timerCtrlLoop.SetCallback(OnTimer4Callback);
     timerCtrlLoop.Start();
 
-    while (true)
+    for (;;)
     {   
        HugoUI::TaskHandler();
-
-    //    oledClearBuffer();
-    //    oledDrawUTF8(30, 15, "HelloHOPE");
-    //    oledDrawNum(30, 30, encoder.GetCount());
-    //    oledSendBuffer();
     }
 }

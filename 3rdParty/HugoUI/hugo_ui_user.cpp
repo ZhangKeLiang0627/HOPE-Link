@@ -67,31 +67,31 @@ void HugoUI::InitLayout(void)
     // PageAnimation
     pageAnimation->AddItem("Animation", ItemType::Description);
     pageAnimation->AddItem("SmoothAnim", ItemType::Switch, nullptr, nullptr);
-    pageAnimation->AddItem("-PlsSetSpeed--", ItemType::Description);
-    pageAnimation->AddItem("Fre_x", ItemType::ChangeValue, nullptr, nullptr);
-    pageAnimation->AddItem("Fre_y", ItemType::ChangeValue, nullptr, nullptr);
-    pageAnimation->AddItem("Fre_width", ItemType::ChangeValue, nullptr, nullptr);
-    pageAnimation->AddItem("Slidbar_y", ItemType::ChangeValue, nullptr, nullptr);
-    pageAnimation->AddItem("list_y", ItemType::ChangeValue, nullptr, nullptr);
-    pageAnimation->AddItem("icon_x", ItemType::ChangeValue, nullptr, nullptr);
+    pageAnimation->AddItem("--PlsSetSpeed--", ItemType::Description);
+    pageAnimation->AddItem("fre X", ItemType::ChangeValue, nullptr, nullptr);
+    pageAnimation->AddItem("fre Y", ItemType::ChangeValue, nullptr, nullptr);
+    pageAnimation->AddItem("freWidth", ItemType::ChangeValue, nullptr, nullptr);
+    pageAnimation->AddItem("slidbar Y", ItemType::ChangeValue, nullptr, nullptr);
+    pageAnimation->AddItem("list Y", ItemType::ChangeValue, nullptr, nullptr);
+    pageAnimation->AddItem("icon X", ItemType::ChangeValue, nullptr, nullptr);
     pageAnimation->AddItem("Exit", ItemType::JumpPage)
         ->SetJumpId(pageMain->pageId, 3);
 
-    // // PagePID
-    // pagePID->AddItem(pagePID, "PID Editor", ItemType::Description);
-    // pagePID->AddItem(pagePID, "PID_Kp", ItemType::ChangeValue, nullptr, nullptr);
-    // pagePID->AddItem(pagePID, "PID_Ki", ItemType::ChangeValue, nullptr, nullptr);
-    // pagePID->AddItem(pagePID, "PID_Kd", ItemType::ChangeValue, nullptr, nullptr);
-    // pagePID->AddItem(pagePID, "Exit", ItemType::JumpPage)
-    //     ->SetJumpId(pageSetting->pageId, 1);
+    // PagePID
+    pagePID->AddItem("PID Editor", ItemType::Description);
+    pagePID->AddItem("Kp", ItemType::ChangeValue, nullptr, nullptr);
+    pagePID->AddItem("Ki", ItemType::ChangeValue, nullptr, nullptr);
+    pagePID->AddItem("Kd", ItemType::ChangeValue, nullptr, nullptr);
+    pagePID->AddItem("Exit", ItemType::JumpPage)
+        ->SetJumpId(pageSetting->pageId, 1);
 
-    // // PageWS2812
-    // pageWS2812->AddItem(pageWS2812, "WS2812RGBSet", ItemType::Description);
-    // pageWS2812->AddItem(pageWS2812, "SetRed", ItemType::ChangeValue,nullptr, nullptr);
-    // pageWS2812->AddItem(pageWS2812, "SetGreen", ItemType::ChangeValue, nullptr, nullptr);
-    // pageWS2812->AddItem(pageWS2812, "SetBlue", ItemType::ChangeValue,nullptr, nullptr);
-    // pageWS2812->AddItem(pageWS2812, "Exit", ItemType::JumpPage)
-    //     ->SetJumpId(pageMain->pageId, 9);
+    // PageWS2812
+    pageWS2812->AddItem("WS2812RGBSet", ItemType::Description);
+    pageWS2812->AddItem("SetRed", ItemType::ChangeValue,nullptr, nullptr);
+    pageWS2812->AddItem("SetGreen", ItemType::ChangeValue, nullptr, nullptr);
+    pageWS2812->AddItem("SetBlue", ItemType::ChangeValue,nullptr, nullptr);
+    pageWS2812->AddItem("Exit", ItemType::JumpPage)
+        ->SetJumpId(pageMain->pageId, 9);
 
 }
 
@@ -99,6 +99,8 @@ void HugoUI::InitLayout(void)
 void EventShowAboutUI(void)
 {
     static float motion_a = 80.0f, motion_a_trg = 0;
+
+    Animation_Linear(&motion_a, &motion_a_trg, 85);
 
     oled_draw_bMP(motion_a, 0, 40, 50, HeadSculpture_BMP);
     oled_draw_str(50, FONT_HEIGHT, "HOPE  Pro");
@@ -110,11 +112,9 @@ void EventShowAboutUI(void)
     oled_draw_R_box(86, 3, 30, FONT_HEIGHT, 0);
     oled_set_draw_color(1);
 
-    Animation_Linear(&motion_a, &motion_a_trg, 85);
-
-    if (uiKeyNum == 2)
+    if (uiKeyNumInSide == 2)
     {
         motion_a = 80.0f;
-        // icon_move_x = 128; 
+        icon_move_x = 128; 
     }
 }

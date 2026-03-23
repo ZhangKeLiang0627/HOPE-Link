@@ -232,6 +232,7 @@ extern HugoUI::Rate Rate100Hz;
 extern HugoUI::Rate Rate125Hz;
 extern HugoUI::Rate Rate1000Hz;
 
-extern uint8_t uiKeyNum, uiEncoderNum; 
+extern uint8_t uiKeyNum, uiEncoderNum;
+extern uint8_t uiKeyNumInSide, uiEncoderNumInSide;
 
 #endif // __HUGO_UI_H
