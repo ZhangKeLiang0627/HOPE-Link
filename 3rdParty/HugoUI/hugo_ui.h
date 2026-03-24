@@ -200,21 +200,17 @@ struct Rate {
 };
 
 /* API-Function ------------------------------------------------------- */
-void TaskHandler(void);
-uint8_t ExecuteRate(Rate *er);
 
 Page::Ptr AddPage(PageType mode, const std::string& name);
+
+void TaskHandler(void);
+uint8_t ExecuteRate(Rate *er);
+void CommonEventProc(void);
 
 uint8_t Animation_Linear(float *a, float *a_trg, uint8_t n);
 uint8_t Animation_EasyIn(float *a, float *a_trg, uint16_t n);
 uint8_t Animation_EasyOut(float *a, float *a_trg, uint16_t n);
 uint8_t Animation_Blur(void);
-
-void CommonListShow(Page* thispage, Item* thisitem);
-void CommonIconShow(Page* thispage, Item* thisitem);
-void CommonEventProc(void);
-
-
 
 } /* namespace HugoUI */
 

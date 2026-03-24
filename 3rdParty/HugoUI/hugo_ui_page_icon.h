@@ -5,11 +5,10 @@
 
 /* define ------------------------------------------------------- */
 
-
 namespace HugoUI
 {
 
-/* class --------------------------------------------------- */
+/* class ------------------------------------------------------- */
 class PageIcon : public Page {
 public:
     using Ptr = std::shared_ptr<PageIcon>;
@@ -32,9 +31,7 @@ public:
     void Show(Item* thisitem) override;
 };
 
-/* API-Function ------------------------------------------------------- */
-
-
+/* API-Function --------------------------------------------------- */
 
 } /* namespace HugoUI */
 
