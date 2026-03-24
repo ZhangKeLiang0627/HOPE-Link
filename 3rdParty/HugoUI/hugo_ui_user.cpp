@@ -15,22 +15,23 @@ void HugoUI::InitLayout(void)
 {
     /* 注册 Page */
     Page::Ptr pageMain = AddPage(PageType::Icon, "pageMain");
+    Page::Ptr pageOffline = AddPage(PageType::List, "pageOffline");
     Page::Ptr pageSetting = AddPage(PageType::List, "pageSetting");
     Page::Ptr pagePID = AddPage(PageType::List, "pagePID");
     Page::Ptr pageAnimation = AddPage(PageType::List, "pageAnimation");
     Page::Ptr pageWS2812 = AddPage(PageType::List, "pageWS2812");
+    Page::Ptr pageOflnSelFile = AddPage(PageType::List, "pageOflnSelFile");
+    Page::Ptr pageOflnSelChip = AddPage(PageType::List, "pageOflnSelChip");
 
     /* 注册 Item */
     // PageMain
+    pageMain->AddItem("Offline", ItemType::JumpPage)
+        ->SetJumpId(pageOffline->pageId, 0)
+        ->SetIconSrc(Knife_BMP);
+
     pageMain->AddItem("Setting", ItemType::JumpPage)
         ->SetJumpId(pageSetting->pageId, 0)
         ->SetIconSrc(Setting_BMP);
-
-    pageMain->AddItem("Bluetooth", ItemType::CallFunction, nullptr)
-        ->SetIconSrc(Knife_BMP);
-
-    pageMain->AddItem("RealTime", ItemType::CallFunction, nullptr)
-        ->SetIconSrc(Cuteghost_BMP);
 
     pageMain->AddItem("RGB", ItemType::JumpPage)
         ->SetJumpId(pageWS2812->pageId, 0)
@@ -41,6 +42,31 @@ void HugoUI::InitLayout(void)
 
     pageMain->AddItem("About", ItemType::CallFunction, EventShowAboutUI)
         ->SetIconSrc(Home_BMP);
+
+    // PageOffline
+    pageOffline->AddItem("『离线下载固件』", ItemType::Description);
+    pageOffline->AddItem("选择固件文件", ItemType::JumpPage)
+        ->SetJumpId(pageOflnSelFile->pageId, 0);
+    pageOffline->AddItem("选择芯片型号", ItemType::JumpPage)
+        ->SetJumpId(pageOflnSelChip->pageId, 0);
+    pageOffline->AddItem("设置下载地址", ItemType::CallFunction, nullptr);
+    pageOffline->AddItem("自动触发下载", ItemType::Switch, nullptr, nullptr);
+    pageOffline->AddItem("储存当前设置", ItemType::CallFunction, nullptr);
+    pageOffline->AddItem("擦除芯片", ItemType::CallFunction, nullptr);
+    pageOffline->AddItem("> 开始下载", ItemType::CallFunction, nullptr);
+
+    pageOffline->AddItem("返回", ItemType::JumpPage)
+        ->SetJumpId(pageMain->pageId, 0);
+
+    // PageOfflineSelectFile
+    pageOflnSelFile->AddItem("选择固件文件", ItemType::Description);
+    pageOflnSelFile->AddItem("返回", ItemType::JumpPage)
+        ->SetJumpId(pageOffline->pageId, 1);
+
+    // PageOfflineSelectChip
+    pageOflnSelChip->AddItem("选择芯片型号", ItemType::Description);
+    pageOflnSelChip->AddItem("返回", ItemType::JumpPage)
+        ->SetJumpId(pageOffline->pageId, 2);
 
     // PageSetting
     pageSetting->AddItem("Setting", ItemType::Description);
@@ -57,20 +83,7 @@ void HugoUI::InitLayout(void)
     pageSetting->AddItem("SaveAll", ItemType::CallFunction, nullptr);
 
     pageSetting->AddItem("Exit", ItemType::JumpPage)
-        ->SetJumpId(pageMain->pageId, 0);
-
-    // PageAnimation
-    pageAnimation->AddItem("Animation", ItemType::Description);
-    pageAnimation->AddItem("SmoothAnim", ItemType::Switch, nullptr, nullptr);
-    pageAnimation->AddItem("--PlsSetSpeed--", ItemType::Description);
-    pageAnimation->AddItem("fre X", ItemType::ChangeValue, nullptr, nullptr);
-    pageAnimation->AddItem("fre Y", ItemType::ChangeValue, nullptr, nullptr);
-    pageAnimation->AddItem("freWidth", ItemType::ChangeValue, nullptr, nullptr);
-    pageAnimation->AddItem("slidbar Y", ItemType::ChangeValue, nullptr, nullptr);
-    pageAnimation->AddItem("list Y", ItemType::ChangeValue, nullptr, nullptr);
-    pageAnimation->AddItem("icon X", ItemType::ChangeValue, nullptr, nullptr);
-    pageAnimation->AddItem("Exit", ItemType::JumpPage)
-        ->SetJumpId(pageMain->pageId, 3);
+        ->SetJumpId(pageMain->pageId, 1);
 
     // PagePID
     pagePID->AddItem("PID Editor", ItemType::Description);
@@ -86,7 +99,7 @@ void HugoUI::InitLayout(void)
     pageWS2812->AddItem("SetGreen", ItemType::ChangeValue, nullptr, nullptr);
     pageWS2812->AddItem("SetBlue", ItemType::ChangeValue,nullptr, nullptr);
     pageWS2812->AddItem("Exit", ItemType::JumpPage)
-        ->SetJumpId(pageMain->pageId, 3);
+        ->SetJumpId(pageMain->pageId, 4);
 
 }
 
