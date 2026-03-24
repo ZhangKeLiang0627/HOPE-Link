@@ -154,18 +154,19 @@ void PageList::Show(Item* thisitem)
     case State::RunPageDown:
         // 列表滚动
         if (uiSelect >= SCREEN_HEIGHT / 16)
-            this->list_y_trg -= FONT_HEIGHT;
-        if (uiSelect == 0)
+            this->list_y_trg = -(uiSelect - 3) * FONT_HEIGHT;
+        else
             this->list_y_trg = 0;
 
         // 选择框滚动
         this->frame_y = this->frame_y_trg - FONT_HEIGHT * 1.5f;
         if (uiSelect < SCREEN_HEIGHT / 16)
-        {
-            this->frame_y_trg += FONT_HEIGHT;
-        }
-        if (uiSelect == 0)
-            this->frame_y_trg = 0;
+            this->frame_y_trg = uiSelect * FONT_HEIGHT;
+        else
+            this->frame_y_trg = 3 * FONT_HEIGHT;
+
+        // if (uiSelect == 0)
+        //     this->frame_y_trg = 0;
 
         this->frame_width_trg = oled_get_UTF8_width(thisitem->title.c_str()) + FONT_WIDTH;
 
@@ -176,16 +177,20 @@ void PageList::Show(Item* thisitem)
         break;
         
     case State::RunPageUp:
+
         // 列表滚动
-        if (this->frame_y_trg == 0)
-            this->list_y_trg = -uiSelect * FONT_HEIGHT;
+        if (uiSelect >= SCREEN_HEIGHT / 16)
+            this->list_y_trg = -(uiSelect - 3) * FONT_HEIGHT;
+        else
+            this->list_y_trg = 0;
 
         // 选择框滚动
         this->frame_y = this->frame_y_trg + FONT_HEIGHT * 1.5f;
-        this->frame_y_trg -= FONT_HEIGHT;
-        if (this->frame_y_trg <= 0)
-            this->frame_y_trg = 0;
-            
+        if (uiSelect < SCREEN_HEIGHT / 16)
+            this->frame_y_trg = uiSelect * FONT_HEIGHT;
+        else
+            this->frame_y_trg = 3 * FONT_HEIGHT;
+
         this->frame_width_trg = oled_get_UTF8_width(thisitem->title.c_str()) + FONT_WIDTH;
 
         // 滚动条滑块
