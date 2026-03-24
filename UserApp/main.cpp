@@ -4,6 +4,8 @@
 #include "multi_button_user.h"
 #include "hugo_ui_user.h"
 
+#include "ArduinoJson.h"
+
 // 5 User-Timers, can choose from htim1/htim2/htim4/htim10/htim11
 Timer timerCtrlLoop(&htim4, 200);
 
@@ -44,6 +46,10 @@ void Main(void)
     // give USB_DEVICE some times
     HAL_Delay(1000); 
     
+    JsonDocument doc;
+    doc["sensor"] = "gps";
+    doc["time"] = 1351824120;
+
     keyInit(&uiKeyNum);
     encoder.Start(&uiEncoderNum);
     oledInit();
