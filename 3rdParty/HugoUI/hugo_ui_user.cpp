@@ -28,7 +28,7 @@ void HugoUI::InitLayout(void)
         ->SetJumpId(pageSetting->pageId, 0)
         ->SetIconSrc(Setting_BMP);
 
-    pageMain->AddItem("BlueTeeth", ItemType::CallFunction, nullptr)
+    pageMain->AddItem("Bluetooth", ItemType::CallFunction, nullptr)
         ->SetIconSrc(Knife_BMP);
 
     pageMain->AddItem("RealTime", ItemType::CallFunction, nullptr)
@@ -37,9 +37,6 @@ void HugoUI::InitLayout(void)
     pageMain->AddItem("RGB", ItemType::JumpPage)
         ->SetJumpId(pageWS2812->pageId, 0)
         ->SetIconSrc(Unicorn_BMP);
-
-    pageMain->AddItem("???", ItemType::CallFunction, nullptr)
-        ->SetIconSrc(TreasureBox_BMP);
 
     pageMain->AddItem("RC522", ItemType::CallFunction, nullptr)
         ->SetIconSrc(Cuteghost_BMP);
@@ -91,7 +88,7 @@ void HugoUI::InitLayout(void)
     pageWS2812->AddItem("SetGreen", ItemType::ChangeValue, nullptr, nullptr);
     pageWS2812->AddItem("SetBlue", ItemType::ChangeValue,nullptr, nullptr);
     pageWS2812->AddItem("Exit", ItemType::JumpPage)
-        ->SetJumpId(pageMain->pageId, 9);
+        ->SetJumpId(pageMain->pageId, 3);
 
 }
 
