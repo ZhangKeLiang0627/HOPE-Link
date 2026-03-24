@@ -1,11 +1,13 @@
 #include "hugo_ui.h"
+#include "hugo_ui_page_list.h"
+#include "hugo_ui_page_icon.h"
 
+#include <cmath>
+#include <cstdio> 
 #include <cstdlib>
 #include <cstring>
 #include <cstdarg>
-#include <cmath>
 #include <algorithm>
-#include <cstdio> 
 
 using namespace HugoUI;
 
@@ -22,25 +24,24 @@ Page::Ptr lastPage;     // 上一个Page
 Item::Ptr currentItem;  // 当前Item
 
 /* 状态变量 ----------------------------------------------------------- */
-static int16_t uiIndex = 0, uiSelect = 0;
-static State uiState = State::None;
+int16_t uiIndex = 0, uiSelect = 0;
+State uiState = State::None;
 
-static uint8_t jumpPage_flag = 0;
-static uint8_t ChangeVal_flag = 0;
+uint8_t ChangeVal_flag = 0;
 
 /* 输入变量 ----------------------------------------------------------- */
 uint8_t uiKeyNum = 0, uiEncoderNum = 0;
 uint8_t uiKeyNumInSide = 0, uiEncoderNumInSide = 0;
 
 /* 动画变量 ----------------------------------------------------------- */
-float frame_y = 0.0f, frame_y_trg = 0.0f;
-float frame_x = (float)SCREEN_WIDTH, frame_x_trg = 0.0f;
-float frame_width = 36.0f, frame_width_trg = 36.0f;
-float slidbar_y = 0.0f, slidbar_y_trg = 0.0f;
+// float frame_y = 0.0f, frame_y_trg = 0.0f;
+// float frame_x = (float)SCREEN_WIDTH, frame_x_trg = 0.0f;
+// float frame_width = 36.0f, frame_width_trg = 36.0f;
+// float slidbar_y = 0.0f, slidbar_y_trg = 0.0f;
 
-float icon_move_x = 0.0f, icon_move_x_trg = 48.0f;
-float icon_desc_y = 0.0f, icon_desc_y_trg = 24.0f;
-float icon_rectangle_x = 0.0f, icon_rectangle_x_trg = 13.0f;
+// float icon_move_x = 0.0f, icon_move_x_trg = 48.0f;
+// float icon_desc_y = 0.0f, icon_desc_y_trg = 24.0f;
+// float icon_rectangle_x = 0.0f, icon_rectangle_x_trg = 13.0f;
 
 uint8_t isItemFuncRunning = false;
 
@@ -280,11 +281,25 @@ Item::Ptr Page::AddItem(const std::string& title, ItemType itemType, ...)
  */
 Page::Ptr HugoUI::AddPage(PageType mode, const std::string& name)
 {
-    if (name.empty())
-        return nullptr;
-        
-    // 创建新Page
-    auto newPage = std::make_shared<Page>(mode, name);
+    if (name.empty()) return nullptr;
+    
+    Page::Ptr newPage;
+    
+    // 根据PageType创建对应派生类的实例
+    switch (mode) {
+        case PageType::List:
+            newPage = std::make_shared<PageList>(name);
+            break;
+        case PageType::Icon:
+            newPage = std::make_shared<PageIcon>(name);
+            break;
+        // case PageType::Custom:
+        //     newPage = std::make_shared<PageCustom>(name);
+        //     break;
+        default:
+            newPage = std::make_shared<PageList>(name);
+            break;
+    }
     
     // 设置页面ID
     newPage->pageId = static_cast<uint8_t>(pages.size());
@@ -293,396 +308,6 @@ Page::Ptr HugoUI::AddPage(PageType mode, const std::string& name)
     pages.push_back(newPage);
     
     return newPage;
-}
-
-/**
- * @brief 通用列表页面显示
- */
-void HugoUI::CommonListShow(Page* thispage, Item* thisitem)
-{
-    if (!thispage || !thisitem)
-        return;
-
-    // 计算动画
-    Animation_Linear(&thispage->page_y_forlist, &thispage->page_y_forlist_trg, 65);
-    Animation_Linear(&frame_y, &frame_y_trg, 65);
-    Animation_Linear(&frame_width, &frame_width_trg, 65);
-    Animation_Linear(&slidbar_y, &slidbar_y_trg, 65);
-
-    // 绘制目录树和目录名
-    int16_t Item_x = static_cast<int16_t>(thispage->page_x);
-    int16_t Item_y;
-    
-    // 遍历页面Item
-    for (const auto& item : thispage->items)
-    {
-        if (!item) continue;
-
-        // 绘制滚动条分隔线
-        int16_t bar_y = static_cast<int16_t>(thispage->page_y + item->lineId * ceil((float)SCREEN_HEIGHT / thispage->itemMax));
-        if (item->lineId % 2 == 0)
-        {
-            oled_draw_line(Item_x + SCREEN_WIDTH - 3, bar_y,
-                           Item_x + SCREEN_WIDTH - 1, bar_y);
-        }
-        else
-        {
-            oled_draw_line(Item_x + SCREEN_WIDTH - 3, bar_y,
-                           Item_x + SCREEN_WIDTH - 2, bar_y);
-        }
-
-        // 不在可视区域则跳过
-        if (item->lineId <= uiSelect - 5 || item->lineId >= uiSelect + 6)
-            continue;
-
-        Item_y = FONT_HEIGHT - 1 + static_cast<int16_t>(thispage->page_y + item->lineId * FONT_HEIGHT + thispage->page_y_forlist);
-        
-        switch (item->funcType)
-        {
-        case ItemType::Description:
-            oled_draw_str(2 + Item_x, Item_y, "-");
-            oled_draw_str(2 + 9 + Item_x, Item_y, item->title.c_str());
-            break;
-            
-        case ItemType::JumpPage:
-            oled_draw_str(2 + Item_x, Item_y, "+");
-            oled_draw_str(2 + 10 + Item_x, Item_y, item->title.c_str());
-            break;
-            
-        case ItemType::Checkbox:
-            oled_draw_str(2 + Item_x, Item_y, "-");
-            oled_draw_str(2 + 9 + Item_x, Item_y, item->title.c_str());
-
-            // 绘制勾选标记
-            if (item->flag && *item->flag)
-            {
-                oled_set_draw_color(2);
-                oled_draw_str(SCREEN_WIDTH - 18 + Item_x, Item_y + 1, "*");
-                oled_set_draw_color(1);
-            }
-
-            // 绘制勾选框
-            oled_draw_frame(SCREEN_WIDTH - 20 + Item_x, Item_y - 12 + 3, 11, 11);
-
-            // 当前选项高亮
-            if (item->lineId == uiSelect)
-            {
-                oled_set_draw_color(2);
-                oled_draw_box(SCREEN_WIDTH - 21 + Item_x, Item_y - 12 + 2, 12, 12);
-                oled_set_draw_color(1);
-            }
-            break;
-
-        case ItemType::Switch:
-            oled_draw_str(2 + Item_x, Item_y, "-");
-            oled_draw_str(2 + 9 + Item_x, Item_y, item->title.c_str());
-
-            // 显示On/Off
-            oled_draw_str(SCREEN_WIDTH - FONT_WIDTH * 3 + Item_x, Item_y, 
-                          (item->flag && *item->flag) ? "On" : "Off");
-            break;
-
-        case ItemType::ChangeValue:
-            oled_draw_str(2 + Item_x, Item_y, "-");
-            oled_draw_str(2 + 9 + Item_x, Item_y, item->title.c_str());
-            
-            // 显示数值
-            if (item->param) {
-                char float_str[20] = {0};
-                #ifdef FPU
-                    sprintf(float_str, "%.1f", *item->param);
-                #else
-                    sprintf(float_str, "%d", *item->param);
-                #endif
-                
-                int16_t val_x = (*item->param < 100) ? (SCREEN_WIDTH - FONT_WIDTH * 4 + Item_x) : (SCREEN_WIDTH - FONT_WIDTH * 5 + Item_x);
-                oled_draw_str(val_x, Item_y, float_str);
-
-                // 当前数值高亮
-                if (item->lineId == uiSelect && ChangeVal_flag)
-                {
-                    oled_set_draw_color(2);
-                    int16_t box_x = (*item->param < 0) ? (SCREEN_WIDTH - FONT_WIDTH * 7 + Item_x) : (SCREEN_WIDTH - FONT_WIDTH * 5 + Item_x);
-                    int16_t box_w = (*item->param < 0) ? (FONT_WIDTH * 6) : (FONT_WIDTH * 4);
-                    oled_draw_box(box_x, Item_y - 12 + 2, box_w, 11);
-                    oled_set_draw_color(1);
-                }
-            }
-            break;
-
-        default:
-            oled_draw_str(2 + Item_x, Item_y, "-");
-            oled_draw_str(2 + 9 + Item_x, Item_y, item->title.c_str());
-            break;
-        }
-    }
-
-    // 绘制选择框（反色）
-    oled_set_draw_color(2);
-    oled_draw_R_box(static_cast<int16_t>(thispage->page_x), 
-                    static_cast<int16_t>(thispage->page_y + frame_y), 
-                    static_cast<int16_t>(thispage->page_x + frame_width + 5), 
-                    FONT_HEIGHT + 2, 0);
-    oled_set_draw_color(1);
-
-    // 绘制滚动条
-    oled_draw_line(static_cast<int16_t>(thispage->page_x + SCREEN_WIDTH - 2), 
-                   static_cast<int16_t>(thispage->page_y), 
-                   static_cast<int16_t>(thispage->page_x + SCREEN_WIDTH - 2), 
-                   static_cast<int16_t>(thispage->page_y + SCREEN_HEIGHT));
-    
-    // 绘制滚动条滑块
-    oled_draw_box(static_cast<int16_t>(thispage->page_x + SCREEN_WIDTH - 3), 
-                  static_cast<int16_t>(thispage->page_y + slidbar_y), 
-                  SCROLL_BAR_WIDTH, 
-                  static_cast<int16_t>(ceil((float)SCREEN_HEIGHT / thispage->itemMax)));
-
-    // 页面状态处理
-    switch (uiState)
-    {
-    case State::None: 
-        break;
-        
-    case State::RunPageDown:
-        // 列表滚动
-        if (uiSelect >= SCREEN_HEIGHT / 16)
-            thispage->page_y_forlist_trg -= FONT_HEIGHT;
-        if (uiSelect == 0)
-            thispage->page_y_forlist_trg = 0;
-
-        // 选择框滚动
-        frame_y = frame_y_trg - FONT_HEIGHT * 1.5f;
-        if (uiSelect < SCREEN_HEIGHT / 16)
-        {
-            frame_y_trg += FONT_HEIGHT;
-        }
-        if (uiSelect == 0)
-            frame_y_trg = 0;
-
-        frame_width_trg = oled_get_UTF8_width(thisitem->title.c_str()) + FONT_WIDTH;
-
-        // 滚动条滑块
-        slidbar_y_trg = uiSelect * ceil((float)SCREEN_HEIGHT / thispage->itemMax);
-
-        uiState = State::None;
-        break;
-        
-    case State::RunPageUp:
-        // 列表滚动
-        if (frame_y_trg == 0)
-            thispage->page_y_forlist_trg = -uiSelect * FONT_HEIGHT;
-
-        // 选择框滚动
-        frame_y = frame_y_trg + FONT_HEIGHT * 1.5f;
-        frame_y_trg -= FONT_HEIGHT;
-        if (frame_y_trg <= 0)
-            frame_y_trg = 0;
-            
-        frame_width_trg = oled_get_UTF8_width(thisitem->title.c_str()) + FONT_WIDTH;
-
-        // 滚动条滑块
-        slidbar_y_trg = uiSelect * ceil((float)SCREEN_HEIGHT / thispage->itemMax);
-
-        uiState = State::None;
-        break;
-        
-    case State::ReadyToJumpPage:
-        // 页面位置
-        thispage->page_x_trg = 0;
-        thispage->page_x = 100;
-
-        // 选择框位置
-        frame_y = SCREEN_HEIGHT * 1.5f;
-        frame_y_trg = (uiSelect % (SCREEN_HEIGHT / 16)) * FONT_HEIGHT;
-        frame_width_trg = oled_get_UTF8_width(thisitem->title.c_str()) + FONT_WIDTH;
-
-        // 滚动条位置
-        slidbar_y = SCREEN_HEIGHT;
-        slidbar_y_trg = uiSelect * (SCREEN_HEIGHT / (thispage->itemMax + 1));
-
-        // 列表位置调整
-        if ((uiSelect % (SCREEN_HEIGHT / 16)) - 1)
-        {
-            if (thispage->page_y_forlist_trg / FONT_HEIGHT == -(uiSelect - 1))
-                thispage->page_y_forlist_trg -= FONT_HEIGHT;
-            else
-                thispage->page_y_forlist_trg -= FONT_HEIGHT * (SCREEN_HEIGHT / 16);
-        }
-
-        if (uiSelect == 0)
-            thispage->page_y_forlist_trg = 0;
-
-        uiState = State::JumpPage;
-        break;
-        
-    case State::JumpPage:
-        if (Animation_EasyOut(&thispage->page_x, &thispage->page_x_trg, 85) == 0)
-        {
-            jumpPage_flag |= 0x0f;
-        }
-
-        if((jumpPage_flag & 0xf0) != 0xf0)
-        {
-            oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            if(Animation_Blur() == 0)
-            {
-                jumpPage_flag |= 0xf0;
-            }
-        }
-
-        if (jumpPage_flag == 0xff)
-        {
-            jumpPage_flag = 0;
-            uiState = State::JumpPageArrive;
-        }
-        break;
-        
-    case State::JumpPageArrive:
-        frame_y_trg = (uiSelect % (SCREEN_HEIGHT / 16)) * FONT_HEIGHT;
-        frame_width_trg = oled_get_UTF8_width(thisitem->title.c_str()) + FONT_WIDTH;
-        slidbar_y_trg = uiSelect * ceil((float)SCREEN_HEIGHT / thispage->itemMax);
-
-        uiState = State::None;
-        break;
-
-    default:
-        uiState = State::None;
-        break;
-    }
-}
-
-/**
- * @brief 通用Icon页面显示
- */
-void HugoUI::CommonIconShow(Page* thispage, Item* thisitem)
-{
-    if (!thispage || !thisitem)
-        return;
-
-    // 计算动画
-    Animation_Linear(&thispage->page_x, &thispage->page_x_trg, 65);
-    Animation_Linear(&frame_x, &frame_x_trg, 65);
-    Animation_Linear(&icon_move_x, &icon_move_x_trg, 75);
-    Animation_Linear(&icon_rectangle_x, &icon_rectangle_x_trg, 65);
-    
-    // 绘制参数
-    int16_t Item_y = static_cast<int16_t>(thispage->page_y);
-    int16_t Item_x;
-
-    oled_set_bitmap_mode(1);
-    
-    // 遍历Item
-    for (const auto& item : thispage->items)
-    {
-        if (!item) continue;
-        
-        // 不在可视区域则跳过
-        if (item->lineId <= uiSelect - 5 || item->lineId >= uiSelect + 6)
-            continue;
-
-        Item_x = 48 + static_cast<int16_t>(thispage->page_x + icon_move_x * item->lineId);
-
-        // 绘制图标
-        if (item->pic) {
-            oled_draw_bMP(Item_x, Item_y, 32, 32, item->pic);
-        }
-    }
-    
-    oled_set_bitmap_mode(0);
-
-    // 绘制标题
-    oled_set_font(u8g2_font_luBS14_tr);
-    int16_t title_x = (SCREEN_WIDTH - oled_get_UTF8_width(thisitem->title.c_str())) / 2;
-    int16_t title_y = Item_y + SCREEN_HEIGHT / 2 + 22 + (FONT_HEIGHT - static_cast<int16_t>(icon_rectangle_x));
-    oled_draw_str(title_x, title_y, thisitem->title.c_str());
-    oled_set_font(u8g2_font_wqy13_t_gb2312a);
-
-    // 绘制选择框
-    oled_set_draw_color(2);
-    oled_draw_R_box(48 + static_cast<int16_t>(frame_x), 
-                    static_cast<int16_t>(thispage->page_y), 
-                    32, 32, 0);
-    
-    // 绘制矩形
-    oled_draw_box(0, 
-                  static_cast<int16_t>(thispage->page_y + SCREEN_HEIGHT / 2 + 4), 
-                  static_cast<int16_t>(icon_rectangle_x), 24);
-    oled_set_draw_color(1);
-
-    // 状态处理
-    switch (uiState)
-    {
-    case State::None: 
-        break;
-        
-    case State::RunPageDown:
-        thispage->page_x_trg = -(uiSelect * 48);
-        frame_x -= 24;
-
-        icon_rectangle_x = 0;
-        if (uiSelect == 0)
-        {
-            icon_move_x = 0;
-        }
-
-        uiState = State::None;
-        break;
-        
-    case State::RunPageUp:
-        thispage->page_x_trg = -(uiSelect * 48);
-        frame_x += 24;
-
-        icon_rectangle_x = 0;
-
-        uiState = State::None;
-        break;
-        
-    case State::ReadyToJumpPage:
-        // 页面位置
-        thispage->page_y_trg = 0;
-        thispage->page_y = 40;
-
-        icon_move_x = 160;
-        frame_x = 160;
-        frame_y = SCREEN_HEIGHT * 1.5f;
-
-        thispage->page_x_trg = -(uiSelect * 48);
-        icon_rectangle_x = 0;
-
-        uiState = State::JumpPage;
-        break;
-        
-    case State::JumpPage:
-        if (Animation_EasyIn(&thispage->page_y, &thispage->page_y_trg, 75) == 0)
-        {
-            jumpPage_flag |= 0x0f;
-        }
-
-        if((jumpPage_flag & 0xf0) != 0xf0)
-        {
-            oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            if(Animation_Blur() == 0)
-            {
-                jumpPage_flag |= 0xf0;
-            }
-        }
-
-        if (jumpPage_flag == 0xff)
-        {
-            jumpPage_flag = 0;
-            uiState = State::JumpPageArrive;
-        }
-        break;
-        
-    case State::JumpPageArrive:
-        thispage->page_x_trg = -(uiSelect * 48);
-        uiState = State::None;
-        break;
-
-    default:
-        uiState = State::None;
-        break;
-    }
 }
 
 /**
@@ -846,19 +471,8 @@ void HugoUI::TaskHandler(void)
             oled_clear_buffer();
             
             // 根据页面类型显示
-            if (currentPage->funcType == PageType::List) {
-                CommonListShow(currentPage.get(), currentItem.get());
-            } 
-            else if (currentPage->funcType == PageType::Icon) {
-                CommonIconShow(currentPage.get(), currentItem.get());
-            } 
-            else if (currentPage->funcType == PageType::Custom) {
-                if (currentPage->PageUIShow) {
-                    currentPage->PageUIShow(currentPage.get(), currentItem.get());
-                } else {
-                    CommonListShow(currentPage.get(), currentItem.get());
-                }
-            }
+            // 多态调用：自动调用对应派生类的Show方法
+            currentPage->Show(currentItem.get());
 
             oled_send_buffer();
         }

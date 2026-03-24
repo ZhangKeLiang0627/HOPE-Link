@@ -7,8 +7,6 @@ using namespace HugoUI;
 
 // 开关控件变量
 
-extern float icon_move_x;
-
 /* 用户函数 ----------------------------------------------------------- */
 
 void EventShowAboutUI(void);
@@ -83,7 +81,7 @@ void HugoUI::InitLayout(void)
         ->SetJumpId(pageSetting->pageId, 1);
 
     // PageWS2812
-    pageWS2812->AddItem("WS2812RGBSet", ItemType::Description);
+    pageWS2812->AddItem("『RGB灯珠测试』", ItemType::Description);
     pageWS2812->AddItem("SetRed", ItemType::ChangeValue,nullptr, nullptr);
     pageWS2812->AddItem("SetGreen", ItemType::ChangeValue, nullptr, nullptr);
     pageWS2812->AddItem("SetBlue", ItemType::ChangeValue,nullptr, nullptr);
@@ -112,6 +110,5 @@ void EventShowAboutUI(void)
     if (uiKeyNumInSide == 2)
     {
         motion_a = 80.0f;
-        icon_move_x = 128; 
     }
 }

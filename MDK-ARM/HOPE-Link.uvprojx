@@ -2002,6 +2002,16 @@
               <FileType>8</FileType>
               <FilePath>..\3rdParty\HugoUI\hugi_ui_bmp.cpp</FilePath>
             </File>
+            <File>
+              <FileName>hugo_ui_page_list.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\3rdParty\HugoUI\hugo_ui_page_list.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>hugo_ui_page_icon.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\3rdParty\HugoUI\hugo_ui_page_icon.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

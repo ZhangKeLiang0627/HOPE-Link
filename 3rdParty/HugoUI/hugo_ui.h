@@ -6,8 +6,8 @@
 #include <string>
 #include <cstdarg>  
 
-#include "oled_wrapper.h"
 #include "main.h"
+#include "oled_wrapper.h"
 
 /* define ------------------------------------------------------- */
 #define SCREEN_WIDTH 128
@@ -148,7 +148,6 @@ public:
     uint16_t itemMax;       // Item数量
     float page_x, page_x_trg;
     float page_y, page_y_trg;
-    float page_y_forlist, page_y_forlist_trg;
     
     // Item列表
     std::vector<Item::Ptr> items;
@@ -156,7 +155,6 @@ public:
     // 回调函数
     void (*FuncCallBack)(void);
     void (*PageEventProc)(void);
-    void (*PageUIShow)(Page* thispage, Item* thisitem);
 
     // 构造函数
     Page(PageType type = PageType::List, 
@@ -167,19 +165,14 @@ public:
           itemMax(0),
           page_x(0), page_x_trg(0),
           page_y(0), page_y_trg(0),
-          page_y_forlist(0), page_y_forlist_trg(0),
           FuncCallBack(nullptr),
-          PageEventProc(nullptr),
-          PageUIShow(nullptr) {}
+          PageEventProc(nullptr) {}
+
+    // 纯虚函数 - 强制派生类实现
+    virtual void Show(Item* thisitem) = 0;
 
     // 添加Item
     Item::Ptr AddItem(const std::string& title, ItemType itemType, ...);
-
-    // 设置页面显示回调
-    Ptr SetPageUIShow(void (*showFunc)(Page* thispage, Item* thisitem)) {
-        this->PageUIShow = showFunc;
-        return shared_from_this();
-    }
 
     // 设置页面回调
     Ptr SetPageFunCallBack(void (*cbFunc)(void)) {
@@ -192,6 +185,9 @@ public:
         this->PageEventProc = eventProc;
         return shared_from_this();
     }
+
+    // 虚析构函数（必须）
+    virtual ~Page() = default;
 };
 
 // 执行频率结构体
@@ -234,5 +230,10 @@ extern HugoUI::Rate Rate1000Hz;
 
 extern uint8_t uiKeyNum, uiEncoderNum;
 extern uint8_t uiKeyNumInSide, uiEncoderNumInSide;
+
+extern int16_t uiIndex, uiSelect;
+extern HugoUI::State uiState;
+
+extern uint8_t ChangeVal_flag;
 
 #endif // __HUGO_UI_H
