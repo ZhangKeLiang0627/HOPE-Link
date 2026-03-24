@@ -14,7 +14,7 @@ void PageList::Show(Item* thisitem)
     // 计算动画
     Animation_Linear(&this->list_y, &this->list_y_trg, 65);
     Animation_Linear(&this->frame_y, &this->frame_y_trg, 65);
-    Animation_Linear(&this->frame_width, &this->frame_width_trg, 65);
+    Animation_Linear(&this->frame_width, &this->frame_width_trg, 50);
     Animation_Linear(&this->slidbar_y, &this->slidbar_y_trg, 65);
 
     // 绘制目录树和目录名
@@ -48,18 +48,18 @@ void PageList::Show(Item* thisitem)
         switch (item->funcType)
         {
         case ItemType::Description:
-            oled_draw_str(2 + Item_x, Item_y, "-");
-            oled_draw_str(2 + 9 + Item_x, Item_y, item->title.c_str());
+            oled_draw_str(2 + Item_x, Item_y, "#");
+            oled_draw_UTF8(2 + 9 + Item_x, Item_y, item->title.c_str());
             break;
             
         case ItemType::JumpPage:
             oled_draw_str(2 + Item_x, Item_y, "+");
-            oled_draw_str(2 + 10 + Item_x, Item_y, item->title.c_str());
+            oled_draw_UTF8(2 + 10 + Item_x, Item_y, item->title.c_str());
             break;
             
         case ItemType::Checkbox:
             oled_draw_str(2 + Item_x, Item_y, "-");
-            oled_draw_str(2 + 9 + Item_x, Item_y, item->title.c_str());
+            oled_draw_UTF8(2 + 9 + Item_x, Item_y, item->title.c_str());
 
             // 绘制勾选标记
             if (item->flag && *item->flag)
@@ -83,7 +83,7 @@ void PageList::Show(Item* thisitem)
 
         case ItemType::Switch:
             oled_draw_str(2 + Item_x, Item_y, "-");
-            oled_draw_str(2 + 9 + Item_x, Item_y, item->title.c_str());
+            oled_draw_UTF8(2 + 9 + Item_x, Item_y, item->title.c_str());
 
             // 显示On/Off
             oled_draw_str(SCREEN_WIDTH - FONT_WIDTH * 3 + Item_x, Item_y, 
@@ -92,8 +92,8 @@ void PageList::Show(Item* thisitem)
 
         case ItemType::ChangeValue:
             oled_draw_str(2 + Item_x, Item_y, "-");
-            oled_draw_str(2 + 9 + Item_x, Item_y, item->title.c_str());
-            
+            oled_draw_UTF8(2 + 9 + Item_x, Item_y, item->title.c_str());
+
             // 显示数值
             if (item->param) {
                 char float_str[20] = {0};
@@ -120,7 +120,7 @@ void PageList::Show(Item* thisitem)
 
         default:
             oled_draw_str(2 + Item_x, Item_y, "-");
-            oled_draw_str(2 + 9 + Item_x, Item_y, item->title.c_str());
+            oled_draw_UTF8(2 + 9 + Item_x, Item_y, item->title.c_str());
             break;
         }
     }
