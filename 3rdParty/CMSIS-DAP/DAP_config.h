@@ -99,7 +99,7 @@ static void PORT_SWD_SETUP(void)
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-	// GPIOA->BSRR = SWCLK_PIN | SWDIO_PIN | nRST_PIN;
+	GPIOA->BSRR = SWCLK_PIN | SWDIO_PIN | nRST_PIN;
 
 	GPIO_InitStruct.Pin = SWCLK_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -108,7 +108,7 @@ static void PORT_SWD_SETUP(void)
 	HAL_GPIO_Init(SWCLK_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = SWDIO_PIN;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(SWDIO_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = nRST_PIN;
@@ -195,9 +195,8 @@ __STATIC_INLINE void PIN_SWDIO_OUT(uint32_t bit)
 
 __STATIC_INLINE void PIN_SWDIO_OUT_ENABLE(void)
 {
-	SWDIO_PORT->BSRR = (uint32_t)SWDIO_PIN << 16U;
-	SWDIO_PORT->MODER |= (1 << (SWDIO_PIN_INDEX * 2));
-	// SWDIO_PORT->OTYPER &= ~(1 << SWDIO_PIN_INDEX);
+	SWDIO_PORT->MODER &= ~(3U << (SWDIO_PIN_INDEX * 2));
+	SWDIO_PORT->MODER |= (1U << (SWDIO_PIN_INDEX * 2));
 }
 
 __STATIC_INLINE void PIN_SWDIO_OUT_DISABLE(void)
@@ -248,20 +247,46 @@ __STATIC_INLINE uint32_t PIN_nRESET_IN(void)
 	return (uint32_t)(nRST_PORT->IDR & nRST_PIN ? 1 : 0);
 }
 
-extern uint8_t swd_write_word(uint32_t addr, uint32_t val);
+// extern uint8_t swd_write_word(uint32_t addr, uint32_t val);
 extern uint8_t swd_init_debug(void);
-// extern uint8_t swd_write_memory(uint32_t address, uint8_t *data, uint32_t size);
+extern uint8_t swd_write_memory(uint32_t address, uint8_t *data, uint32_t size);
 __STATIC_INLINE void PIN_nRESET_OUT(uint32_t bit)
 {
+	// if (bit & 1)
+	// 	nRST_PORT->BSRR = (uint32_t)nRST_PIN;
+	// else
+	// 	nRST_PORT->BSRR = (uint32_t)nRST_PIN << 16U;
+
+	// if (bit == 0)
+	// {
+	// 	swd_write_word((uint32_t)&SCB->AIRCR, ((0x5FA << SCB_AIRCR_VECTKEY_Pos) | SCB_AIRCR_SYSRESETREQ_Msk));
+	// }
+
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
 	if (bit & 1)
+	{
 		nRST_PORT->BSRR = (uint32_t)nRST_PIN;
+
+		GPIO_InitStruct.Pin = nRST_PIN;
+		GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
+	}
 	else
+	{
 		nRST_PORT->BSRR = (uint32_t)nRST_PIN << 16U;
 
-	if (bit == 0)
-	{
-		swd_write_word((uint32_t)&SCB->AIRCR, ((0x5FA << SCB_AIRCR_VECTKEY_Pos) | SCB_AIRCR_SYSRESETREQ_Msk));
+		GPIO_InitStruct.Pin = nRST_PIN;
+		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+		GPIO_InitStruct.Pull = GPIO_PULLUP;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
+
+		swd_init_debug();
+		uint32_t swd_mem_write_data = 0x05FA0000 | 0x4;
+		swd_write_memory(0xE000ED0C, (uint8_t *)&swd_mem_write_data, 4);
 	}
 }
 
