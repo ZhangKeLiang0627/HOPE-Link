@@ -88,8 +88,9 @@ static uint8_t swd_transfer_retry(uint32_t req, uint32_t *data)
 
 uint8_t swd_init(void)
 {
-    DAP_Setup();
-    PORT_SWD_SETUP();
+    // [kkl] 不在这儿初始化，因为会频繁调用
+    // DAP_Setup();
+    // PORT_SWD_SETUP();
 	
     return 1;
 }

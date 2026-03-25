@@ -10,6 +10,7 @@ using namespace HugoUI;
 /* 用户函数 ----------------------------------------------------------- */
 
 void EventShowAboutUI(void);
+void EventTestDapUI(void);
 
 void HugoUI::InitLayout(void)
 {
@@ -123,5 +124,58 @@ void EventShowAboutUI(void)
     if (uiKeyNumInSide == 2)
     {
         motion_a = 80.0f;
+    }
+}
+
+#include "DAP.h"
+
+/* CMSIS-DAP test 的应用事件函数 */
+void EventTestDapUI(void)
+{
+    static uint8_t isTestDapInit = 0;
+    static uint8_t isTestDapFuncEnter = 0;
+
+     // Init
+    if (!isTestDapInit)
+    {
+        DAP_Setup();
+        isTestDapInit = 1;
+    }
+
+    // Enter
+    if(!isTestDapFuncEnter)
+    {
+        oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        if (Animation_Blur() == 0)
+            isTestDapFuncEnter = 1;
+        return;
+    }
+
+    // Loop
+    oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP测试』");
+
+    if (swd_init_debug())
+    {
+        oled_draw_UTF8(0, FONT_HEIGHT * 2, "目标芯片已连接!!!");
+    }
+    else
+    {
+        oled_draw_UTF8(0, FONT_HEIGHT * 2, "还没有芯片接入噢...");
+    }
+
+    // Exit
+    if (uiKeyNumInSide == 2)
+    {
+        uint8_t isExitAnimFinish = 1;
+        oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        oled_send_buffer();
+
+        while (isExitAnimFinish)
+        {
+            isExitAnimFinish = Animation_Blur();
+            oled_send_buffer();
+        }
+
+        isTestDapFuncEnter = 0;
     }
 }
