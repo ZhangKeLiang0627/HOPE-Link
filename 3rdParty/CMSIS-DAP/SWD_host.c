@@ -33,8 +33,8 @@
 #define MAX_SWD_RETRY 10
 #define MAX_TIMEOUT   1000000  // Timeout for syscalls on target
 
-#define SCB_AIRCR_PRIGROUP_Pos              8
-#define SCB_AIRCR_PRIGROUP_Msk             (7UL << SCB_AIRCR_PRIGROUP_Pos)
+// #define SCB_AIRCR_PRIGROUP_Pos              8
+// #define SCB_AIRCR_PRIGROUP_Msk             (7UL << SCB_AIRCR_PRIGROUP_Pos)
 
 
 typedef struct {
@@ -828,7 +828,7 @@ __attribute__((weak)) void swd_set_target_reset(uint8_t asserted)
 */
 void swd_set_target_reset(uint8_t asserted)
 {
-	/* ±¾ÎÄ¼þÖÐ¶Ô´Ëº¯ÊýµÄÊ¹ÓÃ¶¼ÊÇÏÈ asserted=1 µ÷ÓÃ£¬ÑÓÊ±ºó asserted=0 µ÷ÓÃ£¬ÎªÁËÖ»µ÷ÓÃÒ»´ÎËùÒÔÖ»ÔÚµÚ¶þ´Îµ÷ÓÃ´Ëº¯ÊýÊ±Ö´ÐÐÈí¼þ¸´Î» */
+	/* ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½Ð¶Ô´Ëºï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½Ã¶ï¿½ï¿½ï¿½ï¿½ï¿½ asserted=1 ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ asserted=0 ï¿½ï¿½ï¿½Ã£ï¿½Îªï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ÚµÚ¶ï¿½ï¿½Îµï¿½ï¿½Ã´Ëºï¿½ï¿½ï¿½Ê±Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î» */
     if(asserted == 0)
 	{
 		swd_write_word((uint32_t)&SCB->AIRCR, ((0x5FA << SCB_AIRCR_VECTKEY_Pos) |(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) | SCB_AIRCR_SYSRESETREQ_Msk));

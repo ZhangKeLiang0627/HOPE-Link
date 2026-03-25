@@ -4,7 +4,7 @@
  */
 #include "swd_host.h"
 #include "SWD_flash.h"
-
+#include "flash_blob.h"
 
 extern const program_target_t flash_algo;
 
