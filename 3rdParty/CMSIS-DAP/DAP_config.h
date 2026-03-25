@@ -37,6 +37,7 @@
 #define SWO_BUFFER_SIZE         4096U           ///< SWO Trace Buffer Size in bytes (must be 2^n)
 // #define SWO_BUFFER_SIZE         8192U           ///< SWO Trace Buffer Size in bytes (must be 2^n)
 
+#define TIMESTAMP_CLOCK 		100000 			///< Timestamp clock in Hz (0 = timestamps not supported).
 
 /// Debug Unit is connected to fixed Target Device.
 #define TARGET_DEVICE_FIXED     0               ///< Target Device: 1 = known, 0 = unknown;

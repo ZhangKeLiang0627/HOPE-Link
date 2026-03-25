@@ -325,60 +325,81 @@ static uint32_t DAP_SWJ_Pins(const uint8_t *request, uint8_t *response) {
   uint32_t value;
   uint32_t select;
   uint32_t wait;
-  
-  value  =  *(request+0);
-  select =  *(request+1); 
-  wait   = (*(request+2) <<  0) |
-           (*(request+3) <<  8) |
-           (*(request+4) << 16) |
-           (*(request+5) << 24);
+  uint32_t timestamp;
 
-  if (select & (1U << DAP_SWJ_SWCLK_TCK)) {
-    if (value & (1U << DAP_SWJ_SWCLK_TCK)) {
+  value  = (uint32_t) *(request+0);
+  select = (uint32_t) *(request+1);
+  wait   = (uint32_t)(*(request+2) <<  0) |
+           (uint32_t)(*(request+3) <<  8) |
+           (uint32_t)(*(request+4) << 16) |
+           (uint32_t)(*(request+5) << 24);
+
+  if ((select & (1U << DAP_SWJ_SWCLK_TCK)) != 0U) {
+    if ((value & (1U << DAP_SWJ_SWCLK_TCK)) != 0U) {
       PIN_SWCLK_TCK_SET();
     } else {
       PIN_SWCLK_TCK_CLR();
     }
   }
-  if (select & (1U << DAP_SWJ_SWDIO_TMS)) {
-    if (value & (1U << DAP_SWJ_SWDIO_TMS)) {
+  if ((select & (1U << DAP_SWJ_SWDIO_TMS)) != 0U) {
+    if ((value & (1U << DAP_SWJ_SWDIO_TMS)) != 0U) {
       PIN_SWDIO_TMS_SET();
     } else {
       PIN_SWDIO_TMS_CLR();
     }
   }
-  if (select & (1U << DAP_SWJ_TDI)) {
+  if ((select & (1U << DAP_SWJ_TDI)) != 0U) {
     PIN_TDI_OUT(value >> DAP_SWJ_TDI);
   }
-  if (select & (1U << DAP_SWJ_nTRST)) {
+  if ((select & (1U << DAP_SWJ_nTRST)) != 0U) {
     PIN_nTRST_OUT(value >> DAP_SWJ_nTRST);
   }
-  if (select & (1U << DAP_SWJ_nRESET)) {
+  if ((select & (1U << DAP_SWJ_nRESET)) != 0U){
     PIN_nRESET_OUT(value >> DAP_SWJ_nRESET);
   }
 
-  if (wait) {
-    if (wait > 3000000U) { wait = 3000000U; }
-    TIMER_START(wait);
+  if (wait != 0U) {
+#if (TIMESTAMP_CLOCK != 0U)
+    if (wait > 3000000U) {
+      wait = 3000000U;
+    }
+#if (TIMESTAMP_CLOCK >= 1000000U)
+    wait *= TIMESTAMP_CLOCK / 1000000U;
+#else
+    wait /= 1000000U / TIMESTAMP_CLOCK;
+#endif
+#else
+    wait  = 1U;
+#endif
+    timestamp = TIMESTAMP_GET();
     do {
-      if (select & (1U << DAP_SWJ_SWCLK_TCK)) {
-        if ((value >> DAP_SWJ_SWCLK_TCK) ^ PIN_SWCLK_TCK_IN()) { continue; }
+      if ((select & (1U << DAP_SWJ_SWCLK_TCK)) != 0U) {
+        if ((value >> DAP_SWJ_SWCLK_TCK) ^ PIN_SWCLK_TCK_IN()) {
+          continue;
+        }
       }
-      if (select & (1U << DAP_SWJ_SWDIO_TMS)) {
-        if ((value >> DAP_SWJ_SWDIO_TMS) ^ PIN_SWDIO_TMS_IN()) { continue; }
+      if ((select & (1U << DAP_SWJ_SWDIO_TMS)) != 0U) {
+        if ((value >> DAP_SWJ_SWDIO_TMS) ^ PIN_SWDIO_TMS_IN()) {
+          continue;
+        }
       }
-      if (select & (1U << DAP_SWJ_TDI)) {
-        if ((value >> DAP_SWJ_TDI) ^ PIN_TDI_IN()) { continue; }
+      if ((select & (1U << DAP_SWJ_TDI)) != 0U) {
+        if ((value >> DAP_SWJ_TDI) ^ PIN_TDI_IN()) {
+          continue;
+        }
       }
-      if (select & (1U << DAP_SWJ_nTRST)) {
-        if ((value >> DAP_SWJ_nTRST) ^ PIN_nTRST_IN()) { continue; }
+      if ((select & (1U << DAP_SWJ_nTRST)) != 0U) {
+        if ((value >> DAP_SWJ_nTRST) ^ PIN_nTRST_IN()) {
+          continue;
+        }
       }
-      if (select & (1U << DAP_SWJ_nRESET)) {
-        if ((value >> DAP_SWJ_nRESET) ^ PIN_nRESET_IN()) { continue; }
+      if ((select & (1U << DAP_SWJ_nRESET)) != 0U) {
+        if ((value >> DAP_SWJ_nRESET) ^ PIN_nRESET_IN()) {
+          continue;
+        }
       }
       break;
-    } while (!TIMER_EXPIRED());
-    TIMER_STOP();
+    } while ((TIMESTAMP_GET() - timestamp) < wait);
   }
 
   value = (PIN_SWCLK_TCK_IN() << DAP_SWJ_SWCLK_TCK) |
