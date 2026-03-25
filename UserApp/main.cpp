@@ -20,15 +20,7 @@ static uint32_t buttonTickCount = 0;
 void OnTimer4Callback()
 {
     // multi_button
-    // if (++buttonTickCount >= 2)
-    // {
-    //     button_ticks();
-    //     buttonTickCount = 0;
-    // }
     button_ticks();
-
-    // HugoUI
-    // HugoUI::TickInc();
 
     // Encoder
     if (++encoderTickCount >= 2)
@@ -46,6 +38,7 @@ void Main(void)
     
     keyInit(&uiKeyNum);
     encoder.Start(&uiEncoderNum);
+    
     oledInit();
     oledSetFont(u8g2_font_wqy13_t_gb2312a);
     HugoUI::InitLayout();
