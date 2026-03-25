@@ -2,28 +2,28 @@
 #define __DAP_CONFIG_H__
 
 
-#define CPU_CLOCK               84000000       ///< Specifies the CPU Clock in Hz
+#define CPU_CLOCK               84000000U       ///< Specifies the CPU Clock in Hz
 
 
-#define IO_PORT_WRITE_CYCLES    2               ///< I/O Cycles: 2=default, 1=Cortex-M0+ fast I/0
+#define IO_PORT_WRITE_CYCLES    2U              ///< I/O Cycles: 2=default, 1=Cortex-M0+ fast I/0
 
 
 #define DAP_SWD                 1               ///< SWD Mode:  1 = available, 0 = not available
 
 #define DAP_JTAG                0               ///< JTAG Mode: 0 = not available
 
-#define DAP_JTAG_DEV_CNT        8               ///< Maximum number of JTAG devices on scan chain
+#define DAP_JTAG_DEV_CNT        8U              ///< Maximum number of JTAG devices on scan chain
 
-#define DAP_DEFAULT_PORT        1               ///< Default JTAG/SWJ Port Mode: 1 = SWD, 2 = JTAG.
+#define DAP_DEFAULT_PORT        1U              ///< Default JTAG/SWJ Port Mode: 1 = SWD, 2 = JTAG.
 
-#define DAP_DEFAULT_SWJ_CLOCK   4000000         ///< Default SWD/JTAG clock frequency in Hz.
+#define DAP_DEFAULT_SWJ_CLOCK   4000000U        ///< Default SWD/JTAG clock frequency in Hz.
 
 
 /// Maximum Package Size for Command and Response data.
-#define DAP_PACKET_SIZE         64              ///< USB: 64 = Full-Speed, 1024 = High-Speed.
+#define DAP_PACKET_SIZE         64U             ///< USB: 64 = Full-Speed, 1024 = High-Speed.
 
 /// Maximum Package Buffers for Command and Response data.
-#define DAP_PACKET_COUNT        1              ///< Buffers: 64 = Full-Speed, 4 = High-Speed.
+#define DAP_PACKET_COUNT        1U             ///< Buffers: 64 = Full-Speed, 4 = High-Speed.
 
 
 /// Indicate that UART Serial Wire Output (SWO) trace is available.
@@ -134,7 +134,7 @@ static void PORT_OFF(void)
 	GPIO_InitStruct.Pin = SWCLK_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 	HAL_GPIO_Init(SWCLK_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = SWDIO_PIN;
@@ -197,6 +197,7 @@ __STATIC_INLINE void PIN_SWDIO_OUT_ENABLE(void)
 {
 	SWDIO_PORT->BSRR = (uint32_t)SWDIO_PIN << 16U;
 	SWDIO_PORT->MODER |= (1 << (SWDIO_PIN_INDEX * 2));
+	// SWDIO_PORT->OTYPER &= ~(1 << SWDIO_PIN_INDEX);
 }
 
 __STATIC_INLINE void PIN_SWDIO_OUT_DISABLE(void)
@@ -291,7 +292,7 @@ static void DAP_SETUP(void)
 {
 	// __HAL_RCC_GPIOA_CLK_ENABLE();
 	// __HAL_RCC_GPIOC_CLK_ENABLE();
-	// PORT_SWD_SETUP();
+	PORT_SWD_SETUP();
 }
 
 

@@ -8,6 +8,8 @@
 #include "DAP.h"
 #include "debug_cm.h"
 
+// [test]
+#include "interface_uart.h"
 
 #define TARGET_AUTO_INCREMENT_PAGE_SIZE    (1024)
 
@@ -88,7 +90,7 @@ static uint8_t swd_transfer_retry(uint32_t req, uint32_t *data)
 
 uint8_t swd_init(void)
 {
-    // [kkl] ‰∏çÂú®ËøôÂÑøÂàùÂßãÂåñÔºåÂõ†‰∏∫‰ºöÈ¢ëÁπÅË∞ÉÁî®
+    // [kkl] ≤ª‘⁄’‚∂˘≥ı ºªØ£¨“ÚŒ™ª·∆µ∑±µ˜”√
     // DAP_Setup();
     // PORT_SWD_SETUP();
 	
@@ -730,6 +732,7 @@ static uint8_t swd_read_idcode(uint32_t *id)
     SWJ_Sequence(8, tmp_in);
 
     if (swd_read_dp(0, (uint32_t *)tmp_out) != 0x01) {
+        Usart_SendString(&huart1, "[Debug] swd_read_idcode err 1\n");
         return 0;
     }
 
@@ -743,18 +746,26 @@ static uint8_t JTAG2SWD()
     uint32_t tmp = 0;
 
     if (!swd_reset()) {
+        Usart_SendString(&huart1, "[Debug] JTAG2SWD err 1\n");
+
         return 0;
     }
 
     if (!swd_switch(0xE79E)) {
+        Usart_SendString(&huart1, "[Debug] JTAG2SWD err 2\n");
+
         return 0;
     }
 
     if (!swd_reset()) {
+        Usart_SendString(&huart1, "[Debug] JTAG2SWD err 3\n");
+
         return 0;
     }
 
     if (!swd_read_idcode(&tmp)) {
+        Usart_SendString(&huart1, "[Debug] JTAG2SWD err 4\n");
+
         return 0;
     }
 
@@ -776,26 +787,32 @@ uint8_t swd_init_debug(void)
     //target_before_init_debug();
 
     if (!JTAG2SWD()) {
-        return 0;
+        Usart_SendString(&huart1, "[Debug] err 2\n");
+        return 2;
     }
 
     if (!swd_write_dp(DP_ABORT, STKCMPCLR | STKERRCLR | WDERRCLR | ORUNERRCLR)) {
-        return 0;
+        Usart_SendString(&huart1, "[Debug] err 3\n");
+        return 3;
     }
 
     // Ensure CTRL/STAT register selected in DPBANKSEL
     if (!swd_write_dp(DP_SELECT, 0)) {
-        return 0;
+        Usart_SendString(&huart1, "[Debug] err 4\n");
+        return 4;
     }
 
     // Power up
     if (!swd_write_dp(DP_CTRL_STAT, CSYSPWRUPREQ | CDBGPWRUPREQ)) {
-        return 0;
+        Usart_SendString(&huart1, "[Debug] err 5\n");
+        return 5;
     }
 
     for (i = 0; i < timeout; i++) {
         if (!swd_read_dp(DP_CTRL_STAT, &tmp)) {
-            return 0;
+            Usart_SendString(&huart1, "[Debug] err 6\n");
+
+            return 6;
         }
         if ((tmp & (CDBGPWRUPACK | CSYSPWRUPACK)) == (CDBGPWRUPACK | CSYSPWRUPACK)) {
             // Break from loop if powerup is complete
@@ -804,11 +821,15 @@ uint8_t swd_init_debug(void)
     }
     if (i == timeout) {
         // Unable to powerup DP
-        return 0;
+        Usart_SendString(&huart1, "[Debug] err 7\n");
+
+        return 7;
     }
 
     if (!swd_write_dp(DP_CTRL_STAT, CSYSPWRUPREQ | CDBGPWRUPREQ | TRNNORMAL | MASKLANE)) {
-        return 0;
+        Usart_SendString(&huart1, "[Debug] err 8\n");
+
+        return 8;
     }
 
     // call a target dependant function:
@@ -816,7 +837,9 @@ uint8_t swd_init_debug(void)
     //target_unlock_sequence();
 
     if (!swd_write_dp(DP_SELECT, 0)) {
-        return 0;
+        Usart_SendString(&huart1, "[Debug] err 9\n");
+
+        return 9;
     }
 
     return 1;
@@ -829,7 +852,7 @@ __attribute__((weak)) void swd_set_target_reset(uint8_t asserted)
 */
 void swd_set_target_reset(uint8_t asserted)
 {
-	/* ÔøΩÔøΩÔøΩƒºÔøΩÔøΩ–∂‘¥À∫ÔøΩÔøΩÔøΩÔøΩÔøΩ πÔøΩ√∂ÔøΩÔøΩÔøΩÔøΩÔøΩ asserted=1 ÔøΩÔøΩÔøΩ√£ÔøΩÔøΩÔøΩ ±ÔøΩÔøΩ asserted=0 ÔøΩÔøΩÔøΩ√£ÔøΩŒ™ÔøΩÔøΩ÷ªÔøΩÔøΩÔøΩÔøΩ“ªÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ÷ªÔøΩ⁄µ⁄∂ÔøΩÔøΩŒµÔøΩÔøΩ√¥À∫ÔøΩÔøΩÔøΩ ±÷¥ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩŒª */
+    /* ±æŒƒº˛÷–∂‘¥À∫Ø ˝µƒ π”√∂º «œ» asserted=1 µ˜”√£¨—” ±∫Û asserted=0 µ˜”√£¨Œ™¡À÷ªµ˜”√“ª¥ŒÀ˘“‘÷ª‘⁄µ⁄∂˛¥Œµ˜”√¥À∫Ø ˝ ±÷¥––»Ìº˛∏¥Œª */
     if(asserted == 0)
 	{
 		swd_write_word((uint32_t)&SCB->AIRCR, ((0x5FA << SCB_AIRCR_VECTKEY_Pos) |(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) | SCB_AIRCR_SYSRESETREQ_Msk));
