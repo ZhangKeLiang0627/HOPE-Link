@@ -5,6 +5,9 @@
 
 #include "flash_blob.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum {
     RESET_HOLD,              // Hold target in reset
@@ -31,5 +34,8 @@ void swd_set_target_reset(uint8_t asserted);
 uint8_t swd_set_target_state_hw(TARGET_RESET_STATE state);
 uint8_t swd_set_target_state_sw(TARGET_RESET_STATE state);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

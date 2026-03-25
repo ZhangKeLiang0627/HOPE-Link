@@ -128,6 +128,7 @@ void EventShowAboutUI(void)
 }
 
 #include "DAP.h"
+#include "SWD_host.h"
 
 /* CMSIS-DAP test 的应用事件函数 */
 void EventTestDapUI(void)
