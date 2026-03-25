@@ -291,7 +291,7 @@ static void DAP_SETUP(void)
 {
 	// __HAL_RCC_GPIOA_CLK_ENABLE();
 	// __HAL_RCC_GPIOC_CLK_ENABLE();
-	PORT_SWD_SETUP();
+	// PORT_SWD_SETUP();
 }
 
 
