@@ -69,7 +69,7 @@ DAP Hardware I/O Pin Access Functions
 #define SWCLK_PIN  			GPIO_PIN_5
 #define SWDIO_PORT			GPIOA
 #define SWDIO_PIN  			GPIO_PIN_6
-#define SWDIO_PIN_INDEX		1
+#define SWDIO_PIN_INDEX		6
 
 #define nRST_PORT			GPIOA
 #define nRST_PIN			GPIO_PIN_7
@@ -96,9 +96,10 @@ static void PORT_JTAG_SETUP(void)
 static void PORT_SWD_SETUP(void)
 {
 	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-	GPIOA->BSRR = SWCLK_PIN | SWDIO_PIN;
+	// GPIOA->BSRR = SWCLK_PIN | SWDIO_PIN | nRST_PIN;
 
 	GPIO_InitStruct.Pin = SWCLK_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -107,19 +108,20 @@ static void PORT_SWD_SETUP(void)
 	HAL_GPIO_Init(SWCLK_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = SWDIO_PIN;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
 	HAL_GPIO_Init(SWDIO_PORT, &GPIO_InitStruct);
-
-	GPIO_InitStruct.Pin = LED_CONNECTED_PIN;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-	HAL_GPIO_Init(LED_CONNECTED_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = nRST_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 	HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
+
+	GPIO_InitStruct.Pin = LED_CONNECTED_PIN;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	HAL_GPIO_Init(LED_CONNECTED_PORT, &GPIO_InitStruct);
 }
 
 /** Disable JTAG/SWD I/O Pins.
@@ -145,7 +147,7 @@ static void PORT_OFF(void)
 // Current status of the SWCLK/TCK DAP hardware I/O pin
 __STATIC_INLINE uint32_t PIN_SWCLK_TCK_IN(void)
 {
-    return (uint32_t)(SWCLK_PORT->ODR & SWCLK_PIN ? 1 : 0);
+	return (uint32_t)(SWCLK_PORT->IDR & SWCLK_PIN ? 1 : 0);
 }
 
 __STATIC_INLINE void PIN_SWCLK_TCK_SET(void)
@@ -164,7 +166,7 @@ __STATIC_INLINE void PIN_SWCLK_TCK_CLR(void)
 // Current status of the SWDIO/TMS DAP hardware I/O pin
 __STATIC_INLINE uint32_t PIN_SWDIO_TMS_IN(void)
 {
-	return (uint32_t)(SWDIO_PORT->ODR & SWDIO_PIN ? 1 : 0);
+	return (uint32_t)(SWDIO_PORT->IDR & SWDIO_PIN ? 1 : 0);
 }
 
 __STATIC_INLINE void PIN_SWDIO_TMS_SET(void)
@@ -185,7 +187,7 @@ __STATIC_INLINE uint32_t PIN_SWDIO_IN(void)
 
 __STATIC_INLINE void PIN_SWDIO_OUT(uint32_t bit)
 {
-	if ((bit & 1U) == 1)
+	if (bit & 1)
 		SWDIO_PORT->BSRR = (uint32_t)SWDIO_PIN;
 	else
 		SWDIO_PORT->BSRR = (uint32_t)SWDIO_PIN << 16U;
@@ -193,21 +195,13 @@ __STATIC_INLINE void PIN_SWDIO_OUT(uint32_t bit)
 
 __STATIC_INLINE void PIN_SWDIO_OUT_ENABLE(void)
 {
-    // 1. 先清空 PA5 模式位，然后设置为 通用推挽输出模式 (01)
-    SWDIO_PORT->MODER &= ~(3U << (5 * 2));
-    SWDIO_PORT->MODER |=  (1U << (5 * 2)); 
-    // 2. 设置为 推挽输出
-    SWDIO_PORT->OTYPER &= ~(1U << 5);  
-    // 3. 设置输出速度
-    SWDIO_PORT->OSPEEDR |= (3U << (5 * 2)); 
+	SWDIO_PORT->BSRR = (uint32_t)SWDIO_PIN << 16U;
+	SWDIO_PORT->MODER |= (1 << (SWDIO_PIN_INDEX * 2));
 }
 
 __STATIC_INLINE void PIN_SWDIO_OUT_DISABLE(void)
 {
-    // PA5 设为 输入模式（MODER[11:10] = 00）
-    SWDIO_PORT->MODER &= ~(3U << (5 * 2)); 
-    // PA5 设为 浮空输入（无上下拉）
-    SWDIO_PORT->PUPDR &= ~(3U << (5 * 2));
+	SWDIO_PORT->MODER &= ~(3 << (SWDIO_PIN_INDEX * 2));
 }
 
 // TDI Pin I/O ---------------------------------------------
@@ -250,39 +244,23 @@ __STATIC_INLINE void PIN_nTRST_OUT(uint32_t bit)
 // nRESET Pin I/O------------------------------------------
 __STATIC_INLINE uint32_t PIN_nRESET_IN(void)
 {
-	return (uint32_t)(nRST_PORT->ODR & nRST_PIN ? 1 : 0);
+	return (uint32_t)(nRST_PORT->IDR & nRST_PIN ? 1 : 0);
 }
 
-// extern uint8_t swd_write_word(uint32_t addr, uint32_t val);
+extern uint8_t swd_write_word(uint32_t addr, uint32_t val);
 extern uint8_t swd_init_debug(void);
-extern uint8_t swd_write_memory(uint32_t address, uint8_t *data, uint32_t size);
+// extern uint8_t swd_write_memory(uint32_t address, uint8_t *data, uint32_t size);
 __STATIC_INLINE void PIN_nRESET_OUT(uint32_t bit)
 {
-	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-	if ((bit & 1U) == 1)
-	{
+	if (bit & 1)
 		nRST_PORT->BSRR = (uint32_t)nRST_PIN;
-
-		GPIO_InitStruct.Pin = nRST_PIN;
-		GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-		GPIO_InitStruct.Pull = GPIO_NOPULL;
-		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-		HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
-	}
 	else
-	{
 		nRST_PORT->BSRR = (uint32_t)nRST_PIN << 16U;
 
-		GPIO_InitStruct.Pin = nRST_PIN;
-		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-		GPIO_InitStruct.Pull = GPIO_PULLUP;
-		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-		HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
-
-		swd_init_debug();
-		uint32_t swd_mem_write_data = 0x05FA0000 | 0x4;
-		swd_write_memory(0xE000ED0C, (uint8_t *)&swd_mem_write_data, 4);
+	if (bit == 0)
+	{
+		swd_write_word((uint32_t)&SCB->AIRCR, ((0x5FA << SCB_AIRCR_VECTKEY_Pos) | SCB_AIRCR_SYSRESETREQ_Msk));
 	}
 }
 
@@ -294,29 +272,25 @@ __STATIC_INLINE void PIN_nRESET_OUT(uint32_t bit)
 
 __STATIC_INLINE void LED_CONNECTED_OUT(uint32_t bit)
 {
-	if ((bit & 1U) == 1)
-		LED_CONNECTED_PORT->BSRR = (uint32_t)LED_CONNECTED_PIN << 16U;
-	else
+	if (bit & 1)
 		LED_CONNECTED_PORT->BSRR = (uint32_t)LED_CONNECTED_PIN;
+	else
+		LED_CONNECTED_PORT->BSRR = (uint32_t)LED_CONNECTED_PIN << 16U;
 }
 
 __STATIC_INLINE void LED_RUNNING_OUT(uint32_t bit)
 {
-	if ((bit & 1U) == 1)
-		LED_CONNECTED_PORT->BSRR = (uint32_t)LED_CONNECTED_PIN << 16U;
+	if (bit & 1)
+		LED_RUNNING_PORT->BSRR = (uint32_t)LED_RUNNING_PIN;
 	else
-		LED_CONNECTED_PORT->BSRR = (uint32_t)LED_CONNECTED_PIN;
+		LED_RUNNING_PORT->BSRR = (uint32_t)LED_RUNNING_PIN << 16U;
 }
 
-__STATIC_INLINE uint32_t TIMESTAMP_GET(void)
-{
-	return (DWT->CYCCNT);
-}
 
 static void DAP_SETUP(void)
 {
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	__HAL_RCC_GPIOC_CLK_ENABLE();
+	// __HAL_RCC_GPIOA_CLK_ENABLE();
+	// __HAL_RCC_GPIOC_CLK_ENABLE();
 	PORT_SWD_SETUP();
 }
 

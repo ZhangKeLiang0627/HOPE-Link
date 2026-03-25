@@ -54,7 +54,7 @@ void HugoUI::InitLayout(void)
     pageOffline->AddItem("自动触发下载", ItemType::Switch, nullptr, nullptr);
     pageOffline->AddItem("储存当前设置", ItemType::CallFunction, nullptr);
     pageOffline->AddItem("擦除芯片", ItemType::CallFunction, nullptr);
-    pageOffline->AddItem("> 开始下载", ItemType::CallFunction, nullptr);
+    pageOffline->AddItem("> 开始下载", ItemType::CallFunction, EventTestDapUI);
 
     pageOffline->AddItem("返回", ItemType::JumpPage)
         ->SetJumpId(pageMain->pageId, 0);
@@ -140,6 +140,10 @@ void EventTestDapUI(void)
     {
         DAP_Setup();
         isTestDapInit = 1;
+    }
+    else
+    {
+        oled_draw_str(110, FONT_HEIGHT*4, "OK");
     }
 
     // Enter
