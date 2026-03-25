@@ -2,28 +2,28 @@
 #define __DAP_CONFIG_H__
 
 
-#define CPU_CLOCK               84000000U       ///< Specifies the CPU Clock in Hz
+#define CPU_CLOCK               84000000        ///< Specifies the CPU Clock in Hz
 
 
-#define IO_PORT_WRITE_CYCLES    2U              ///< I/O Cycles: 2=default, 1=Cortex-M0+ fast I/0
+#define IO_PORT_WRITE_CYCLES    2               ///< I/O Cycles: 2=default, 1=Cortex-M0+ fast I/0
 
 
 #define DAP_SWD                 1               ///< SWD Mode:  1 = available, 0 = not available
 
 #define DAP_JTAG                0               ///< JTAG Mode: 0 = not available
 
-#define DAP_JTAG_DEV_CNT        8U              ///< Maximum number of JTAG devices on scan chain
+#define DAP_JTAG_DEV_CNT        0               ///< Maximum number of JTAG devices on scan chain
 
-#define DAP_DEFAULT_PORT        1U              ///< Default JTAG/SWJ Port Mode: 1 = SWD, 2 = JTAG.
+#define DAP_DEFAULT_PORT        1               ///< Default JTAG/SWJ Port Mode: 1 = SWD, 2 = JTAG.
 
-#define DAP_DEFAULT_SWJ_CLOCK   4000000U        ///< Default SWD/JTAG clock frequency in Hz.
+#define DAP_DEFAULT_SWJ_CLOCK   4000000         ///< Default SWD/JTAG clock frequency in Hz.
 
 
 /// Maximum Package Size for Command and Response data.
-#define DAP_PACKET_SIZE         64U             ///< USB: 64 = Full-Speed, 1024 = High-Speed.
+#define DAP_PACKET_SIZE         64              ///< USB: 64 = Full-Speed, 1024 = High-Speed.
 
 /// Maximum Package Buffers for Command and Response data.
-#define DAP_PACKET_COUNT        1U             ///< Buffers: 64 = Full-Speed, 4 = High-Speed.
+#define DAP_PACKET_COUNT        1              ///< Buffers: 64 = Full-Speed, 4 = High-Speed.
 
 
 /// Indicate that UART Serial Wire Output (SWO) trace is available.
@@ -36,8 +36,6 @@
 
 #define SWO_BUFFER_SIZE         4096U           ///< SWO Trace Buffer Size in bytes (must be 2^n)
 // #define SWO_BUFFER_SIZE         8192U           ///< SWO Trace Buffer Size in bytes (must be 2^n)
-
-#define TIMESTAMP_CLOCK 		100000 			///< Timestamp clock in Hz (0 = timestamps not supported).
 
 /// Debug Unit is connected to fixed Target Device.
 #define TARGET_DEVICE_FIXED     0               ///< Target Device: 1 = known, 0 = unknown;
@@ -71,6 +69,9 @@ DAP Hardware I/O Pin Access Functions
 #define SWDIO_PIN  			GPIO_PIN_6
 #define SWDIO_PIN_INDEX		6
 
+#define SWDIO_MODE_MASK 	(~(3u << (SWDIO_PIN_INDEX * 2)))
+#define SWDIO_MODE_OUT 		(1u << (SWDIO_PIN_INDEX * 2))
+
 #define nRST_PORT			GPIOA
 #define nRST_PIN			GPIO_PIN_7
 
@@ -95,32 +96,37 @@ static void PORT_JTAG_SETUP(void)
 */
 static void PORT_SWD_SETUP(void)
 {
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	__HAL_RCC_GPIOC_CLK_ENABLE();
+
+
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-	GPIOA->BSRR = SWCLK_PIN | SWDIO_PIN | nRST_PIN;
+	GPIOA->BSRR = SWCLK_PIN | SWDIO_PIN;
+
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
 
 	GPIO_InitStruct.Pin = SWCLK_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 	HAL_GPIO_Init(SWCLK_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = SWDIO_PIN;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	HAL_GPIO_Init(SWDIO_PORT, &GPIO_InitStruct);
 
+	SWCLK_PORT->BSRR = SWCLK_PIN;
+	SWDIO_PORT->BSRR = SWDIO_PIN;
+
 	GPIO_InitStruct.Pin = nRST_PIN;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 	HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = LED_CONNECTED_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 	HAL_GPIO_Init(LED_CONNECTED_PORT, &GPIO_InitStruct);
 }
 
@@ -134,7 +140,6 @@ static void PORT_OFF(void)
 	GPIO_InitStruct.Pin = SWCLK_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 	HAL_GPIO_Init(SWCLK_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = SWDIO_PIN;
@@ -147,17 +152,17 @@ static void PORT_OFF(void)
 // Current status of the SWCLK/TCK DAP hardware I/O pin
 __STATIC_INLINE uint32_t PIN_SWCLK_TCK_IN(void)
 {
-	return (uint32_t)(SWCLK_PORT->IDR & SWCLK_PIN ? 1 : 0);
+	return (SWCLK_PORT->ODR & SWCLK_PIN) ? 1 : 0;
 }
 
 __STATIC_INLINE void PIN_SWCLK_TCK_SET(void)
 {
-	SWCLK_PORT->BSRR = (uint32_t)SWCLK_PIN;
+	SWCLK_PORT->BSRR = SWCLK_PIN;
 }
 
 __STATIC_INLINE void PIN_SWCLK_TCK_CLR(void)
 {
-	SWCLK_PORT->BSRR = (uint32_t)SWCLK_PIN << 16U;
+	SWCLK_PORT->BSRR = SWCLK_PIN << 16U;
 }
 
 
@@ -166,42 +171,61 @@ __STATIC_INLINE void PIN_SWCLK_TCK_CLR(void)
 // Current status of the SWDIO/TMS DAP hardware I/O pin
 __STATIC_INLINE uint32_t PIN_SWDIO_TMS_IN(void)
 {
-	return (uint32_t)(SWDIO_PORT->IDR & SWDIO_PIN ? 1 : 0);
+	return (SWDIO_PORT->IDR & SWDIO_PIN) ? 1 : 0;
 }
 
 __STATIC_INLINE void PIN_SWDIO_TMS_SET(void)
 {
-	SWDIO_PORT->BSRR = (uint32_t)SWDIO_PIN;
+	SWDIO_PORT->BSRR = SWDIO_PIN;
 }
 
 __STATIC_INLINE void PIN_SWDIO_TMS_CLR(void)
 {
-	SWDIO_PORT->BSRR = (uint32_t)SWDIO_PIN << 16U;
+	SWDIO_PORT->BSRR = SWDIO_PIN << 16U;
 }
 
 
 __STATIC_INLINE uint32_t PIN_SWDIO_IN(void)
 {
-	return (uint32_t)(SWDIO_PORT->IDR & SWDIO_PIN ? 1 : 0);
+	return (SWDIO_PORT->IDR & SWDIO_PIN) ? 1 : 0;
 }
 
 __STATIC_INLINE void PIN_SWDIO_OUT(uint32_t bit)
 {
 	if (bit & 1)
-		SWDIO_PORT->BSRR = (uint32_t)SWDIO_PIN;
+		SWDIO_PORT->BSRR = SWDIO_PIN;
 	else
-		SWDIO_PORT->BSRR = (uint32_t)SWDIO_PIN << 16U;
+		SWDIO_PORT->BSRR = SWDIO_PIN << 16U;
 }
 
 __STATIC_INLINE void PIN_SWDIO_OUT_ENABLE(void)
 {
-	SWDIO_PORT->MODER &= ~(3U << (SWDIO_PIN_INDEX * 2));
-	SWDIO_PORT->MODER |= (1U << (SWDIO_PIN_INDEX * 2));
+	nRST_PORT->BSRR = nRST_PIN;
+
+	uint32_t temp;
+	temp = SWDIO_PORT->MODER;
+	temp &= SWDIO_MODE_MASK;
+	temp |= SWDIO_MODE_OUT;
+	SWDIO_PORT->MODER = temp;
+
+	SWDIO_PORT->BSRR = SWDIO_PIN << 16U;
+
+	// SWDIO_PORT->MODER &= ~(3U << (SWDIO_PIN_INDEX * 2));
+	// SWDIO_PORT->MODER |= (1U << (SWDIO_PIN_INDEX * 2));
 }
 
 __STATIC_INLINE void PIN_SWDIO_OUT_DISABLE(void)
 {
-	SWDIO_PORT->MODER &= ~(3 << (SWDIO_PIN_INDEX * 2));
+	nRST_PORT->BSRR = nRST_PIN << 16U;
+
+	uint32_t temp;
+	temp = SWDIO_PORT->MODER;
+	temp &= SWDIO_MODE_MASK;
+	SWDIO_PORT->MODER = temp;
+
+	SWDIO_PORT->BSRR = SWDIO_PIN << 16U;
+
+	// SWDIO_PORT->MODER &= ~(3 << (SWDIO_PIN_INDEX * 2));
 }
 
 // TDI Pin I/O ---------------------------------------------
@@ -244,7 +268,8 @@ __STATIC_INLINE void PIN_nTRST_OUT(uint32_t bit)
 // nRESET Pin I/O------------------------------------------
 __STATIC_INLINE uint32_t PIN_nRESET_IN(void)
 {
-	return (uint32_t)(nRST_PORT->IDR & nRST_PIN ? 1 : 0);
+	// return (uint32_t)(nRST_PORT->IDR & nRST_PIN ? 1 : 0);
+	return 0;
 }
 
 // extern uint8_t swd_write_word(uint32_t addr, uint32_t val);
@@ -262,32 +287,32 @@ __STATIC_INLINE void PIN_nRESET_OUT(uint32_t bit)
 	// 	swd_write_word((uint32_t)&SCB->AIRCR, ((0x5FA << SCB_AIRCR_VECTKEY_Pos) | SCB_AIRCR_SYSRESETREQ_Msk));
 	// }
 
-	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	// GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-	if (bit & 1)
-	{
-		nRST_PORT->BSRR = (uint32_t)nRST_PIN;
+	// if (bit & 1)
+	// {
+	// 	nRST_PORT->BSRR = (uint32_t)nRST_PIN;
 
-		GPIO_InitStruct.Pin = nRST_PIN;
-		GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-		GPIO_InitStruct.Pull = GPIO_NOPULL;
-		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-		HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
-	}
-	else
-	{
-		nRST_PORT->BSRR = (uint32_t)nRST_PIN << 16U;
+	// 	GPIO_InitStruct.Pin = nRST_PIN;
+	// 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	// 	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	// 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	// 	HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
+	// }
+	// else
+	// {
+	// 	nRST_PORT->BSRR = (uint32_t)nRST_PIN << 16U;
 
-		GPIO_InitStruct.Pin = nRST_PIN;
-		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-		GPIO_InitStruct.Pull = GPIO_PULLUP;
-		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-		HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
+	// 	GPIO_InitStruct.Pin = nRST_PIN;
+	// 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+	// 	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	// 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	// 	HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
 
-		swd_init_debug();
-		uint32_t swd_mem_write_data = 0x05FA0000 | 0x4;
-		swd_write_memory(0xE000ED0C, (uint8_t *)&swd_mem_write_data, 4);
-	}
+	// 	swd_init_debug();
+	// 	uint32_t swd_mem_write_data = 0x05FA0000 | 0x4;
+	// 	swd_write_memory(0xE000ED0C, (uint8_t *)&swd_mem_write_data, 4);
+	// }
 }
 
 
@@ -317,7 +342,8 @@ static void DAP_SETUP(void)
 {
 	// __HAL_RCC_GPIOA_CLK_ENABLE();
 	// __HAL_RCC_GPIOC_CLK_ENABLE();
-	PORT_SWD_SETUP();
+	PORT_OFF();
+	// PORT_SWD_SETUP();
 }
 
 
