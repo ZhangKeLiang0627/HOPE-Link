@@ -2,7 +2,7 @@
 #define __DAP_CONFIG_H__
 
 
-#define CPU_CLOCK               168000000 / 2 	///< Specifies the CPU Clock in Hz
+#define CPU_CLOCK               84000000	 	///< Specifies the CPU Clock in Hz
 
 
 #define IO_PORT_WRITE_CYCLES    2               ///< I/O Cycles: 2=default, 1=Cortex-M0+ fast I/0
@@ -71,6 +71,8 @@ DAP Hardware I/O Pin Access Functions
 
 #define SWDIO_MODE_MASK 	(~(3u << (SWDIO_PIN_INDEX * 2)))
 #define SWDIO_MODE_OUT 		(1u << (SWDIO_PIN_INDEX * 2))
+#define SWDIO_PUPD_MASK 	(~(3u << (SWDIO_PIN_INDEX * 2)))
+#define SWDIO_PUPD_PU 		(1u << (SWDIO_PIN_INDEX * 2))
 
 #define nRST_PORT			GPIOA
 #define nRST_PIN			GPIO_PIN_7
@@ -105,8 +107,8 @@ static void PORT_SWD_SETUP(void)
 
 	GPIO_InitStruct.Pin = SWCLK_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
 	HAL_GPIO_Init(SWCLK_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = SWDIO_PIN;
@@ -115,13 +117,13 @@ static void PORT_SWD_SETUP(void)
 	GPIO_InitStruct.Pin = nRST_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
 	HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = LED_CONNECTED_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
 	HAL_GPIO_Init(LED_CONNECTED_PORT, &GPIO_InitStruct);
 
 	SWCLK_PORT->BSRR = SWCLK_PIN;
@@ -138,7 +140,7 @@ static void PORT_OFF(void)
 
 	GPIO_InitStruct.Pin = SWCLK_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
 	HAL_GPIO_Init(SWCLK_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = SWDIO_PIN;
@@ -206,6 +208,11 @@ __STATIC_INLINE void PIN_SWDIO_OUT_ENABLE(void)
 	temp &= SWDIO_MODE_MASK;
 	temp |= SWDIO_MODE_OUT;
 	SWDIO_PORT->MODER = temp;
+
+	temp = SWDIO_PORT->PUPDR; 	// 读取上拉/下拉寄存器
+	temp &= SWDIO_PUPD_MASK;	// 清除对应引脚的上下拉配置位
+	temp |= SWDIO_PUPD_PU;		// 设置为上拉
+	SWDIO_PORT->PUPDR = temp;
 
 	SWDIO_PORT->BSRR = SWDIO_PIN << 16U;
 

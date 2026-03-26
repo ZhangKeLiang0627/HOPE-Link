@@ -129,6 +129,8 @@ int main(void)
   // Invoke cpp-version main().
   // Main();
 
+  HAL_Delay(1000);
+
   DAP_Setup();
 
   if (swd_init_debug())
