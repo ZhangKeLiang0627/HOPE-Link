@@ -2,7 +2,7 @@
 #define __DAP_CONFIG_H__
 
 
-#define CPU_CLOCK               84000000        ///< Specifies the CPU Clock in Hz
+#define CPU_CLOCK               168000000 / 2 	///< Specifies the CPU Clock in Hz
 
 
 #define IO_PORT_WRITE_CYCLES    2               ///< I/O Cycles: 2=default, 1=Cortex-M0+ fast I/0
@@ -96,8 +96,6 @@ static void PORT_JTAG_SETUP(void)
 */
 static void PORT_SWD_SETUP(void)
 {
-
-
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
 	GPIOA->BSRR = SWCLK_PIN | SWDIO_PIN;
@@ -114,12 +112,9 @@ static void PORT_SWD_SETUP(void)
 	GPIO_InitStruct.Pin = SWDIO_PIN;
 	HAL_GPIO_Init(SWDIO_PORT, &GPIO_InitStruct);
 
-	SWCLK_PORT->BSRR = SWCLK_PIN;
-	SWDIO_PORT->BSRR = SWDIO_PIN;
-
 	GPIO_InitStruct.Pin = nRST_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 	HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
 
@@ -128,6 +123,10 @@ static void PORT_SWD_SETUP(void)
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 	HAL_GPIO_Init(LED_CONNECTED_PORT, &GPIO_InitStruct);
+
+	SWCLK_PORT->BSRR = SWCLK_PIN;
+	SWDIO_PORT->BSRR = SWDIO_PIN;
+	LED_CONNECTED_PORT->BSRR = LED_CONNECTED_PIN;
 }
 
 /** Disable JTAG/SWD I/O Pins.
@@ -340,10 +339,10 @@ __STATIC_INLINE void LED_RUNNING_OUT(uint32_t bit)
 
 static void DAP_SETUP(void)
 {
-	// __HAL_RCC_GPIOA_CLK_ENABLE();
-	// __HAL_RCC_GPIOC_CLK_ENABLE();
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
 	PORT_OFF();
-	// PORT_SWD_SETUP();
+	PORT_SWD_SETUP();
 }
 
 

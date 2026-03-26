@@ -66,25 +66,25 @@
 //   return: none
 #if ((DAP_SWD != 0) || (DAP_JTAG != 0))
 void SWJ_Sequence (uint32_t count, const uint8_t *data) {
-  uint32_t val;
-  uint32_t n;
+    uint32_t val;
+    uint32_t n;
 
-  val = 0U;
-  n = 0U;
-  while (count--) {
-    if (n == 0U) {
-      val = *data++;
-      n = 8U;
+    val = 0U;
+    n = 0U;
+    while (count--) {
+        if (n == 0U) {
+            val = *data++;
+            n = 8U;
+        }
+        if (val & 1U) {
+            PIN_SWDIO_TMS_SET();
+        } else {
+            PIN_SWDIO_TMS_CLR();
+        }
+        SW_CLOCK_CYCLE();
+        val >>= 1;
+        n--;
     }
-    if (val & 1U) {
-      PIN_SWDIO_TMS_SET();
-    } else {
-      PIN_SWDIO_TMS_CLR();
-    }
-    SW_CLOCK_CYCLE();
-    val >>= 1;
-    n--;
-  }
 }
 #endif
 
@@ -234,11 +234,11 @@ SWD_TransferFunction(Slow);
 //   data:    DATA[31:0]
 //   return:  ACK[2:0]
 uint8_t  SWD_Transfer(uint32_t request, uint32_t *data) {
-  if (DAP_Data.fast_clock) {
-    return SWD_TransferFast(request, data);
-  } else {
-    return SWD_TransferSlow(request, data);
-  }
+    if (DAP_Data.fast_clock) {
+        return SWD_TransferFast(request, data);
+    } else {
+        return SWD_TransferSlow(request, data);
+    }
 }
 
 

@@ -29,8 +29,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "common_inc.h"
-#include "u8g2_init.h"
-#include "w25qxx.h"
+#include "DAP.h"
+#include "SWD_host.h"
+#include "interface_uart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -125,8 +126,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   // Invoke cpp-version main().
-  Main();
-  
+  // Main();
+
+  DAP_Setup();
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -134,7 +138,16 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+    if(swd_init_debug())
+    {
+      Usart_SendString(&huart1, "swd_init_debug sucess!\n");
+    }
+    else
+    {
+      Usart_SendString(&huart1, "swd_init_debug fail!\n");
+    }
 
+    HAL_Delay(500);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

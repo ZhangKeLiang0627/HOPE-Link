@@ -2035,7 +2035,27 @@
             <File>
               <FileName>DAP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\3rdParty\CMSIS-DAP\DAP\DAP.c</FilePath>
+              <FilePath>..\3rdParty\CMSIS-DAP\DAP.c</FilePath>
+            </File>
+            <File>
+              <FileName>error.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdParty\CMSIS-DAP\error.c</FilePath>
+            </File>
+            <File>
+              <FileName>JTAG_DP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdParty\CMSIS-DAP\JTAG_DP.c</FilePath>
+            </File>
+            <File>
+              <FileName>STM32F4xx_512.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdParty\CMSIS-DAP\STM32F4xx_512.c</FilePath>
+            </File>
+            <File>
+              <FileName>SW_DP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdParty\CMSIS-DAP\SW_DP.c</FilePath>
             </File>
             <File>
               <FileName>SWD_flash.c</FileName>
@@ -2048,24 +2068,9 @@
               <FilePath>..\3rdParty\CMSIS-DAP\SWD_host.c</FilePath>
             </File>
             <File>
-              <FileName>SW_DP.c</FileName>
+              <FileName>SWO.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\3rdParty\CMSIS-DAP\DAP\SW_DP.c</FilePath>
-            </File>
-            <File>
-              <FileName>JTAG_DP.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdParty\CMSIS-DAP\DAP\JTAG_DP.c</FilePath>
-            </File>
-            <File>
-              <FileName>error.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdParty\CMSIS-DAP\error.c</FilePath>
-            </File>
-            <File>
-              <FileName>STM32F4xx_512.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdParty\CMSIS-DAP\STM32F4xx_512.c</FilePath>
+              <FilePath>..\3rdParty\CMSIS-DAP\SWO.c</FilePath>
             </File>
           </Files>
         </Group>

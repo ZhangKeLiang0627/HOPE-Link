@@ -35,8 +35,6 @@
 extern "C" {
 #endif
 
-#include "DAP_config.h"
-
 // DAP Command IDs
 #define ID_DAP_Info                     0x00U
 #define ID_DAP_HostStatus               0x01U
@@ -190,31 +188,31 @@ extern "C" {
 
 // DAP Data structure
 typedef struct {
-  uint8_t     debug_port;                       // Debug Port
-  uint8_t     fast_clock;                       // Fast Clock Flag
-  uint32_t   clock_delay;                       // Clock Delay
-  struct {                                      // Transfer Configuration
-    uint8_t   idle_cycles;                      // Idle cycles after transfer
-    uint16_t  retry_count;                      // Number of retries after WAIT response
-    uint16_t  match_retry;                      // Number of retries if read value does not match
-    uint32_t  match_mask;                       // Match Mask
-  } transfer;
+    uint8_t     debug_port;                       // Debug Port
+    uint8_t     fast_clock;                       // Fast Clock Flag
+    uint32_t   clock_delay;                       // Clock Delay
+    struct {                                      // Transfer Configuration
+        uint8_t   idle_cycles;                      // Idle cycles after transfer
+        uint16_t  retry_count;                      // Number of retries after WAIT response
+        uint16_t  match_retry;                      // Number of retries if read value does not match
+        uint32_t  match_mask;                       // Match Mask
+    } transfer;
 #if (DAP_SWD != 0)
-  struct {                                      // SWD Configuration
-    uint8_t    turnaround;                      // Turnaround period
-    uint8_t    data_phase;                      // Always generate Data Phase
-  } swd_conf;
+    struct {                                      // SWD Configuration
+        uint8_t    turnaround;                      // Turnaround period
+        uint8_t    data_phase;                      // Always generate Data Phase
+    } swd_conf;
 #endif
 #if (DAP_JTAG != 0)
-  struct {                                      // JTAG Device Chain
-    uint8_t   count;                            // Number of devices
-    uint8_t   index;                            // Device index (device at TDO has index 0)
+    struct {                                      // JTAG Device Chain
+        uint8_t   count;                            // Number of devices
+        uint8_t   index;                            // Device index (device at TDO has index 0)
 #if (DAP_JTAG_DEV_CNT != 0)
-    uint8_t   ir_length[DAP_JTAG_DEV_CNT];      // IR Length in bits
-    uint16_t  ir_before[DAP_JTAG_DEV_CNT];      // Bits before IR
-    uint16_t  ir_after [DAP_JTAG_DEV_CNT];      // Bits after IR
+        uint8_t   ir_length[DAP_JTAG_DEV_CNT];      // IR Length in bits
+        uint16_t  ir_before[DAP_JTAG_DEV_CNT];      // Bits before IR
+        uint16_t  ir_after [DAP_JTAG_DEV_CNT];      // Bits after IR
 #endif
-  } jtag_dev;
+    } jtag_dev;
 #endif
 } DAP_Data_t;
 
@@ -250,26 +248,26 @@ extern void     DAP_Setup (void);
 #ifndef DELAY_SLOW_CYCLES
 #define DELAY_SLOW_CYCLES       3U      // Number of cycles for one iteration
 #endif
-__STATIC_FORCEINLINE void PIN_DELAY_SLOW (uint32_t delay) {
-  uint32_t count;
+__STATIC_INLINE void PIN_DELAY_SLOW (uint32_t delay) {
+    uint32_t count;
 
-  count = delay;
-  while (--count);
+    count = delay;
+    while (--count);
 }
 
 // Fixed delay for fast clock generation
 #ifndef DELAY_FAST_CYCLES
 #define DELAY_FAST_CYCLES       0U      // Number of cycles: 0..3
 #endif
-__STATIC_FORCEINLINE void PIN_DELAY_FAST (void) {
+__STATIC_INLINE void PIN_DELAY_FAST (void) {
 #if (DELAY_FAST_CYCLES >= 1U)
-  __nop();
+    __nop();
 #endif
 #if (DELAY_FAST_CYCLES >= 2U)
-  __nop();
+    __nop();
 #endif
 #if (DELAY_FAST_CYCLES >= 3U)
-  __nop();
+    __nop();
 #endif
 }
 
