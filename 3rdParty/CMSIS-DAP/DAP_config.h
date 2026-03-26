@@ -339,8 +339,6 @@ __STATIC_INLINE void LED_RUNNING_OUT(uint32_t bit)
 
 static void DAP_SETUP(void)
 {
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	__HAL_RCC_GPIOC_CLK_ENABLE();
 	PORT_OFF();
 	PORT_SWD_SETUP();
 }

@@ -31,6 +31,7 @@
 #include "common_inc.h"
 #include "DAP.h"
 #include "SWD_host.h"
+#include "SWD_flash.h"
 #include "interface_uart.h"
 /* USER CODE END Includes */
 
@@ -130,6 +131,28 @@ int main(void)
 
   DAP_Setup();
 
+  if (swd_init_debug())
+  {
+    // Usart_SendString(&huart1, "swd_init_debug sucess!\n");
+    debugMsg("swd_init_debug sucess!");
+  }
+  else
+  {
+    // Usart_SendString(&huart1, "swd_init_debug fail!\n");
+    debugMsg("swd_init_debug fail!");
+  }
+
+  uint8_t res = target_flash_init(0x08000000);
+  
+  debugMsg("target_flash_init, res: %d", res);
+
+  res = target_flash_erase_chip();
+
+  debugMsg("target_flash_erase_chip, res: %d", res);
+
+  swd_set_target_state_hw(RESET_RUN);
+
+  HAL_Delay(500);
 
   /* USER CODE END 2 */
 
@@ -138,16 +161,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    if(swd_init_debug())
-    {
-      Usart_SendString(&huart1, "swd_init_debug sucess!\n");
-    }
-    else
-    {
-      Usart_SendString(&huart1, "swd_init_debug fail!\n");
-    }
 
-    HAL_Delay(500);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

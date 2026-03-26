@@ -10,8 +10,15 @@ extern "C"
 #include "usart.h"
 
 #include <stdint.h>
+#include <stdio.h> 
+#include <string.h> 
+#include <stdarg.h> 
+
+#define DEBUG_PRINT_BUF_SIZE 512
+#define DEBUG_ENABLE 1
 
 void Usart_SendString(UART_HandleTypeDef *handle, uint8_t *str);
+void debugMsg(const char *fmt, ...);
 
 #ifdef __cplusplus
 }
