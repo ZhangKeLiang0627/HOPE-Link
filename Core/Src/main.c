@@ -127,18 +127,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   // Invoke cpp-version main().
-  // Main();
-  HAL_Delay(1000);
-  Usart_debugMsg("HOPE-Link begin!");
+  Main();
 
-  if (swd_init_debug())
-  {
-    Usart_debugMsg("swd_init_debug success!");
-  }
-  else
-  {
-    Usart_debugMsg("swd_init_debug fail!");
-  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -146,8 +136,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    Usart_debugMsg("HOPE-Link is running!");
-    HAL_Delay(5000);
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
