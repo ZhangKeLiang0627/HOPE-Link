@@ -57,8 +57,6 @@ DAP Hardware I/O Pin Access Functions
 */
 
 #include "stm32f4xx_hal.h"
-// [kkl] fix keyword compilation errors
-#include "cmsis_compiler.h"
 
 
 // Configure DAP I/O pins ------------------------------
@@ -151,17 +149,17 @@ static void PORT_OFF(void)
 // SWCLK/TCK I/O pin -------------------------------------
 
 // Current status of the SWCLK/TCK DAP hardware I/O pin
-__STATIC_INLINE uint32_t PIN_SWCLK_TCK_IN(void)
+static inline uint32_t PIN_SWCLK_TCK_IN(void)
 {
 	return (SWCLK_PORT->ODR & SWCLK_PIN) ? 1 : 0;
 }
 
-__STATIC_INLINE void PIN_SWCLK_TCK_SET(void)
+static inline void PIN_SWCLK_TCK_SET(void)
 {
 	SWCLK_PORT->BSRR = SWCLK_PIN;
 }
 
-__STATIC_INLINE void PIN_SWCLK_TCK_CLR(void)
+static inline void PIN_SWCLK_TCK_CLR(void)
 {
 	SWCLK_PORT->BSRR = SWCLK_PIN << 16U;
 }
@@ -170,28 +168,28 @@ __STATIC_INLINE void PIN_SWCLK_TCK_CLR(void)
 // SWDIO/TMS Pin I/O --------------------------------------
 
 // Current status of the SWDIO/TMS DAP hardware I/O pin
-__STATIC_INLINE uint32_t PIN_SWDIO_TMS_IN(void)
+static inline uint32_t PIN_SWDIO_TMS_IN(void)
 {
 	return (SWDIO_PORT->IDR & SWDIO_PIN) ? 1 : 0;
 }
 
-__STATIC_INLINE void PIN_SWDIO_TMS_SET(void)
+static inline void PIN_SWDIO_TMS_SET(void)
 {
 	SWDIO_PORT->BSRR = SWDIO_PIN;
 }
 
-__STATIC_INLINE void PIN_SWDIO_TMS_CLR(void)
+static inline void PIN_SWDIO_TMS_CLR(void)
 {
 	SWDIO_PORT->BSRR = SWDIO_PIN << 16U;
 }
 
 
-__STATIC_INLINE uint32_t PIN_SWDIO_IN(void)
+static inline uint32_t PIN_SWDIO_IN(void)
 {
 	return (SWDIO_PORT->IDR & SWDIO_PIN) ? 1 : 0;
 }
 
-__STATIC_INLINE void PIN_SWDIO_OUT(uint32_t bit)
+static inline void PIN_SWDIO_OUT(uint32_t bit)
 {
 	if (bit & 1)
 		SWDIO_PORT->BSRR = SWDIO_PIN;
@@ -199,7 +197,7 @@ __STATIC_INLINE void PIN_SWDIO_OUT(uint32_t bit)
 		SWDIO_PORT->BSRR = SWDIO_PIN << 16U;
 }
 
-__STATIC_INLINE void PIN_SWDIO_OUT_ENABLE(void)
+static inline void PIN_SWDIO_OUT_ENABLE(void)
 {
 	nRST_PORT->BSRR = nRST_PIN;
 
@@ -220,7 +218,7 @@ __STATIC_INLINE void PIN_SWDIO_OUT_ENABLE(void)
 	// SWDIO_PORT->MODER |= (1U << (SWDIO_PIN_INDEX * 2));
 }
 
-__STATIC_INLINE void PIN_SWDIO_OUT_DISABLE(void)
+static inline void PIN_SWDIO_OUT_DISABLE(void)
 {
 	nRST_PORT->BSRR = nRST_PIN << 16U;
 
@@ -236,14 +234,14 @@ __STATIC_INLINE void PIN_SWDIO_OUT_DISABLE(void)
 
 // TDI Pin I/O ---------------------------------------------
 
-__STATIC_INLINE uint32_t PIN_TDI_IN(void)
+static inline uint32_t PIN_TDI_IN(void)
 {
 #if (DAP_JTAG != 0)
 #endif
 	return 0;
 }
 
-__STATIC_INLINE void PIN_TDI_OUT(uint32_t bit)
+static inline void PIN_TDI_OUT(uint32_t bit)
 {
 #if (DAP_JTAG != 0)
 #endif
@@ -252,7 +250,7 @@ __STATIC_INLINE void PIN_TDI_OUT(uint32_t bit)
 
 // TDO Pin I/O ---------------------------------------------
 
-__STATIC_INLINE uint32_t PIN_TDO_IN(void)
+static inline uint32_t PIN_TDO_IN(void)
 {
 #if (DAP_JTAG != 0)
 #endif
@@ -262,17 +260,17 @@ __STATIC_INLINE uint32_t PIN_TDO_IN(void)
 
 // nTRST Pin I/O -------------------------------------------
 
-__STATIC_INLINE uint32_t PIN_nTRST_IN(void)
+static inline uint32_t PIN_nTRST_IN(void)
 {
     return 0;
 }
 
-__STATIC_INLINE void PIN_nTRST_OUT(uint32_t bit)
+static inline void PIN_nTRST_OUT(uint32_t bit)
 {
 }
 
 // nRESET Pin I/O------------------------------------------
-__STATIC_INLINE uint32_t PIN_nRESET_IN(void)
+static inline uint32_t PIN_nRESET_IN(void)
 {
 	// return (uint32_t)(nRST_PORT->IDR & nRST_PIN ? 1 : 0);
 	return 0;
@@ -281,7 +279,7 @@ __STATIC_INLINE uint32_t PIN_nRESET_IN(void)
 // extern uint8_t swd_write_word(uint32_t addr, uint32_t val);
 extern uint8_t swd_init_debug(void);
 extern uint8_t swd_write_memory(uint32_t address, uint8_t *data, uint32_t size);
-__STATIC_INLINE void PIN_nRESET_OUT(uint32_t bit)
+static inline void PIN_nRESET_OUT(uint32_t bit)
 {
 	// if (bit & 1)
 	// 	nRST_PORT->BSRR = (uint32_t)nRST_PIN;
@@ -327,7 +325,7 @@ __STATIC_INLINE void PIN_nRESET_OUT(uint32_t bit)
     Running LED: is active when program execution in target started
 */
 
-__STATIC_INLINE void LED_CONNECTED_OUT(uint32_t bit)
+static inline void LED_CONNECTED_OUT(uint32_t bit)
 {
 	if (bit & 1)
 		LED_CONNECTED_PORT->BSRR = (uint32_t)LED_CONNECTED_PIN;
@@ -335,7 +333,7 @@ __STATIC_INLINE void LED_CONNECTED_OUT(uint32_t bit)
 		LED_CONNECTED_PORT->BSRR = (uint32_t)LED_CONNECTED_PIN << 16U;
 }
 
-__STATIC_INLINE void LED_RUNNING_OUT(uint32_t bit)
+static inline void LED_RUNNING_OUT(uint32_t bit)
 {
 	if (bit & 1)
 		LED_RUNNING_PORT->BSRR = (uint32_t)LED_RUNNING_PIN;
