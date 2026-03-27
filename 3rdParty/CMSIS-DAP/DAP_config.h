@@ -57,7 +57,7 @@ DAP Hardware I/O Pin Access Functions
 */
 
 #include "stm32f4xx_hal.h"
-
+// #include "interface_uart.h"
 
 // Configure DAP I/O pins ------------------------------
 
@@ -147,7 +147,7 @@ static void PORT_OFF(void)
 
 
 // SWCLK/TCK I/O pin -------------------------------------
-
+#pragma clang optimize off
 // Current status of the SWCLK/TCK DAP hardware I/O pin
 static inline uint32_t PIN_SWCLK_TCK_IN(void)
 {
@@ -213,9 +213,11 @@ static inline void PIN_SWDIO_OUT_ENABLE(void)
 	SWDIO_PORT->PUPDR = temp;
 
 	SWDIO_PORT->BSRR = SWDIO_PIN << 16U;
+
+	// Usart_debugMsg("[DAP] set swdio out");
 }
 
-static inline void PIN_SWDIO_OUT_DISABLE(void)
+static inline void PIN_SWDIO_OUT_DISABLE(void) 
 {
 	nRST_PORT->BSRR = nRST_PIN << 16U;
 
@@ -225,8 +227,10 @@ static inline void PIN_SWDIO_OUT_DISABLE(void)
 	SWDIO_PORT->MODER = temp;
 
 	SWDIO_PORT->BSRR = SWDIO_PIN << 16U;
-}
 
+	// Usart_debugMsg("[DAP] set swdio in");
+}
+#pragma clang optimize on
 // TDI Pin I/O ---------------------------------------------
 
 static inline uint32_t PIN_TDI_IN(void)
