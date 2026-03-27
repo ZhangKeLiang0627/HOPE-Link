@@ -106,27 +106,27 @@ static void PORT_SWD_SETUP(void)
 	GPIO_InitStruct.Pin = SWCLK_PIN;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(SWCLK_PORT, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = SWDIO_PIN;
 	HAL_GPIO_Init(SWDIO_PORT, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = nRST_PIN;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
-	HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
+	// GPIO_InitStruct.Pin = nRST_PIN;
+	// GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	// GPIO_InitStruct.Pull = GPIO_PULLUP;
+	// GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+	// HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
 
-	GPIO_InitStruct.Pin = LED_CONNECTED_PIN;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
-	HAL_GPIO_Init(LED_CONNECTED_PORT, &GPIO_InitStruct);
+	// GPIO_InitStruct.Pin = LED_CONNECTED_PIN;
+	// GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	// GPIO_InitStruct.Pull = GPIO_NOPULL;
+	// GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+	// HAL_GPIO_Init(LED_CONNECTED_PORT, &GPIO_InitStruct);
 
 	SWCLK_PORT->BSRR = SWCLK_PIN;
 	SWDIO_PORT->BSRR = SWDIO_PIN;
-	LED_CONNECTED_PORT->BSRR = LED_CONNECTED_PIN;
+	// LED_CONNECTED_PORT->BSRR = LED_CONNECTED_PIN;
 }
 
 /** Disable JTAG/SWD I/O Pins.
@@ -213,9 +213,6 @@ static inline void PIN_SWDIO_OUT_ENABLE(void)
 	SWDIO_PORT->PUPDR = temp;
 
 	SWDIO_PORT->BSRR = SWDIO_PIN << 16U;
-
-	// SWDIO_PORT->MODER &= ~(3U << (SWDIO_PIN_INDEX * 2));
-	// SWDIO_PORT->MODER |= (1U << (SWDIO_PIN_INDEX * 2));
 }
 
 static inline void PIN_SWDIO_OUT_DISABLE(void)
@@ -228,8 +225,6 @@ static inline void PIN_SWDIO_OUT_DISABLE(void)
 	SWDIO_PORT->MODER = temp;
 
 	SWDIO_PORT->BSRR = SWDIO_PIN << 16U;
-
-	// SWDIO_PORT->MODER &= ~(3 << (SWDIO_PIN_INDEX * 2));
 }
 
 // TDI Pin I/O ---------------------------------------------
@@ -345,7 +340,7 @@ static inline void LED_RUNNING_OUT(uint32_t bit)
 static void DAP_SETUP(void)
 {
 	PORT_OFF();
-	PORT_SWD_SETUP();
+	// PORT_SWD_SETUP();
 }
 
 
