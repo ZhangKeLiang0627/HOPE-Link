@@ -70,13 +70,13 @@ void PageList::Show(Item* thisitem)
             }
 
             // 绘制勾选框
-            oled_draw_frame(SCREEN_WIDTH - 20 + Item_x, Item_y - 12 + 3, 11, 11);
+            oled_draw_frame(SCREEN_WIDTH - 20 + Item_x, Item_y - 12 + 2, 11, 11);
 
             // 当前选项高亮
             if (item->lineId == uiSelect)
             {
                 oled_set_draw_color(2);
-                oled_draw_box(SCREEN_WIDTH - 21 + Item_x, Item_y - 12 + 2, 12, 12);
+                oled_draw_box(SCREEN_WIDTH - 21 + Item_x, Item_y - 12 + 1, 13, 13);
                 oled_set_draw_color(1);
             }
             break;

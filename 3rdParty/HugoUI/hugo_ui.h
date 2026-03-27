@@ -13,7 +13,7 @@
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define FONT_WIDTH 8
-#define FONT_HEIGHT 15
+#define FONT_HEIGHT 14
 #define SCROLL_BAR_WIDTH 3
 
 #ifdef FPU
