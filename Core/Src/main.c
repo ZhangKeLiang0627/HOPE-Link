@@ -28,7 +28,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-// #include "common_inc.h"
+#include "common_inc.h"
 #include "DAP.h"
 #include "SWD_host.h"
 #include "SWD_flash.h"
@@ -128,22 +128,17 @@ int main(void)
 
   // Invoke cpp-version main().
   // Main();
-
   HAL_Delay(1000);
-
-  DAP_Setup();
+  Usart_debugMsg("HOPE-Link begin!");
 
   if (swd_init_debug())
   {
-    Usart_debugMsg("swd_init_debug sucess!");
+    Usart_debugMsg("swd_init_debug success!");
   }
   else
   {
     Usart_debugMsg("swd_init_debug fail!");
   }
-
-  HAL_Delay(500);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -151,7 +146,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+    Usart_debugMsg("HOPE-Link is running!");
+    HAL_Delay(5000);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -203,27 +199,27 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-// void OnTimerCallback(TIM_TypeDef *timInstance);
+void OnTimerCallback(TIM_TypeDef *timInstance);
 
-//  /**
-//   * @brief  Period elapsed callback in non blocking mode
-//   * @note   This function is called  when TIM6 interrupt took place, inside
-//   * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-//   * a global variable "uwTick" used as application time base.
-//   * @param  htim : TIM handle
-//   * @retval None
-//   */
-// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-// {
-//   /* USER CODE BEGIN Callback 0 */
-//   OnTimerCallback(htim->Instance);
+ /**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM6 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+  OnTimerCallback(htim->Instance);
 
-//   /* USER CODE END Callback 0 */
+  /* USER CODE END Callback 0 */
 
-//   /* USER CODE BEGIN Callback 1 */
+  /* USER CODE BEGIN Callback 1 */
 
-//   /* USER CODE END Callback 1 */
-// }
+  /* USER CODE END Callback 1 */
+}
 
 /* USER CODE END 4 */
 
