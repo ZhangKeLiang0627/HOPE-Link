@@ -28,7 +28,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "common_inc.h"
+// #include "common_inc.h"
 #include "DAP.h"
 #include "SWD_host.h"
 #include "SWD_flash.h"
@@ -135,24 +135,12 @@ int main(void)
 
   if (swd_init_debug())
   {
-    // Usart_SendString(&huart1, "swd_init_debug sucess!\n");
-    debugMsg("swd_init_debug sucess!");
+    Usart_debugMsg("swd_init_debug sucess!");
   }
   else
   {
-    // Usart_SendString(&huart1, "swd_init_debug fail!\n");
-    debugMsg("swd_init_debug fail!");
+    Usart_debugMsg("swd_init_debug fail!");
   }
-
-  uint8_t res = target_flash_init(0x08000000);
-  
-  debugMsg("target_flash_init, res: %d", res);
-
-  res = target_flash_erase_chip();
-
-  debugMsg("target_flash_erase_chip, res: %d", res);
-
-  swd_set_target_state_hw(RESET_RUN);
 
   HAL_Delay(500);
 
@@ -215,27 +203,27 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void OnTimerCallback(TIM_TypeDef *timInstance);
+// void OnTimerCallback(TIM_TypeDef *timInstance);
 
- /**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM6 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-  OnTimerCallback(htim->Instance);
+//  /**
+//   * @brief  Period elapsed callback in non blocking mode
+//   * @note   This function is called  when TIM6 interrupt took place, inside
+//   * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+//   * a global variable "uwTick" used as application time base.
+//   * @param  htim : TIM handle
+//   * @retval None
+//   */
+// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+// {
+//   /* USER CODE BEGIN Callback 0 */
+//   OnTimerCallback(htim->Instance);
 
-  /* USER CODE END Callback 0 */
+//   /* USER CODE END Callback 0 */
 
-  /* USER CODE BEGIN Callback 1 */
+//   /* USER CODE BEGIN Callback 1 */
 
-  /* USER CODE END Callback 1 */
-}
+//   /* USER CODE END Callback 1 */
+// }
 
 /* USER CODE END 4 */
 

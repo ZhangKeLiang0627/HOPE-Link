@@ -1,6 +1,6 @@
 #include "interface_uart.h"
 
-void Usart_SendString(UART_HandleTypeDef* handle, uint8_t *str)
+void Usart_sendString(UART_HandleTypeDef *handle, uint8_t *str)
 {
     if (handle == NULL || str == NULL)
         return;
@@ -14,7 +14,7 @@ void Usart_SendString(UART_HandleTypeDef* handle, uint8_t *str)
     HAL_UART_Transmit(handle, str, len, 1000);
 }
 
-void debugMsg(const char *fmt, ...)
+void Usart_debugMsg(const char *fmt, ...)
 {
 #if ((DEBUG_ENABLE))
 
@@ -27,6 +27,6 @@ void debugMsg(const char *fmt, ...)
 
     strcat(debug_buf, "\r\n");
 
-    Usart_SendString(&huart1, (uint8_t *)debug_buf);
+    Usart_sendString(&huart1, (uint8_t *)debug_buf);
 #endif
 }
