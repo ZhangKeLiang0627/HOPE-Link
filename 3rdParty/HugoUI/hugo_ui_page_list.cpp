@@ -12,9 +12,9 @@ void PageList::Show(Item* thisitem)
     if (!thisitem) return;
 
     // 计算动画
-    Animation_Linear(&this->list_y, &this->list_y_trg, 65);
+    Animation_Linear(&this->list_y, &this->list_y_trg, 85);
     Animation_Linear(&this->frame_y, &this->frame_y_trg, 65);
-    Animation_Linear(&this->frame_width, &this->frame_width_trg, 50);
+    Animation_Linear(&this->frame_width, &this->frame_width_trg, 40);
     Animation_Linear(&this->slidbar_y, &this->slidbar_y_trg, 65);
 
     // 绘制目录树和目录名

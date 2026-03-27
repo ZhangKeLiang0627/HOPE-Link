@@ -13,7 +13,7 @@ void PageIcon::Show(Item* thisitem)
     Animation_Linear(&this->page_x, &this->page_x_trg, 65);
     Animation_Linear(&this->page_y, &this->page_y_trg, 65);
     Animation_Linear(&this->frame_x, &this->frame_x_trg, 65);
-    Animation_Linear(&this->icon_move_x, &this->icon_move_x_trg, 75);
+    Animation_Linear(&this->icon_move_x, &this->icon_move_x_trg, 85);
     Animation_Linear(&this->icon_rectangle_x, &this->icon_rectangle_x_trg, 65);
     
     // 绘制参数

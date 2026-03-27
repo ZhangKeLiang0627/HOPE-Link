@@ -157,22 +157,19 @@ void EventTestDapUI(void)
     }
 
     // Loop
-    if (ExecuteRate(&Rate60Hz))
+    oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP测试』");
+
+    uint8_t res = swd_init_debug();
+
+    if (res == 1)
     {
-        oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP测试』");
-
-        uint8_t res = swd_init_debug();
-
-        if (res == 1)
-        {
-            oled_draw_UTF8(0, FONT_HEIGHT * 2, "目标芯片已连接!!!");
-        }
-        else
-        {
-            oled_draw_UTF8(0, FONT_HEIGHT * 2, "还没有芯片接入噢...");
-        }
-        oledDrawNum(0, FONT_HEIGHT * 3, res);
+        oled_draw_UTF8(0, FONT_HEIGHT * 2, "目标芯片已连接!!!");
     }
+    else
+    {
+        oled_draw_UTF8(0, FONT_HEIGHT * 2, "还没有芯片接入噢...");
+    }
+    oledDrawNum(0, FONT_HEIGHT * 3, res);
 
     // Exit
     if (uiKeyNumInSide == 2)
