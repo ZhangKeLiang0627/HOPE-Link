@@ -108,11 +108,22 @@ void HugoUI::InitLayout(void)
 void EventShowAboutUI(void)
 {
     static float motion_a = 80.0f, motion_a_trg = 0;
+    static uint8_t isEnterAnimFinish = 0;
 
+    // Enter
+    if (!isEnterAnimFinish)
+    {
+        oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        if (Animation_Blur() == 0)
+            isEnterAnimFinish = 1;
+        return;
+    }
+    
+    // Loop
     Animation_Linear(&motion_a, &motion_a_trg, 85);
 
     oled_draw_bMP(motion_a, 0, 40, 50, HeadSculpture_BMP);
-    oled_draw_str(50, FONT_HEIGHT, "HOPE  Pro");
+    oled_draw_str(48, FONT_HEIGHT, "HOPE- Link");
     oled_draw_UTF8(45, FONT_HEIGHT * 2, "版本: Ver1.3");
     oled_draw_UTF8(45, FONT_HEIGHT * 3, "储存: 16 MB");
     oled_draw_UTF8(10, FONT_HEIGHT * 4, " By @kkl_aka科良");
@@ -121,9 +132,22 @@ void EventShowAboutUI(void)
     oled_draw_R_box(86, 3, 30, FONT_HEIGHT, 0);
     oled_set_draw_color(1);
 
+    // Exit
     if (uiKeyNumInSide == 2)
     {
+        uint8_t isExitAnimFinish = 0;
+        oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        oled_send_buffer();
+
+        while (!isExitAnimFinish)
+        {
+            if (Animation_Blur() == 0)
+                isExitAnimFinish = 1;
+            oled_send_buffer();
+        }
+
         motion_a = 80.0f;
+        isEnterAnimFinish = 0;
     }
 }
 
@@ -134,12 +158,11 @@ void EventShowAboutUI(void)
 void EventTestDapUI(void)
 {
     static uint8_t isTestDapInit = 0;
-    static uint8_t isTestDapFuncEnter = 0;
+    static uint8_t isEnterAnimFinish = 0;
 
      // Init
     if (!isTestDapInit)
     {
-        DAP_Setup();
         isTestDapInit = 1;
     }
     else
@@ -148,11 +171,11 @@ void EventTestDapUI(void)
     }
 
     // Enter
-    if(!isTestDapFuncEnter)
+    if(!isEnterAnimFinish)
     {
         oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         if (Animation_Blur() == 0)
-            isTestDapFuncEnter = 1;
+            isEnterAnimFinish = 1;
         return;
     }
 
@@ -169,21 +192,24 @@ void EventTestDapUI(void)
     {
         oled_draw_UTF8(0, FONT_HEIGHT * 2, "还没有芯片接入噢...");
     }
-    oledDrawNum(0, FONT_HEIGHT * 3, res);
 
+    
+
+    
     // Exit
     if (uiKeyNumInSide == 2)
     {
-        uint8_t isExitAnimFinish = 1;
+        uint8_t isExitAnimFinish = 0;
         oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         oled_send_buffer();
 
-        while (isExitAnimFinish)
+        while (!isExitAnimFinish)
         {
-            isExitAnimFinish = Animation_Blur();
+            if (Animation_Blur() == 0)
+                isExitAnimFinish = 1;
             oled_send_buffer();
         }
 
-        isTestDapFuncEnter = 0;
+        isEnterAnimFinish = 0;
     }
 }

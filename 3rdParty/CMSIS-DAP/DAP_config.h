@@ -118,15 +118,15 @@ static void PORT_SWD_SETUP(void)
 	// GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
 	// HAL_GPIO_Init(nRST_PORT, &GPIO_InitStruct);
 
-	// GPIO_InitStruct.Pin = LED_CONNECTED_PIN;
-	// GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	// GPIO_InitStruct.Pull = GPIO_NOPULL;
-	// GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
-	// HAL_GPIO_Init(LED_CONNECTED_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin = LED_CONNECTED_PIN;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+	HAL_GPIO_Init(LED_CONNECTED_PORT, &GPIO_InitStruct);
 
 	SWCLK_PORT->BSRR = SWCLK_PIN;
 	SWDIO_PORT->BSRR = SWDIO_PIN;
-	// LED_CONNECTED_PORT->BSRR = LED_CONNECTED_PIN;
+	LED_CONNECTED_PORT->BSRR = LED_CONNECTED_PIN;
 }
 
 /** Disable JTAG/SWD I/O Pins.
@@ -230,7 +230,7 @@ static inline void PIN_SWDIO_OUT_DISABLE(void)
 
 	// Usart_debugMsg("[DAP] set swdio in");
 }
-#pragma clang optimize on
+
 // TDI Pin I/O ---------------------------------------------
 
 static inline uint32_t PIN_TDI_IN(void)
@@ -327,19 +327,19 @@ static inline void PIN_nRESET_OUT(uint32_t bit)
 static inline void LED_CONNECTED_OUT(uint32_t bit)
 {
 	if (bit & 1)
-		LED_CONNECTED_PORT->BSRR = (uint32_t)LED_CONNECTED_PIN;
+		LED_CONNECTED_PORT->BSRR = LED_CONNECTED_PIN << 16U; // 低电平 -> led on
 	else
-		LED_CONNECTED_PORT->BSRR = (uint32_t)LED_CONNECTED_PIN << 16U;
+		LED_CONNECTED_PORT->BSRR = LED_CONNECTED_PIN; // 高电平 -> led off
 }
 
 static inline void LED_RUNNING_OUT(uint32_t bit)
 {
-	if (bit & 1)
-		LED_RUNNING_PORT->BSRR = (uint32_t)LED_RUNNING_PIN;
-	else
-		LED_RUNNING_PORT->BSRR = (uint32_t)LED_RUNNING_PIN << 16U;
+	// if (bit & 1)
+	// 	LED_RUNNING_PORT->BSRR = LED_RUNNING_PIN;
+	// else
+	// 	LED_RUNNING_PORT->BSRR = LED_RUNNING_PIN << 16U;
 }
-
+#pragma clang optimize on
 
 static void DAP_SETUP(void)
 {

@@ -204,18 +204,10 @@ void PageList::Show(Item* thisitem)
         this->page_x_trg = 0;
         this->page_x = 100;
 
-        // // 选择框位置
-        // this->frame_y = SCREEN_HEIGHT * 1.5f;
-        // this->frame_y_trg = (uiSelect % (SCREEN_HEIGHT / 16)) * FONT_HEIGHT;
-        // this->frame_width_trg = oled_get_UTF8_width(thisitem->title.c_str()) + FONT_WIDTH;
-        // // 列表位置调整
-        // if ((uiSelect % (SCREEN_HEIGHT / 16)) - 1)
-        // {
-        //     if (this->list_y_trg / FONT_HEIGHT == -(uiSelect - 1))
-        //         this->list_y_trg -= FONT_HEIGHT;
-        //     else
-        //         this->list_y_trg -= FONT_HEIGHT * (SCREEN_HEIGHT / 16);
-        // }
+        // 选择框位置
+        this->frame_y = SCREEN_HEIGHT * 1.5f;
+        this->frame_y_trg = (uiSelect % (SCREEN_HEIGHT / 16)) * FONT_HEIGHT;
+        this->frame_width_trg = oled_get_UTF8_width(thisitem->title.c_str()) + FONT_WIDTH;
 
         // 滚动条位置
         this->slidbar_y = SCREEN_HEIGHT;
