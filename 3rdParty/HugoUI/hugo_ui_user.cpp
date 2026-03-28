@@ -54,9 +54,9 @@ void HugoUI::InitLayout(void)
     pageOffline->AddItem("选择芯片型号", ItemType::JumpPage)
         ->SetJumpId(pageOflnSelChip->pageId, 0);
     pageOffline->AddItem("设置下载地址", ItemType::CallFunction, nullptr);
+    pageOffline->AddItem("全量擦除芯片", ItemType::CallFunction, EventEraseChipUI);
     pageOffline->AddItem("自动触发下载", ItemType::Switch, nullptr, nullptr);
     pageOffline->AddItem("储存当前设置", ItemType::CallFunction, nullptr);
-    pageOffline->AddItem("擦除芯片", ItemType::CallFunction, EventEraseChipUI);
     pageOffline->AddItem("> 开始下载", ItemType::CallFunction, EventTestDapUI);
 
     pageOffline->AddItem("返回", ItemType::JumpPage)
@@ -125,7 +125,7 @@ void EventShowAboutUI(void)
     }
 
     // Loop
-    Animation_Linear(&motion_a, &motion_a_trg, 85);
+    Animation_Elastic(&motion_a, &motion_a_trg, 235);
 
     oled_draw_bMP(motion_a, 0, 40, 50, HeadSculpture_BMP);
     oled_draw_str(48, FONT_HEIGHT, "HOPE- Link");

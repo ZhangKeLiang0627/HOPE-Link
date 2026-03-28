@@ -210,6 +210,7 @@ void CommonEventProc(void);
 uint8_t Animation_Linear(float *a, float *a_trg, uint8_t n);
 uint8_t Animation_EasyIn(float *a, float *a_trg, uint16_t n);
 uint8_t Animation_EasyOut(float *a, float *a_trg, uint16_t n);
+uint8_t Animation_Elastic(float *a, float *a_trg, uint8_t n);
 uint8_t Animation_Blur(void);
 
 } /* namespace HugoUI */

@@ -134,6 +134,36 @@ uint8_t HugoUI::Animation_EasyIn(float *a, float *a_trg, uint16_t n)
 }
 
 /**
+ * @brief 过冲回弹动画插值
+ * @param n: 弹性系数，越大回弹越慢、幅度越大
+ */
+uint8_t HugoUI::Animation_Elastic(float *a, float *a_trg, uint8_t n)
+{
+    static float vel = 0.0f;
+
+    float delta = *a_trg - *a;
+
+    // 结束判断
+    if (fabs(delta) < 0.001f && fabs(vel) < 0.01f)
+    {
+        *a = *a_trg;
+        vel = 0;
+        return 0;
+    }
+
+    // 弹性系数 & 阻尼（可微调）
+    float stiffness = 12.0f / (n + 1);
+    float damping = 0.77f;
+
+    // 弹簧物理公式（胡克定律）
+    vel += delta * stiffness;
+    vel *= damping;
+    *a += vel;
+
+    return 1;
+}
+
+/**
  * @brief 模糊转场效果
  */
 uint8_t HugoUI::Animation_Blur(void)
