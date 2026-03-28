@@ -9,11 +9,12 @@ using namespace HugoUI;
 /* 全局变量 ----------------------------------------------------------- */
 
 // 开关控件变量
-bool test_flag = false;
+bool testFlag = false;
+bool inverseModeFlag = false;
 
 /* 用户函数 ----------------------------------------------------------- */
-
 void EventShowAboutUI(void);
+void EventSetInverseMode(void);
 
 void HugoUI::InitLayout(void)
 {
@@ -78,11 +79,11 @@ void HugoUI::InitLayout(void)
     pageSetting->AddItem("PID Editor", ItemType::JumpPage)
         ->SetJumpId(pagePID->pageId, 0);
 
-    pageSetting->AddItem("switch的长文本测试demooooooo", ItemType::Switch, &test_flag, nullptr);
-    pageSetting->AddItem("checkbox的长文本测试demoooo123456", ItemType::Checkbox, &test_flag, nullptr);
-    pageSetting->AddItem("changevalue的长文本测试demoooo123456", ItemType::Checkbox, &test_flag, nullptr);
+    pageSetting->AddItem("switch的长文本测试demooooooo", ItemType::Switch, &testFlag, nullptr);
+    pageSetting->AddItem("checkbox的长文本测试demoooo123456", ItemType::Checkbox, &testFlag, nullptr);
+    pageSetting->AddItem("changevalue的长文本测试demoooo123456", ItemType::Checkbox, &testFlag, nullptr);
 
-    pageSetting->AddItem("反色模式", ItemType::Switch, nullptr, nullptr);
+    pageSetting->AddItem("反色模式", ItemType::Switch, &inverseModeFlag, EventSetInverseMode);
     pageSetting->AddItem("蜂鸣器音量", ItemType::ChangeValue, nullptr, nullptr);
     pageSetting->AddItem("格式化存储设备", ItemType::CallFunction, nullptr);
     pageSetting->AddItem("恢复出厂设置", ItemType::CallFunction, nullptr);
@@ -154,4 +155,10 @@ void EventShowAboutUI(void)
         motion_a = 80.0f;
         isEnterAnimFinish = 0;
     }
+}
+
+/* 反色模式的事件回调 */
+void EventSetInverseMode(void)
+{
+    oledSetInverseColor(inverseModeFlag);
 }
