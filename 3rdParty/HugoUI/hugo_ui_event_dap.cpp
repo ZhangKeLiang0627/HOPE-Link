@@ -1,5 +1,5 @@
 #include "hugo_ui_event_dap.h"
-
+#include "hugo_ui_widget.h"
 // Fatfs
 #include "ff.h"
 
@@ -214,43 +214,23 @@ void HugoUI::EventTestDapUI(void)
 }
 
 void HugoUI::EventEraseChipUI(void)
-{   
-    // Blur
-    int len = 8 * oled_get_buffer_tile_height() * oled_get_buffer_tile_width();
-    uint8_t *p = oled_get_buffer_ptr();
+{
 
-    currentPage->Show(currentItem.get());
+    WidgetDrawMessageBox("擦除芯片...");
 
-    // 给原本的渲染内容打上一层模糊的棋盘格效果
-    for (uint16_t i = 0; i < len; i++)
+    // Util
+    if (target_flash_init(0x08000000) == ERROR_SUCCESS)
     {
-        if (i % 2 == 0)
+        oled_send_buffer();
+        if (target_flash_erase_chip() == ERROR_SUCCESS)
         {
-            p[i] = p[i] & (0x55);
-            p[i] = p[i] & (0x00);
+            uiKeyNumInSide = 2; // 自动退出
         }
-        else
-            p[i] = p[i] & (0xaa);
     }
-
-    // Show Msg
-    uint16_t msg_width = oled_get_UTF8_width(" 擦除芯片 ");
-
-    // 画后面的立体阴影
-    oled_draw_R_frame((128 - msg_width) / 2 + 3, 26 - 2, msg_width, FONT_HEIGHT, 1);
-
-    // 反色擦除需要绘制的区域
-    oled_set_draw_color(0);
-    oled_draw_R_box((128 - msg_width) / 2 - 1, 26 - 1, msg_width + 2, FONT_HEIGHT + 2, 0);
-    oled_set_draw_color(1);
-
-    // 绘制文本内容
-    oled_draw_UTF8((128 - msg_width) / 2, 26 + FONT_HEIGHT - 2, " 擦除芯片 "); // 正在擦除芯片...
-
-    // 绘制反色框
-    oled_set_draw_color(2);
-    oled_draw_R_box((128 - msg_width) / 2, 26, msg_width, FONT_HEIGHT, 0);
-    oled_set_draw_color(1);
+    else
+    {
+        WidgetDrawMessageBox("连接失败!", true);
+    }
 
     // Exit
     if (uiKeyNumInSide == 2)
