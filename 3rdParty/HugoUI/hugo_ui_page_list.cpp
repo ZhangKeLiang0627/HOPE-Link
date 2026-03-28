@@ -24,7 +24,7 @@ static int16_t GetTitleDrawX(PageList *page, const Item::Ptr &item, int16_t base
     }
 
     int full_w = oled_get_UTF8_width(item->title.c_str());
-    bool too_long = (item->title.size() > 107) || (full_w > textMaxPixel);
+    bool too_long = full_w > textMaxPixel;
 
     if (too_long)
     {
@@ -98,9 +98,11 @@ void PageList::Show(Item *thisitem)
     int16_t Item_y;
 
     // 长文本滚动参数
-    const int TEXT_MAX_PIXEL = 96;
+    int selection_text_max_pixel = (thisitem->funcType == ItemType::Switch ||
+                                    thisitem->funcType == ItemType::ChangeValue ||
+                                    thisitem->funcType == ItemType::Checkbox) ? 96 : 120;
     int selection_title_w = oled_get_UTF8_width(thisitem->title.c_str());
-    int sel_frame_width = (selection_title_w > TEXT_MAX_PIXEL ? TEXT_MAX_PIXEL : selection_title_w + FONT_WIDTH);
+    int sel_frame_width = (selection_title_w > selection_text_max_pixel ? selection_text_max_pixel : selection_title_w + FONT_WIDTH);
     uint8_t bar_h = ceil((float)SCREEN_HEIGHT / this->itemMax);
 
     // 遍历页面Item
@@ -114,21 +116,26 @@ void PageList::Show(Item *thisitem)
         {
             Item_y = FONT_HEIGHT - 1 + static_cast<int16_t>(this->page_y + item->lineId * FONT_HEIGHT + this->list_y);
 
+            // 根据控件类型确定文本最大像素
+            int textMaxPixel = (item->funcType == ItemType::Switch ||
+                                item->funcType == ItemType::ChangeValue ||
+                                item->funcType == ItemType::Checkbox) ? 107 : 120;
+
             switch (item->funcType)
             {
             case ItemType::Description:
                 oled_draw_str(2 + Item_x, Item_y, "#");
-                DrawTitle(this, item, 2 + 9 + Item_x, Item_y, TEXT_MAX_PIXEL);
+                DrawTitle(this, item, 2 + 9 + Item_x, Item_y, textMaxPixel);
                 break;
 
             case ItemType::JumpPage:
                 oled_draw_str(2 + Item_x, Item_y, "+");
-                DrawTitle(this, item, 2 + 10 + Item_x, Item_y, TEXT_MAX_PIXEL);
+                DrawTitle(this, item, 2 + 10 + Item_x, Item_y, textMaxPixel);
                 break;
 
             case ItemType::Checkbox:
                 oled_draw_str(2 + Item_x, Item_y, "-");
-                DrawTitle(this, item, 2 + 9 + Item_x, Item_y, TEXT_MAX_PIXEL);
+                DrawTitle(this, item, 2 + 9 + Item_x, Item_y, textMaxPixel);
 
                 ClearControlArea(static_cast<int16_t>(SCREEN_WIDTH - FONT_WIDTH * 4 + Item_x), Item_x, Item_y);
 
@@ -154,7 +161,7 @@ void PageList::Show(Item *thisitem)
 
             case ItemType::Switch:
                 oled_draw_str(2 + Item_x, Item_y, "-");
-                DrawTitle(this, item, 2 + 9 + Item_x, Item_y, TEXT_MAX_PIXEL);
+                DrawTitle(this, item, 2 + 9 + Item_x, Item_y, textMaxPixel);
 
                 ClearControlArea(static_cast<int16_t>(SCREEN_WIDTH - FONT_WIDTH * 4 + Item_x), Item_x, Item_y);
 
@@ -165,7 +172,7 @@ void PageList::Show(Item *thisitem)
 
             case ItemType::ChangeValue:
                 oled_draw_str(2 + Item_x, Item_y, "-");
-                DrawTitle(this, item, 2 + 9 + Item_x, Item_y, TEXT_MAX_PIXEL);
+                DrawTitle(this, item, 2 + 9 + Item_x, Item_y, textMaxPixel);
 
                 ClearControlArea(static_cast<int16_t>(SCREEN_WIDTH - FONT_WIDTH * 4 + Item_x), Item_x, Item_y);
 
@@ -196,7 +203,7 @@ void PageList::Show(Item *thisitem)
 
             default:
                 oled_draw_str(2 + Item_x, Item_y, "-");
-                DrawTitle(this, item, 2 + 9 + Item_x, Item_y, TEXT_MAX_PIXEL);
+                DrawTitle(this, item, 2 + 9 + Item_x, Item_y, textMaxPixel);
                 break;
             }
         }

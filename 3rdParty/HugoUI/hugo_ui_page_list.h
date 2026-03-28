@@ -25,6 +25,12 @@ public:
     uint16_t scroll_delay;
     int selected_line_last;
 
+    // 缓存的计算值，避免重复计算
+    int cached_selection_text_max_pixel;
+    int cached_selection_title_w;
+    int cached_sel_frame_width;
+    uint8_t cached_bar_h;
+
     // 构造函数
     PageList(const std::string& pageTitle = "") 
         : Page(PageType::List, pageTitle),
@@ -32,7 +38,9 @@ public:
           frame_y(0), frame_y_trg(0),
           frame_width(36), frame_width_trg(36),
           slidbar_y(0), slidbar_y_trg(0),
-          scroll_x(0), scroll_dir(1), scroll_delay(0), selected_line_last(-1) {}
+          scroll_x(0), scroll_dir(1), scroll_delay(0), selected_line_last(-1),
+          cached_selection_text_max_pixel(-1), cached_selection_title_w(-1), 
+          cached_sel_frame_width(-1), cached_bar_h(0) {}
 
     // 实现基类的纯虚函数
     void Show(Item* thisitem) override;
