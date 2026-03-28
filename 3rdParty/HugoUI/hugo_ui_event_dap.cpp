@@ -219,10 +219,9 @@ void HugoUI::EventEraseChipUI(void)
     int len = 8 * oled_get_buffer_tile_height() * oled_get_buffer_tile_width();
     uint8_t *p = oled_get_buffer_ptr();
 
-    float box_width = 0, box_width_trg = 105;
-
     currentPage->Show(currentItem.get());
 
+    // 给原本的渲染内容打上一层模糊的棋盘格效果
     for (uint16_t i = 0; i < len; i++)
     {
         if (i % 2 == 0)
@@ -235,29 +234,26 @@ void HugoUI::EventEraseChipUI(void)
     }
 
     // Show Msg
-    // Animation_Linear(&box_width, &box_width_trg, 85);
     uint16_t msg_width = oled_get_UTF8_width(" 擦除芯片 ");
 
+    // 画后面的立体阴影
     oled_draw_R_frame((128 - msg_width) / 2 + 3, 26 - 2, msg_width, FONT_HEIGHT, 1);
 
+    // 反色擦除需要绘制的区域
     oled_set_draw_color(0);
     oled_draw_R_box((128 - msg_width) / 2 - 1, 26 - 1, msg_width + 2, FONT_HEIGHT + 2, 0);
     oled_set_draw_color(1);
 
+    // 绘制文本内容
     oled_draw_UTF8((128 - msg_width) / 2, 26 + FONT_HEIGHT - 2, " 擦除芯片 "); // 正在擦除芯片...
 
+    // 绘制反色框
     oled_set_draw_color(2);
     oled_draw_R_box((128 - msg_width) / 2, 26, msg_width, FONT_HEIGHT, 0);
     oled_set_draw_color(1);
 
-
-    // oled_set_draw_color(2);
-    // oled_draw_R_box(box_width / 8, 35 - 10, box_width, FONT_HEIGHT, 0);
-    // oled_set_draw_color(1);
-
     // Exit
     if (uiKeyNumInSide == 2)
     {
-        box_width = 0;
     }
 }
