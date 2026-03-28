@@ -56,7 +56,7 @@ void HugoUI::InitLayout(void)
     pageOffline->AddItem("设置下载地址", ItemType::CallFunction, nullptr);
     pageOffline->AddItem("自动触发下载", ItemType::Switch, nullptr, nullptr);
     pageOffline->AddItem("储存当前设置", ItemType::CallFunction, nullptr);
-    pageOffline->AddItem("擦除芯片", ItemType::CallFunction, nullptr);
+    pageOffline->AddItem("擦除芯片", ItemType::CallFunction, EventEraseChipUI);
     pageOffline->AddItem("> 开始下载", ItemType::CallFunction, EventTestDapUI);
 
     pageOffline->AddItem("返回", ItemType::JumpPage)
@@ -108,8 +108,6 @@ void HugoUI::InitLayout(void)
         ->SetJumpId(pageMain->pageId, 4);
 
 }
-
-
 
 /* About的应用事件函数 */
 void EventShowAboutUI(void)

@@ -12,8 +12,10 @@ using namespace HugoUI;
 
 /* 全局变量 ----------------------------------------------------------- */
 
+static char firmwareName[256] = "0:/Firmware/HOPE-Link.bin";
+
 // 开关控件变量
-static bool selFile_flag[256] = {false};
+static bool firmwareFlag[256] = {false};
 
 /* 用户函数 ----------------------------------------------------------- */
 
@@ -48,7 +50,7 @@ void HugoUI::AddItemsFromFirmwareFolder(Page::Ptr page, const char *folderPath)
             continue;
 
         // 添加文件名作为 Item，点击触发回调
-        page->AddItem((char *)fno.fname, ItemType::Checkbox, &selFile_flag[page->itemMax], nullptr);
+        page->AddItem((char *)fno.fname, ItemType::Checkbox, &firmwareFlag[page->itemMax], nullptr);
     }
 
     f_closedir(&dir);
@@ -95,7 +97,8 @@ void HugoUI::EventTestDapUI(void)
 
     if (isWriteFinish)
     {
-        oled_draw_UTF8(0, FONT_HEIGHT * 2, "烧录非常的成功!");
+        oled_draw_UTF8(0, FONT_HEIGHT * 2, "烧录非常的成功!!!");
+        oled_draw_UTF8(0, FONT_HEIGHT * 3, "<<长按编码器退出:)");
     }
     else
     {
@@ -120,8 +123,8 @@ void HugoUI::EventTestDapUI(void)
                     oled_draw_UTF8(0, FONT_HEIGHT * 2, "目标芯片已擦除!!!");
                     oled_send_buffer();
 
-                    // ====================== 烧录核心 ======================
-                    Res = f_open(&fnew, (const TCHAR *)"0:/Firmware/HOPE-Link.bin", FA_READ);
+                    // 烧录核心内容 begin ------------------------------------------
+                    Res = f_open(&fnew, (const TCHAR *)firmwareName, FA_READ);
                     if (Res == FR_OK)
                     {
                         uint32_t progess = 0, burn_addr = 0, time1, time2;
@@ -180,7 +183,7 @@ void HugoUI::EventTestDapUI(void)
                         HAL_Delay(1000);
                         f_close(&fnew);
                     }
-                    // ======================================================
+                    // 烧录核心内容 end --------------------------------------------
                 }
             }
         }
@@ -207,5 +210,54 @@ void HugoUI::EventTestDapUI(void)
 
         isEnterAnimFinish = 0;
         isWriteFinish = 0;
+    }
+}
+
+void HugoUI::EventEraseChipUI(void)
+{   
+    // Blur
+    int len = 8 * oled_get_buffer_tile_height() * oled_get_buffer_tile_width();
+    uint8_t *p = oled_get_buffer_ptr();
+
+    float box_width = 0, box_width_trg = 105;
+
+    currentPage->Show(currentItem.get());
+
+    for (uint16_t i = 0; i < len; i++)
+    {
+        if (i % 2 == 0)
+        {
+            p[i] = p[i] & (0x55);
+            p[i] = p[i] & (0x00);
+        }
+        else
+            p[i] = p[i] & (0xaa);
+    }
+
+    // Show Msg
+    // Animation_Linear(&box_width, &box_width_trg, 85);
+    uint16_t msg_width = oled_get_UTF8_width(" 擦除芯片 ");
+
+    oled_draw_R_frame((128 - msg_width) / 2 + 3, 26 - 2, msg_width, FONT_HEIGHT, 1);
+
+    oled_set_draw_color(0);
+    oled_draw_R_box((128 - msg_width) / 2 - 1, 26 - 1, msg_width + 2, FONT_HEIGHT + 2, 0);
+    oled_set_draw_color(1);
+
+    oled_draw_UTF8((128 - msg_width) / 2, 26 + FONT_HEIGHT - 2, " 擦除芯片 "); // 正在擦除芯片...
+
+    oled_set_draw_color(2);
+    oled_draw_R_box((128 - msg_width) / 2, 26, msg_width, FONT_HEIGHT, 0);
+    oled_set_draw_color(1);
+
+
+    // oled_set_draw_color(2);
+    // oled_draw_R_box(box_width / 8, 35 - 10, box_width, FONT_HEIGHT, 0);
+    // oled_set_draw_color(1);
+
+    // Exit
+    if (uiKeyNumInSide == 2)
+    {
+        box_width = 0;
     }
 }

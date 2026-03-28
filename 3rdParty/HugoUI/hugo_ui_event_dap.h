@@ -12,6 +12,7 @@ namespace HugoUI
     /* API-Function --------------------------------------------------- */
     void AddItemsFromFirmwareFolder(Page::Ptr page, const char *folderPath);
     void EventTestDapUI(void);
+    void EventEraseChipUI(void);
 
 } /* namespace HugoUI */
 
