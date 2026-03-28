@@ -77,8 +77,9 @@ void HugoUI::InitLayout(void)
     pageSetting->AddItem("PID Editor", ItemType::JumpPage)
         ->SetJumpId(pagePID->pageId, 0);
 
-    pageSetting->AddItem("InverseColor", ItemType::Switch, nullptr, nullptr);
-    pageSetting->AddItem("FilpScreen", ItemType::Switch, nullptr, nullptr);
+    pageSetting->AddItem("swi长文本测试demooooooo", ItemType::Switch, nullptr, nullptr);
+    pageSetting->AddItem("chx测试测试测试测实验测试啦啦啦啦啦啦啦", ItemType::Checkbox, nullptr, nullptr);
+    pageSetting->AddItem("chanval测试测试测试测实验测试啦啦啦啦啦啦啦", ItemType::Checkbox, nullptr, nullptr);
     pageSetting->AddItem("LightLevel", ItemType::ChangeValue, nullptr, nullptr);
     pageSetting->AddItem("BeepEnable", ItemType::Switch, nullptr, nullptr);
     pageSetting->AddItem("UASRT62Printf", ItemType::Switch, nullptr, nullptr);

@@ -19,13 +19,20 @@ public:
     float frame_width, frame_width_trg;
     float slidbar_y, slidbar_y_trg;
 
+    // 长文本滚动状态，仅选中项滚动
+    int scroll_x;
+    int scroll_dir;
+    uint16_t scroll_delay;
+    int selected_line_last;
+
     // 构造函数
     PageList(const std::string& pageTitle = "") 
         : Page(PageType::List, pageTitle),
           list_y(0), list_y_trg(0),
           frame_y(0), frame_y_trg(0),
           frame_width(36), frame_width_trg(36),
-          slidbar_y(0), slidbar_y_trg(0) {}
+          slidbar_y(0), slidbar_y_trg(0),
+          scroll_x(0), scroll_dir(1), scroll_delay(0), selected_line_last(-1) {}
 
     // 实现基类的纯虚函数
     void Show(Item* thisitem) override;
