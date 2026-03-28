@@ -230,6 +230,10 @@ extern uint8_t uiKeyNumInSide, uiEncoderNumInSide;
 extern int16_t uiIndex, uiSelect;
 extern HugoUI::State uiState;
 
+extern HugoUI::Page::Ptr currentPage; // 当前Page
+extern HugoUI::Page::Ptr lastPage;    // 上一个Page
+extern HugoUI::Item::Ptr currentItem; // 当前Item
+
 extern uint8_t ChangeVal_flag;
 
 #endif // __HUGO_UI_H

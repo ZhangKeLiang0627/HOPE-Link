@@ -2012,6 +2012,11 @@
               <FileType>8</FileType>
               <FilePath>..\3rdParty\HugoUI\hugo_ui_page_icon.cpp</FilePath>
             </File>
+            <File>
+              <FileName>hugo_ui_event_dap.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\3rdParty\HugoUI\hugo_ui_event_dap.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
