@@ -115,7 +115,7 @@ void PageList::Show(Item *thisitem)
             int textMaxPixel = (item->funcType == ItemType::Switch ||
                                 item->funcType == ItemType::ChangeValue ||
                                 item->funcType == ItemType::Checkbox)
-                                   ? 107
+                                   ? 96
                                    : 120;
 
             switch (item->funcType)
