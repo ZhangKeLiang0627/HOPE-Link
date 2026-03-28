@@ -74,21 +74,21 @@ void HugoUI::InitLayout(void)
         ->SetJumpId(pageOffline->pageId, 2);
 
     // PageSetting
-    pageSetting->AddItem("Setting", ItemType::Description);
+    pageSetting->AddItem("『系统设置』", ItemType::Description);
     pageSetting->AddItem("PID Editor", ItemType::JumpPage)
         ->SetJumpId(pagePID->pageId, 0);
 
     pageSetting->AddItem("swi长文本测试demooooooo", ItemType::Switch, &test_flag, nullptr);
     pageSetting->AddItem("chx测试测试测试测实验测试啦啦啦啦啦啦啦", ItemType::Checkbox, &test_flag, nullptr);
     pageSetting->AddItem("chanval测试测试测试测实验测试啦啦啦啦啦啦啦", ItemType::Checkbox, &test_flag, nullptr);
-    pageSetting->AddItem("LightLevel", ItemType::ChangeValue, nullptr, nullptr);
-    pageSetting->AddItem("BeepEnable", ItemType::Switch, nullptr, nullptr);
-    pageSetting->AddItem("UASRT62Printf", ItemType::Switch, nullptr, nullptr);
-    pageSetting->AddItem("Page2List", ItemType::Switch, nullptr, nullptr);
-    pageSetting->AddItem("Volume Ctrl", ItemType::ChangeValue, nullptr, nullptr);
-    pageSetting->AddItem("SaveAll", ItemType::CallFunction, nullptr);
 
-    pageSetting->AddItem("Exit", ItemType::JumpPage)
+    pageSetting->AddItem("反色模式", ItemType::Switch, nullptr, nullptr);
+    pageSetting->AddItem("蜂鸣器音量", ItemType::ChangeValue, nullptr, nullptr);
+    pageSetting->AddItem("格式化存储设备", ItemType::CallFunction, nullptr);
+    pageSetting->AddItem("恢复出厂设置", ItemType::CallFunction, nullptr);
+    pageSetting->AddItem("{关于本机}", ItemType::CallFunction, EventShowAboutUI);
+
+    pageSetting->AddItem("返回", ItemType::JumpPage)
         ->SetJumpId(pageMain->pageId, 1);
 
     // PagePID
