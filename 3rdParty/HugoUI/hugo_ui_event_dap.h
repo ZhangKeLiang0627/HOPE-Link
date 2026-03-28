@@ -14,6 +14,7 @@ namespace HugoUI
     void EventTestDapUI(void);
     void EventEraseChipUI(void);
     void EventAutoTriggerUI(void);
+    void EventSelectFirmware(void);
 
 } /* namespace HugoUI */
 

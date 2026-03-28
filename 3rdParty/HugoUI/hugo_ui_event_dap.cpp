@@ -50,7 +50,7 @@ void HugoUI::AddItemsFromFirmwareFolder(Page::Ptr page, const char *folderPath)
             continue;
 
         // 添加文件名作为 Item，点击触发回调
-        page->AddItem((char *)fno.fname, ItemType::Checkbox, &firmwareFlag[page->itemMax], nullptr);
+        page->AddItem((char *)fno.fname, ItemType::Checkbox, &firmwareFlag[page->itemMax], EventSelectFirmware);
     }
 
     f_closedir(&dir);
@@ -250,5 +250,24 @@ void HugoUI::EventAutoTriggerUI(void)
     // Exit
     if (uiKeyNumInSide == 2)
     {
+    }
+}
+
+void HugoUI::EventSelectFirmware(void)
+{
+    // 1. 清空之前所有选择状态
+    memset(firmwareFlag, 0, sizeof(firmwareFlag));
+
+    // 2. 当前选中的 firmware item 置 true
+    if (currentItem && currentItem->flag)
+    {
+        *currentItem->flag = true;
+    }
+
+    // 3. 更新要烧录的固件路径（如果当前Item有名字）
+    if (currentItem && !currentItem->title.empty())
+    {
+        // 固件文件夹固定为 0:/Firmware/
+        snprintf(firmwareName, sizeof(firmwareName), "0:/Firmware/%s", currentItem->title.c_str());
     }
 }
