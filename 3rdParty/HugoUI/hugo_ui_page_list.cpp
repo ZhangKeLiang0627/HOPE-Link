@@ -34,7 +34,7 @@ static int16_t GetTitleDrawX(PageList *page, const Item::Ptr &item, int16_t base
             page->scroll_x += page->scroll_dir;
         }
 
-        int max_scroll = full_w - textMaxPixel;
+        int max_scroll = full_w - textMaxPixel + FONT_WIDTH * 2;
         if (page->scroll_x > max_scroll)
         {
             page->scroll_x = max_scroll;
