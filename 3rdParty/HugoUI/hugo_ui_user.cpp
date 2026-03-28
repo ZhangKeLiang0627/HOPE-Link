@@ -11,6 +11,7 @@ using namespace HugoUI;
 // 开关控件变量
 bool testFlag = false;
 bool inverseModeFlag = false;
+bool autoTriggerFlag = false;
 
 /* 用户函数 ----------------------------------------------------------- */
 void EventShowAboutUI(void);
@@ -51,8 +52,8 @@ void HugoUI::InitLayout(void)
         ->SetJumpId(pageOflnSelChip->pageId, 0);
     pageOffline->AddItem("设置下载地址", ItemType::CallFunction, nullptr);
     pageOffline->AddItem("全量擦除芯片", ItemType::CallFunction, EventEraseChipUI);
-    pageOffline->AddItem("自动触发下载", ItemType::Switch, nullptr, nullptr);
-    pageOffline->AddItem("储存当前设置", ItemType::CallFunction, nullptr);
+    pageOffline->AddItem("自动触发下载", ItemType::Switch, &autoTriggerFlag, nullptr);
+    pageOffline->AddItem("储存当前设置", ItemType::CallFunction, EventAutoTriggerUI);
     pageOffline->AddItem("> 开始下载", ItemType::CallFunction, EventTestDapUI);
 
     pageOffline->AddItem("返回", ItemType::JumpPage)

@@ -13,6 +13,7 @@ namespace HugoUI
     void AddItemsFromFirmwareFolder(Page::Ptr page, const char *folderPath);
     void EventTestDapUI(void);
     void EventEraseChipUI(void);
+    void EventAutoTriggerUI(void);
 
 } /* namespace HugoUI */
 

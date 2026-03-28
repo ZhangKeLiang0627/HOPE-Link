@@ -237,3 +237,18 @@ void HugoUI::EventEraseChipUI(void)
     {
     }
 }
+
+void HugoUI::EventAutoTriggerUI(void)
+{
+
+    WidgetDrawMessageBox("文本测试无功能...", true);
+
+    // Util
+    delay(3000);
+    uiKeyNumInSide = 2; // 自动退出
+
+    // Exit
+    if (uiKeyNumInSide == 2)
+    {
+    }
+}

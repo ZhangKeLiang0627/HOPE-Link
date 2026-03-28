@@ -7,7 +7,6 @@ extern "C"
 #endif
 
 #include <stdint.h>
-
 #include "error.h"
 
 error_t target_flash_init(uint32_t flash_start);
