@@ -14,8 +14,6 @@ bool test_flag = false;
 /* 用户函数 ----------------------------------------------------------- */
 
 void EventShowAboutUI(void);
-void EventTestDapUI(void);
-void AddItemsFromFolder(Page::Ptr page, const char *folderPath);
 
 void HugoUI::InitLayout(void)
 {
@@ -66,7 +64,7 @@ void HugoUI::InitLayout(void)
 
     // PageOfflineSelectFile
     pageOflnSelFile->AddItem("选择固件文件", ItemType::Description);
-    AddItemsFromFolder(pageOflnSelFile, "0:/Firmware");
+    AddItemsFromFirmwareFolder(pageOflnSelFile, "0:/Firmware");
     pageOflnSelFile->AddItem("返回", ItemType::JumpPage)
         ->SetJumpId(pageOffline->pageId, 1);
 
@@ -111,41 +109,7 @@ void HugoUI::InitLayout(void)
 
 }
 
-void AddItemsFromFolder(Page::Ptr page, const char *folderPath)
-{
-    if (page == nullptr || folderPath == nullptr)
-        return;
 
-    DIR dir;
-    FILINFO fno;
-    FRESULT res;
-
-    // 打开文件夹
-    res = f_opendir(&dir, (const TCHAR*)folderPath);
-    if (res != FR_OK)
-    {
-        page->AddItem("-> Firmware <-", ItemType::Description);
-        page->AddItem("该文件夹不存在", ItemType::Description);
-        return;
-    }
-
-    // 遍历所有文件
-    for (;;)
-    {
-        res = f_readdir(&dir, &fno);
-        if (res != FR_OK || fno.fname[0] == 0)
-            break;
-
-        // 跳过文件夹，只添加文件
-        if (fno.fattrib & AM_DIR)
-            continue;
-
-        // 添加文件名作为 Item，点击触发回调
-        page->AddItem((char *)fno.fname, ItemType::Checkbox, nullptr, nullptr);
-    }
-
-    f_closedir(&dir);
-}
 
 /* About的应用事件函数 */
 void EventShowAboutUI(void)

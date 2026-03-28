@@ -145,7 +145,7 @@ public:
     PageType funcType;      // 页面类型
     std::string title;      // 页面名称
     uint8_t pageId;         // 页面ID
-    uint16_t itemMax;       // Item数量
+    uint16_t itemMax;       // item数量
     float page_x, page_x_trg;
     float page_y, page_y_trg;
     

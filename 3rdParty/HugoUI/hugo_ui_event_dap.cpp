@@ -1,12 +1,60 @@
 #include "hugo_ui_event_dap.h"
 
+// Fatfs
 #include "ff.h"
 
+// CMSIS-DAP
 #include "DAP.h"
 #include "SWD_host.h"
 #include "SWD_flash.h"
 
-/* CMSIS-DAP test 的应用事件函数 */
+using namespace HugoUI;
+
+/* 全局变量 ----------------------------------------------------------- */
+
+// 开关控件变量
+static bool selFile_flag[256] = {false};
+
+/* 用户函数 ----------------------------------------------------------- */
+
+// CMSIS-DAP 页面 批量AddItem
+void HugoUI::AddItemsFromFirmwareFolder(Page::Ptr page, const char *folderPath)
+{
+    if (page == nullptr || folderPath == nullptr)
+        return;
+
+    DIR dir;
+    FILINFO fno;
+    FRESULT res;
+
+    // 打开文件夹
+    res = f_opendir(&dir, (const TCHAR *)folderPath);
+    if (res != FR_OK)
+    {
+        page->AddItem("-> Firmware <-", ItemType::Description);
+        page->AddItem("该文件夹不存在", ItemType::Description);
+        return;
+    }
+
+    // 遍历所有文件
+    for (;;)
+    {
+        res = f_readdir(&dir, &fno);
+        if (res != FR_OK || fno.fname[0] == 0)
+            break;
+
+        // 跳过文件夹，只添加文件
+        if (fno.fattrib & AM_DIR)
+            continue;
+
+        // 添加文件名作为 Item，点击触发回调
+        page->AddItem((char *)fno.fname, ItemType::Checkbox, &selFile_flag[page->itemMax], nullptr);
+    }
+
+    f_closedir(&dir);
+}
+
+// CMSIS-DAP test 的应用事件函数
 void HugoUI::EventTestDapUI(void)
 {
     static uint8_t isTestDapInit = 0;
