@@ -16,8 +16,7 @@ extern const uint8_t Home_BMP[];
 extern const uint8_t TreasureBox_BMP[];
 extern const uint8_t HeadSculpture_BMP[];
 extern const uint8_t Finger_BMP[];
-
 extern const uint8_t LittleHreat_BMP[];
+extern const uint8_t CheckBoxSelection_BMP[];
 
-extern const uint8_t Man_R_0[];
 #endif

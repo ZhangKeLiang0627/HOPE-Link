@@ -1,4 +1,5 @@
 #include "hugo_ui_page_list.h"
+#include "hugo_ui_bmp.h"
 
 #include <cmath>
 
@@ -134,9 +135,9 @@ void PageList::Show(Item *thisitem)
                 // 绘制勾选标记
                 if (item->flag && *item->flag)
                 {
-                    oled_set_draw_color(2);
-                    oled_draw_str(SCREEN_WIDTH - 18 + Item_x, Item_y + 1, "√");
-                    oled_set_draw_color(1);
+                    oled_set_bitmap_mode(1);
+                    oled_draw_bMP(SCREEN_WIDTH - 20 + Item_x, Item_y + 3 - FONT_HEIGHT, 10, 10, CheckBoxSelection_BMP);
+                    oled_set_bitmap_mode(0);
                 }
 
                 // 绘制勾选框
@@ -212,7 +213,7 @@ void PageList::Show(Item *thisitem)
     {
         if (!item)
             continue;
-            
+
         // 绘制滚动条分隔线
         uint8_t bar_y = static_cast<int16_t>(this->page_y + item->lineId * bar_h);
 
