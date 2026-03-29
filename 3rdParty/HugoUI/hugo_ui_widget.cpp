@@ -4,6 +4,7 @@ using namespace HugoUI;
 
 /* 全局变量 ----------------------------------------------------------- */
 widget_info_bar_t widgetInfoBar = {0, 1, 0 - 2 * INFO_BAR_HEIGHT, 0 - 2 * INFO_BAR_HEIGHT, 80, 80, false, 0, 1};
+widget_pop_up_t widgetPopUp = {0, 1, 0 - 2 * POP_UP_HEIGHT, 0 - 2 * POP_UP_HEIGHT, 80, 80, false, 0, 1};
 
 /* 用户函数 ----------------------------------------------------------- */
 
@@ -11,6 +12,7 @@ widget_info_bar_t widgetInfoBar = {0, 1, 0 - 2 * INFO_BAR_HEIGHT, 0 - 2 * INFO_B
 void HugoUI::WidgetShow(void)
 {
     WidgetDrawInfoBar();
+    WidgetDrawPopUp();
 }
 
 // widgetInfoBar的用户函数调用
@@ -83,7 +85,6 @@ void HugoUI::WidgetDrawInfoBar(void)
     oled_draw_pixel(_x_info_bar - 2, _y_info_bar_2 - 3);
 
     oled_set_draw_color(0);
-
     oled_draw_UTF8(_x_info_bar + 6,
                    (int16_t)(widgetInfoBar.y_info_bar + oled_get_str_height() - 2),
                    widgetInfoBar.content);
@@ -91,6 +92,78 @@ void HugoUI::WidgetDrawInfoBar(void)
 
 }
 
+// widgetPopUp的用户函数调用
+void HugoUI::WidgetPushPopUp(const char *_content, const uint16_t _span)
+{
+    widgetPopUp.time = get_ticks();
+    widgetPopUp.content = (char *)_content;
+    widgetPopUp.span = _span;
+    widgetPopUp.is_running = false;
+
+    // 弹出
+    if (!widgetPopUp.is_running)
+    {
+        widgetPopUp.time_start = get_ticks();
+        widgetPopUp.y_pop_up_trg = 20;
+        widgetPopUp.is_running = true;
+    }
+
+    // oled_set_font(u8g2_font_wqy13_t_gb2312a);
+    widgetPopUp.w_pop_up_trg = oled_get_UTF8_width(widgetPopUp.content) + POP_UP_OFFSET;
+}
+
+// widgetPopUp的画面函数渲染
+void HugoUI::WidgetDrawPopUp(void)
+{
+    if (!widgetPopUp.is_running)
+        return;
+
+    Animation_Linear(&widgetPopUp.y_pop_up, &widgetPopUp.y_pop_up_trg, 94);
+    Animation_Linear(&widgetPopUp.w_pop_up, &widgetPopUp.w_pop_up_trg, 96);
+
+    // 弹窗到位后才开始计算时间
+    if (widgetPopUp.y_pop_up == widgetPopUp.y_pop_up_trg)
+        widgetPopUp.time = get_ticks();
+
+    // 时间到了就收回
+    if (widgetPopUp.time - widgetPopUp.time_start >= widgetPopUp.span)
+    {
+        widgetPopUp.y_pop_up_trg = 0 - 2 * INFO_BAR_HEIGHT; // 收回
+        if (widgetPopUp.y_pop_up == widgetPopUp.y_pop_up_trg)
+            widgetPopUp.is_running = false; // 等归位后结束生命周期
+    }
+
+    int16_t _x_pop_up = SCREEN_WIDTH / 2 - widgetPopUp.w_pop_up / 2;
+    int16_t _y_pop_up = widgetPopUp.y_pop_up + POP_UP_HEIGHT;
+
+    // oled_set_font(u8g2_font_wqy13_t_gb2312a);
+    oled_set_draw_color(1); // 阴影打底
+    oled_draw_R_box(_x_pop_up + 1, (int16_t)widgetPopUp.y_pop_up + 3,
+                    (int16_t)(widgetPopUp.w_pop_up + 4),
+                    POP_UP_HEIGHT, 4);
+
+    oled_set_draw_color(0); // 黑遮罩
+    oled_draw_R_box((int16_t)(SCREEN_WIDTH / 2 - (widgetPopUp.w_pop_up + 4) / 2 - 2), (int16_t)(widgetPopUp.y_pop_up - 2),
+                    (int16_t)(widgetPopUp.w_pop_up + 8), POP_UP_HEIGHT + 4, 5);
+
+    oled_set_draw_color(1);
+    oled_draw_R_box(_x_pop_up - 2, (int16_t)widgetPopUp.y_pop_up,
+                    (int16_t)(widgetPopUp.w_pop_up + 4),
+                    POP_UP_HEIGHT, 3);
+
+    oled_set_draw_color(2);
+    oled_draw_H_line(_x_pop_up, _y_pop_up - 2, (int16_t)widgetPopUp.w_pop_up);
+    oled_draw_pixel(_x_pop_up - 1, _y_pop_up - 3);
+    oled_draw_pixel((int16_t)(SCREEN_WIDTH / 2 + widgetPopUp.w_pop_up / 2), _y_pop_up - 3);
+
+    oled_set_draw_color(0);
+    oled_draw_UTF8(_x_pop_up + 3,
+                   (int16_t)(widgetPopUp.y_pop_up + oled_get_str_height() + 1),
+                   widgetPopUp.content);
+    oled_set_draw_color(1);
+}
+
+// widgetDrawMessageBox绘制msg的用户函数调用
 void HugoUI::WidgetDrawMessageBox(const char *msg, bool isRefreshImme)
 {
     if (isRefreshImme)

@@ -17,8 +17,12 @@ bool autoTriggerFlag = false;
 /* 用户函数 ----------------------------------------------------------- */
 void EventShowAboutUI(void);
 void EventSetInverseMode(void);
+
+// [test code]
 void EventShowWidgetInfoBar(void);
 void EventShowWidgetInfoBar2(void);
+void EventShowWidgetPopUp(void);
+void EventShowWidgetPopUp2(void);
 
 void HugoUI::InitLayout(void)
 {
@@ -78,8 +82,10 @@ void HugoUI::InitLayout(void)
     pageSetting->AddItem("switch的长文本测试demooooooo", ItemType::Switch, &testFlag, nullptr);
     pageSetting->AddItem("checkbox的长文本测试demoooo123456", ItemType::Checkbox, &testFlag, nullptr);
     pageSetting->AddItem("changevalue的长文本测试demoooo123456", ItemType::Checkbox, &testFlag, nullptr);
-    pageSetting->AddItem("weightInfoBar测试", ItemType::Switch, &testFlag, EventShowWidgetInfoBar);
+    pageSetting->AddItem("weightInfoBar测试1", ItemType::Switch, &testFlag, EventShowWidgetInfoBar);
     pageSetting->AddItem("weightInfoBar测试2", ItemType::Switch, &testFlag, EventShowWidgetInfoBar2);
+    pageSetting->AddItem("weightPopUp测试1", ItemType::Switch, &testFlag, EventShowWidgetPopUp);
+    pageSetting->AddItem("weightPopUp测试2", ItemType::Switch, &testFlag, EventShowWidgetPopUp2);
 
     pageSetting->AddItem("反色模式", ItemType::Switch, &inverseModeFlag, EventSetInverseMode);
     pageSetting->AddItem("蜂鸣器音量", ItemType::ChangeValue, nullptr, nullptr);
@@ -147,6 +153,14 @@ void EventShowAboutUI(void)
     }
 }
 
+/* 反色模式的事件回调 */
+void EventSetInverseMode(void)
+{
+    oledSetInverseColor(inverseModeFlag);
+}
+
+// [test code]
+
 /* ShowWidgetInfoBar测试函数 */
 void EventShowWidgetInfoBar(void)
 {
@@ -160,8 +174,15 @@ void EventShowWidgetInfoBar2(void)
     WidgetPushInfoBar("测试弹窗功能:p", 2000);
 }
 
-/* 反色模式的事件回调 */
-void EventSetInverseMode(void)
+void EventShowWidgetPopUp(void)
 {
-    oledSetInverseColor(inverseModeFlag);
+    // Show Widget
+    WidgetPushPopUp("have fun:)", 2000);
 }
+
+void EventShowWidgetPopUp2(void)
+{
+    // Show Widget
+    WidgetPushPopUp("测试弹窗功能:p", 2000);
+}
+
