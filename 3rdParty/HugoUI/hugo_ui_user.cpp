@@ -116,7 +116,7 @@ void EventShowAboutUI(void)
     if (!isEnterAnimFinish)
     {
         oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-        if (Transition_Blur() == 0)
+        if (Transition_Hourglass() == 0)
             isEnterAnimFinish = 1;
         return;
     }
