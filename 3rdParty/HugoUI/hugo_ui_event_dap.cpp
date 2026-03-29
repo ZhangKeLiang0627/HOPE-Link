@@ -86,7 +86,7 @@ void HugoUI::EventTestDapUI(void)
     if (!isEnterAnimFinish)
     {
         oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-        if (Animation_Blur() == 0)
+        if (Transition_Blur() == 0)
             isEnterAnimFinish = 1;
         oled_send_buffer();
         return;
@@ -203,7 +203,7 @@ void HugoUI::EventTestDapUI(void)
 
         while (!isExitAnimFinish)
         {
-            if (Animation_Blur() == 0)
+            if (Transition_Blur() == 0)
                 isExitAnimFinish = 1;
             oled_send_buffer();
         }

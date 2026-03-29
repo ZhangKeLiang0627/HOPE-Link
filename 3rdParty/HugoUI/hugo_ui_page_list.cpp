@@ -365,7 +365,7 @@ void PageList::Show(Item *thisitem)
         if ((isJumpPageFinish & 0xf0) != 0xf0)
         {
             oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            if (Animation_Blur() == 0)
+            if (Transition_Blur() == 0)
             {
                 isJumpPageFinish |= 0xf0;
             }
