@@ -1,8 +1,96 @@
 #include "hugo_ui_widget.h"
 
+using namespace HugoUI;
+
+/* 全局变量 ----------------------------------------------------------- */
+widget_info_bar_t widgetInfoBar = {0, 1, 0 - 2 * INFO_BAR_HEIGHT, 0 - 2 * INFO_BAR_HEIGHT, 80, 80, false, 0, 1};
+
+/* 用户函数 ----------------------------------------------------------- */
+
+// widget当中所有控件的渲染函数
+void HugoUI::WidgetShow(void)
+{
+    WidgetDrawInfoBar();
+}
+
+// widgetInfoBar的用户函数调用
+void HugoUI::WidgetPushInfoBar(const char *_content, const uint16_t _span)
+{
+    // 设定显示时间的概念，超过了显示时间，就将ytrg设为初始位置，如果在显示时间之内，有新的消息涌入，则y和ytrg都不变，继续显示，且显示时间清零
+    // 只有显示时间到了的时候，才会复位
+    widgetInfoBar.time = get_ticks();
+
+    widgetInfoBar.content.clear();
+    widgetInfoBar.content = _content;
+
+    widgetInfoBar.span = _span;
+    widgetInfoBar.is_running = false; // 每次进入该函数都代表有新的消息涌入，所以需要重置is_running
+
+    // 展开弹窗 收回弹窗和同步时间戳需要在循环中进行 所以移到了drawer中
+    if (!widgetInfoBar.is_running)
+    {
+        widgetInfoBar.time_start = get_ticks();
+        widgetInfoBar.y_info_bar_trg = 0;
+        widgetInfoBar.is_running = true;
+    }
+
+    // oled_set_font(u8g2_font_wqy13_t_gb2312a);
+    widgetInfoBar.w_info_bar_trg = oled_get_UTF8_width(widgetInfoBar.content.c_str()) + INFO_BAR_OFFSET;
+}
+
+// widgetInfoBar的画面函数渲染
+void HugoUI::WidgetDrawInfoBar(void)
+{
+    if (!widgetInfoBar.is_running)
+        return;
+
+    // 计算动画插值
+    Animation_Linear(&widgetInfoBar.y_info_bar, &widgetInfoBar.y_info_bar_trg, 94);
+    Animation_Linear(&widgetInfoBar.w_info_bar, &widgetInfoBar.w_info_bar_trg, 95);
+
+    // 弹窗到位后才开始计算时间
+    if (widgetInfoBar.y_info_bar == widgetInfoBar.y_info_bar_trg)
+        widgetInfoBar.time = get_ticks();
+
+    // 时间到了就收回
+    if (widgetInfoBar.time - widgetInfoBar.time_start >= widgetInfoBar.span)
+    {
+        widgetInfoBar.y_info_bar_trg = 0 - 2 * INFO_BAR_HEIGHT; // 收回
+        if (widgetInfoBar.y_info_bar == widgetInfoBar.y_info_bar_trg)
+            widgetInfoBar.is_running = false; // 等归位后结束生命周期
+    }
+
+    int16_t _x_info_bar = SCREEN_WIDTH / 2 - widgetInfoBar.w_info_bar / 2;
+    int16_t _y_info_bar_1 = widgetInfoBar.y_info_bar - 4;
+    int16_t _y_info_bar_2 = widgetInfoBar.y_info_bar + INFO_BAR_HEIGHT;
+
+    // oled_set_font(u8g2_font_wqy13_t_gb2312a);
+    oled_set_draw_color(1);
+    oled_draw_R_box(_x_info_bar + 3, _y_info_bar_1 + 3,
+                    (int16_t)widgetInfoBar.w_info_bar, INFO_BAR_HEIGHT + 4, 4);
+
+    oled_set_draw_color(0); // 黑遮罩打底
+    oled_draw_R_box((int16_t)(SCREEN_WIDTH / 2 - (widgetInfoBar.w_info_bar + 4) / 2), _y_info_bar_1,
+                    (int16_t)(widgetInfoBar.w_info_bar + 4), INFO_BAR_HEIGHT + 6, 4);
+
+    oled_set_draw_color(1);
+    oled_draw_R_box(_x_info_bar, _y_info_bar_1,
+                    (int16_t)widgetInfoBar.w_info_bar, INFO_BAR_HEIGHT + 4, 3);
+    // 向上移动四个像素 同时向下多画四个像素 只用下半部分圆角
+
+    oled_set_draw_color(2);
+    oled_draw_H_line(_x_info_bar + 2, _y_info_bar_2 - 2, (int16_t)(widgetInfoBar.w_info_bar - 4));
+    oled_draw_pixel(_x_info_bar + 1, _y_info_bar_2 - 3);
+    oled_draw_pixel(_x_info_bar - 2, _y_info_bar_2 - 3);
+
+    oled_draw_UTF8(_x_info_bar + 6,
+                   (int16_t)(widgetInfoBar.y_info_bar + oled_get_str_height() - 2),
+                   widgetInfoBar.content.c_str());
+}
+
 void HugoUI::WidgetDrawMessageBox(const char *msg, bool isRefreshImme)
-{   
-    if(isRefreshImme)
+{
+    if (isRefreshImme)
         oled_clear_buffer();
 
     // Blur

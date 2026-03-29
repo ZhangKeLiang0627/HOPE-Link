@@ -1,6 +1,7 @@
 #include "hugo_ui.h"
 #include "hugo_ui_page_list.h"
 #include "hugo_ui_page_icon.h"
+#include "hugo_ui_widget.h"
 
 #include <cmath>
 #include <cstdio> 
@@ -32,16 +33,6 @@ uint8_t ChangeVal_flag = 0;
 /* 输入变量 ----------------------------------------------------------- */
 uint8_t uiKeyNum = 0, uiEncoderNum = 0;
 uint8_t uiKeyNumInSide = 0, uiEncoderNumInSide = 0;
-
-/* 动画变量 ----------------------------------------------------------- */
-// float frame_y = 0.0f, frame_y_trg = 0.0f;
-// float frame_x = (float)SCREEN_WIDTH, frame_x_trg = 0.0f;
-// float frame_width = 36.0f, frame_width_trg = 36.0f;
-// float slidbar_y = 0.0f, slidbar_y_trg = 0.0f;
-
-// float icon_move_x = 0.0f, icon_move_x_trg = 48.0f;
-// float icon_desc_y = 0.0f, icon_desc_y_trg = 24.0f;
-// float icon_rectangle_x = 0.0f, icon_rectangle_x_trg = 13.0f;
 
 uint8_t isItemFuncRunning = false;
 
@@ -500,9 +491,11 @@ void HugoUI::TaskHandler(void)
         {   
             oled_clear_buffer();
             
-            // 根据页面类型显示
-            // 多态调用：自动调用对应派生类的Show方法
+            // 根据页面类型进行渲染
             currentPage->Show(currentItem.get());
+
+            // widget控件渲染
+            WidgetShow();
 
             oled_send_buffer();
         }
