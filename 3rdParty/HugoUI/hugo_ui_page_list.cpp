@@ -317,7 +317,7 @@ void PageList::Show(Item *thisitem)
     {
         // 页面位置
         this->page_x_trg = 0;
-        this->page_x = 100;
+        // this->page_x = 100;
 
         // 选择框位置
         this->frame_y = 128;
