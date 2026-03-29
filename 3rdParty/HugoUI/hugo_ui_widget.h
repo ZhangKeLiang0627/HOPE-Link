@@ -15,7 +15,7 @@ namespace HugoUI
     /* struct ------------------------------------------------------- */
     typedef struct widget_info_bar_t
     {
-        std::string content;
+        char *content;
         uint16_t span;
         float y_info_bar, y_info_bar_trg, w_info_bar, w_info_bar_trg;
         bool is_running;

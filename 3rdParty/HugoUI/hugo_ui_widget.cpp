@@ -20,8 +20,7 @@ void HugoUI::WidgetPushInfoBar(const char *_content, const uint16_t _span)
     // 只有显示时间到了的时候，才会复位
     widgetInfoBar.time = get_ticks();
 
-    widgetInfoBar.content.clear();
-    widgetInfoBar.content = _content;
+    widgetInfoBar.content = (char *)_content;
 
     widgetInfoBar.span = _span;
     widgetInfoBar.is_running = false; // 每次进入该函数都代表有新的消息涌入，所以需要重置is_running
@@ -35,7 +34,7 @@ void HugoUI::WidgetPushInfoBar(const char *_content, const uint16_t _span)
     }
 
     // oled_set_font(u8g2_font_wqy13_t_gb2312a);
-    widgetInfoBar.w_info_bar_trg = oled_get_UTF8_width(widgetInfoBar.content.c_str()) + INFO_BAR_OFFSET;
+    widgetInfoBar.w_info_bar_trg = oled_get_UTF8_width(widgetInfoBar.content) + INFO_BAR_OFFSET;
 }
 
 // widgetInfoBar的画面函数渲染
@@ -83,9 +82,13 @@ void HugoUI::WidgetDrawInfoBar(void)
     oled_draw_pixel(_x_info_bar + 1, _y_info_bar_2 - 3);
     oled_draw_pixel(_x_info_bar - 2, _y_info_bar_2 - 3);
 
+    oled_set_draw_color(0);
+
     oled_draw_UTF8(_x_info_bar + 6,
                    (int16_t)(widgetInfoBar.y_info_bar + oled_get_str_height() - 2),
-                   widgetInfoBar.content.c_str());
+                   widgetInfoBar.content);
+    oled_set_draw_color(1);
+
 }
 
 void HugoUI::WidgetDrawMessageBox(const char *msg, bool isRefreshImme)
