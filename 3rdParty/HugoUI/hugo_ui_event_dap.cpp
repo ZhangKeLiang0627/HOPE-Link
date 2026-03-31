@@ -29,6 +29,7 @@ static bool flashAlgoFlag[64] = {false};
 extern const program_target_t flash_algo_STM32F10x;
 extern const program_target_t flash_algo_STM32F4xx;
 extern const program_target_t flash_algo_STM32F0xx;
+extern const program_target_t flash_algo_GD32F30x;
 
 typedef struct flash_algo_info_t
 {
@@ -40,6 +41,7 @@ static const flash_algo_info_t flashAlgoList[] = {
     {"STM32F10x", &flash_algo_STM32F10x},
     {"STM32F4xx", &flash_algo_STM32F4xx},
     {"STM32F0xx", &flash_algo_STM32F0xx},
+    {"GD32F30x", &flash_algo_GD32F30x},
 };
 
 static const int flashAlgoCount = sizeof(flashAlgoList) / sizeof(flash_algo_info_t);
