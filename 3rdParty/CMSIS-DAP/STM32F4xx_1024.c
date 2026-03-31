@@ -18,7 +18,7 @@ static const uint32_t flash_code[] = {
     0x00000201, 0x00000000
 };
 
-const program_target_t flash_algo = {
+const program_target_t flash_algo_STM32F4xx = {
     0x2000003D,  // Init
     0x2000006B,  // UnInit
     0x20000079,  // EraseChip

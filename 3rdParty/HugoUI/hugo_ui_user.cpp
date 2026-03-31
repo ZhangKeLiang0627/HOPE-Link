@@ -74,6 +74,7 @@ void HugoUI::InitLayout(void)
 
     // PageOfflineSelectChip
     pageOflnSelChip->AddItem("选择芯片型号", ItemType::Description);
+    AddItemsFromFlashAlgo(pageOflnSelChip);
     pageOflnSelChip->AddItem("返回", ItemType::JumpPage)
         ->SetJumpId(pageOffline->pageId, 2);
 

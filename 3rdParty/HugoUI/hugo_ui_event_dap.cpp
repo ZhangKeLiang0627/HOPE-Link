@@ -1,5 +1,6 @@
 #include "hugo_ui_event_dap.h"
 #include "hugo_ui_widget.h"
+#include "SWD_flash.h"
 // Fatfs
 #include "ff.h"
 
@@ -8,16 +9,62 @@
 #include "SWD_host.h"
 #include "SWD_flash.h"
 
+// test
+#include "interface_uart.h"
+
 using namespace HugoUI;
 
 /* 全局变量 ----------------------------------------------------------- */
 
-static char firmwareName[256] = "0:/Firmware/HOPE-Link.bin";
+static char firmwareName[256] = "";
 
 // 开关控件变量
 static bool firmwareFlag[256] = {false};
 
+// flash算法选择控件变量
+static bool flashAlgoFlag[64] = {false};
+
+// 算法列表
+// 算法对象来自「CMSIS-DAP」目录
+extern const program_target_t flash_algo_STM32F10x;
+extern const program_target_t flash_algo_STM32F4xx;
+extern const program_target_t flash_algo_STM32F0xx;
+
+typedef struct flash_algo_info_t
+{
+    const char *name;
+    const program_target_t *algo;
+} flash_algo_info_t;
+
+static const flash_algo_info_t flashAlgoList[] = {
+    {"STM32F10x", &flash_algo_STM32F10x},
+    {"STM32F4xx", &flash_algo_STM32F4xx},
+    {"STM32F0xx", &flash_algo_STM32F0xx},
+};
+
+static const int flashAlgoCount = sizeof(flashAlgoList) / sizeof(flash_algo_info_t);
+
 /* 用户函数 ----------------------------------------------------------- */
+
+// CMSIS-DAP 页面 批量添加算法
+void HugoUI::AddItemsFromFlashAlgo(Page::Ptr page)
+{
+    if (page == nullptr)
+        return;
+
+    // 遍历所有算法
+    for (int i = 0; i < flashAlgoCount; i++)
+    {
+        if (i < 64)  // 确保不超过 flashAlgoFlag 数组大小
+        {
+            page->AddItem(flashAlgoList[i].name, ItemType::Checkbox, &flashAlgoFlag[i], EventSelectFlashAlgo);
+        }
+    }
+
+    // 默认选择STM32F4xx算法
+    swd_flash_select_algo((const program_target_t *)&flash_algo_STM32F4xx);
+    flashAlgoFlag[1] = true;
+}
 
 // CMSIS-DAP 页面 批量AddItem
 void HugoUI::AddItemsFromFirmwareFolder(Page::Ptr page, const char *folderPath)
@@ -52,8 +99,13 @@ void HugoUI::AddItemsFromFirmwareFolder(Page::Ptr page, const char *folderPath)
         // 添加文件名作为 Item，点击触发回调
         page->AddItem((char *)fno.fname, ItemType::Checkbox, &firmwareFlag[page->itemMax], EventSelectFirmware);
     }
-
     f_closedir(&dir);
+
+    // 默认选择第一个文件
+    snprintf(firmwareName, sizeof(firmwareName), "0:/Firmware/%s", page->items[1]->title.c_str());
+    firmwareFlag[1] = true;
+
+    Usart_debugMsg("[AddItem-DAP] firmwareName:%s, firmwareFlag[0]:%d", firmwareName, firmwareFlag[0]);
 }
 
 // CMSIS-DAP test 的应用事件函数
@@ -269,5 +321,30 @@ void HugoUI::EventSelectFirmware(void)
     {
         // 固件文件夹固定为 0:/Firmware/
         snprintf(firmwareName, sizeof(firmwareName), "0:/Firmware/%s", currentItem->title.c_str());
+    }
+}
+
+// 统一的算法选择回调 
+void HugoUI::EventSelectFlashAlgo(void)
+{
+    // 检查 currentItem 是否有效
+    if (!currentItem || currentItem->title.empty())
+        return;
+
+    // 遍历算法列表
+    for (int i = 0; i < flashAlgoCount; i++)
+    {
+        if (strcmp(currentItem->title.c_str(), flashAlgoList[i].name) == 0)
+        {
+            // 清空之前所有算法 flag
+            memset(flashAlgoFlag, 0, sizeof(flashAlgoFlag));
+
+            // 设置当前选中的 flag
+            if (currentItem->flag)
+                *currentItem->flag = true;
+            
+            swd_flash_select_algo(flashAlgoList[i].algo);
+            return;
+        }
     }
 }
