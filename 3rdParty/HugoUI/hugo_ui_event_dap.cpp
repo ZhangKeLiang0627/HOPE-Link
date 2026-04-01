@@ -23,6 +23,8 @@ static bool firmwareFlag[256] = {false};
 // flash算法选择控件变量 / 最大支持64个算法
 static bool flashAlgoFlag[64] = {false};
 
+static uint32_t mcuFlashAddress = 0x8000000;
+
 // 算法列表
 // 算法对象来自「CMSIS-DAP」目录
 extern const program_target_t flash_algo_STM32F10x;
@@ -280,12 +282,18 @@ void HugoUI::EventSetFlashAddressUI(void)
 {
     static uint8_t isInit = 0;
     static uint8_t isEnterAnimFinish = 0;
-    static int8_t select = 0;
+    static int8_t selectIdx = 0;
+    static bool isSelect = false;
+    static uint8_t digits[7];
 
     // Init
     if (!isInit)
     {
         isInit = 1;
+        uint32_t addr = mcuFlashAddress;
+        for(int i = 0; i < 7; i++){
+            digits[i] = (addr >> (24 - i * 4)) & 0xF;
+        }
     }
     else
     {
@@ -306,30 +314,56 @@ void HugoUI::EventSetFlashAddressUI(void)
     oled_draw_UTF8(0, FONT_HEIGHT, "『设置Flash起始地址』");
     oled_draw_UTF8(0, FONT_HEIGHT * 2, ">");
     oled_set_font(u8g2_font_DigitalDisco_tr);
-    oled_draw_UTF8(12, FONT_HEIGHT * 2 + 2, "0x 8 0 0 0 0 0 0");
+    char addrStr[20];
+    sprintf(addrStr, "0x %X %X %X %X %X %X %X", digits[0], digits[1], digits[2], digits[3], digits[4], digits[5], digits[6]);
+    oled_draw_UTF8(12, FONT_HEIGHT * 2 + 2, addrStr);
     oled_set_font(u8g2_font_maniac_tn);
-    oled_draw_UTF8(12, FONT_HEIGHT * 4 + 5, "8");
-
+    char digitStr[2];
+    sprintf(digitStr, "%X", digits[selectIdx]);
+    oled_draw_UTF8(12, FONT_HEIGHT * 4 + 5, digitStr);
     oled_set_font(u8g2_font_wqy13_t_gb2312a);
 
     oled_set_draw_color(2);
     oled_draw_box(8, 36, 25, 28);
-    oled_draw_box(32 + select * 14, 17, 12, 15);
+    oled_draw_box(32 + selectIdx * 14, 17, 12, 15);
     oled_set_draw_color(1);
 
     // Ctrl
-    if (uiEncoderNumInSide == 1)
+    if (!isSelect)
     {
-        select = select >= 6 ? 6 : select + 1;
+        if (uiEncoderNumInSide == 1)
+        {
+            selectIdx = selectIdx >= 6 ? 6 : selectIdx + 1;
+        }
+        else if (uiEncoderNumInSide == 2)
+        {
+            selectIdx = selectIdx <= 0 ? 0 : selectIdx - 1;
+        }
     }
-    else if (uiEncoderNumInSide == 2)
+    else
     {
-        select = select <= 0 ? 0 : select - 1;
+        if (uiEncoderNumInSide == 1)
+        {
+            digits[selectIdx] = (digits[selectIdx] + 1) % 16;
+        }
+        else if (uiEncoderNumInSide == 2)
+        {
+            digits[selectIdx] = (digits[selectIdx] - 1 + 16) % 16;
+        }
+        // 更新 mcuFlashAddress
+        mcuFlashAddress = 0;
+        for(int i = 0; i < 7; i++){
+            mcuFlashAddress |= (uint32_t)digits[i] << (24 - i * 4);
+        }
     }
 
-    // Exit
-    if (uiKeyNumInSide == 2)
+    if(uiKeyNumInSide == 1)
     {
+        isSelect = !isSelect;
+    }
+    else if (uiKeyNumInSide == 2)
+    {
+        // Exit
         uint8_t isExitAnimFinish = 0;
         oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         oled_send_buffer();
