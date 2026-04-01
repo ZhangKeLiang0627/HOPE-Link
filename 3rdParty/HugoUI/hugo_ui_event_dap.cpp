@@ -18,10 +18,9 @@ using namespace HugoUI;
 
 static char firmwareName[256] = "";
 
-// 开关控件变量
+// 开关控件变量 / 最大支持256个固件文件
 static bool firmwareFlag[256] = {false};
-
-// flash算法选择控件变量
+// flash算法选择控件变量 / 最大支持64个算法
 static bool flashAlgoFlag[64] = {false};
 
 // 算法列表
@@ -133,7 +132,7 @@ void HugoUI::EventTestDapUI(void)
     }
     else
     {
-        oled_draw_str(110, FONT_HEIGHT * 4, "OK");
+        oled_draw_str(90, FONT_HEIGHT * 4, "Init OK");
     }
 
     // Enter Anim
@@ -149,9 +148,14 @@ void HugoUI::EventTestDapUI(void)
     // Loop
     oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP测试』");
 
-    if (isWriteFinish)
+    if (isWriteFinish == 1)
     {
         oled_draw_UTF8(0, FONT_HEIGHT * 2, "烧录非常的成功!!!");
+        oled_draw_UTF8(0, FONT_HEIGHT * 3, "<<长按编码器退出:)");
+    }
+    else if(isWriteFinish == -1)
+    {
+        oled_draw_UTF8(0, FONT_HEIGHT * 2, "失败,检查算法和文件!");
         oled_draw_UTF8(0, FONT_HEIGHT * 3, "<<长按编码器退出:)");
     }
     else
@@ -239,6 +243,10 @@ void HugoUI::EventTestDapUI(void)
                     }
                     // 烧录核心内容 end --------------------------------------------
                 }
+            }
+            else
+            {
+                isWriteFinish = -1;
             }
         }
         else
