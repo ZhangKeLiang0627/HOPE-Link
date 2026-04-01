@@ -56,7 +56,7 @@ void HugoUI::AddItemsFromFlashAlgo(Page::Ptr page)
     // 遍历所有算法
     for (int i = 0; i < flashAlgoCount; i++)
     {
-        if (i < 64)  // 确保不超过 flashAlgoFlag 数组大小
+        if (i < 64) // 确保不超过 flashAlgoFlag 数组大小
         {
             page->AddItem(flashAlgoList[i].name, ItemType::Checkbox, &flashAlgoFlag[i], EventSelectFlashAlgo);
         }
@@ -114,7 +114,7 @@ void HugoUI::EventTestDapUI(void)
 {
     static uint8_t isTestDapInit = 0;
     static uint8_t isEnterAnimFinish = 0;
-    static uint8_t isWriteFinish = 0;
+    static int8_t isWriteFinish = 0;
 
     // 所有变量都放在函数内部
     FRESULT Res;
@@ -153,7 +153,7 @@ void HugoUI::EventTestDapUI(void)
         oled_draw_UTF8(0, FONT_HEIGHT * 2, "烧录非常的成功!!!");
         oled_draw_UTF8(0, FONT_HEIGHT * 3, "<<长按编码器退出:)");
     }
-    else if(isWriteFinish == -1)
+    else if (isWriteFinish == -1)
     {
         oled_draw_UTF8(0, FONT_HEIGHT * 2, "失败,检查算法和文件!");
         oled_draw_UTF8(0, FONT_HEIGHT * 3, "<<长按编码器退出:)");
@@ -275,6 +275,76 @@ void HugoUI::EventTestDapUI(void)
     }
 }
 
+// 设置Flash起始地址的应用事件函数
+void HugoUI::EventSetFlashAddressUI(void)
+{
+    static uint8_t isInit = 0;
+    static uint8_t isEnterAnimFinish = 0;
+    static int8_t select = 0;
+
+    // Init
+    if (!isInit)
+    {
+        isInit = 1;
+    }
+    else
+    {
+        oled_draw_str(90, FONT_HEIGHT * 4, "Init OK");
+    }
+
+    // Enter Anim
+    if (!isEnterAnimFinish)
+    {
+        oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        if (Transition_Blur() == 0)
+            isEnterAnimFinish = 1;
+        oled_send_buffer();
+        return;
+    }
+
+    // Loop
+    oled_draw_UTF8(0, FONT_HEIGHT, "『设置Flash起始地址』");
+    oled_draw_UTF8(0, FONT_HEIGHT * 2, ">");
+    oled_set_font(u8g2_font_DigitalDisco_tr);
+    oled_draw_UTF8(12, FONT_HEIGHT * 2 + 2, "0x 8 0 0 0 0 0 0");
+    oled_set_font(u8g2_font_maniac_tn);
+    oled_draw_UTF8(12, FONT_HEIGHT * 4 + 5, "8");
+
+    oled_set_font(u8g2_font_wqy13_t_gb2312a);
+
+    oled_set_draw_color(2);
+    oled_draw_box(8, 36, 25, 28);
+    oled_draw_box(32 + select * 14, 17, 12, 15);
+    oled_set_draw_color(1);
+
+    // Ctrl
+    if (uiEncoderNumInSide == 1)
+    {
+        select = select >= 6 ? 6 : select + 1;
+    }
+    else if (uiEncoderNumInSide == 2)
+    {
+        select = select <= 0 ? 0 : select - 1;
+    }
+
+    // Exit
+    if (uiKeyNumInSide == 2)
+    {
+        uint8_t isExitAnimFinish = 0;
+        oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        oled_send_buffer();
+
+        while (!isExitAnimFinish)
+        {
+            if (Transition_Blur() == 0)
+                isExitAnimFinish = 1;
+            oled_send_buffer();
+        }
+
+        isEnterAnimFinish = 0;
+    }
+}
+
 void HugoUI::EventEraseChipUI(void)
 {
 
@@ -334,7 +404,7 @@ void HugoUI::EventSelectFirmware(void)
     }
 }
 
-// 统一的算法选择回调 
+// 统一的算法选择回调
 void HugoUI::EventSelectFlashAlgo(void)
 {
     // 检查 currentItem 是否有效
@@ -352,7 +422,7 @@ void HugoUI::EventSelectFlashAlgo(void)
             // 设置当前选中的 flag
             if (currentItem->flag)
                 *currentItem->flag = true;
-            
+
             swd_flash_select_algo(flashAlgoList[i].algo);
             return;
         }

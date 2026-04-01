@@ -16,6 +16,7 @@ namespace HugoUI
     void EventTestDapUI(void);
     void EventEraseChipUI(void);
     void EventAutoTriggerUI(void);
+    void EventSetFlashAddressUI(void);
     void EventSelectFirmware(void);
     void EventSelectFlashAlgo(void);
 
