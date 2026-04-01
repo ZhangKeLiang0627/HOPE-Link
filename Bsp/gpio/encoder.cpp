@@ -27,10 +27,12 @@ void Encoder::Update()
     if (Encoder_Num > 0)
     {
         Encoder_ReturnNum1 += Encoder_Num;
+        Encoder_ReturnNum2 = 0;
     }
     else
     {
         Encoder_ReturnNum2 -= Encoder_Num;
+        Encoder_ReturnNum1 = 0;
     }
 
     if (Encoder_ReturnNum1 >= 2)
