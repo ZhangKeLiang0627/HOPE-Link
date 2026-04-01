@@ -324,7 +324,10 @@ void HugoUI::EventSetFlashAddressUI(void)
     oled_set_font(u8g2_font_wqy13_t_gb2312a);
 
     oled_set_draw_color(2);
-    oled_draw_box(8, 36, 25, 28);
+    // 以500ms为频率进行闪烁，选中时
+    if (!isSelect || ((get_ticks() / 500) % 2 == 0)) {
+        oled_draw_box(8, 36, 25, 28);
+    }
     oled_draw_box(36 + selectIdx * 12, 17, 12, 16);
     oled_set_draw_color(1);
 
@@ -374,7 +377,7 @@ void HugoUI::EventSetFlashAddressUI(void)
                 isExitAnimFinish = 1;
             oled_send_buffer();
         }
-
+        isSelect = 0;
         isEnterAnimFinish = 0;
     }
 }
