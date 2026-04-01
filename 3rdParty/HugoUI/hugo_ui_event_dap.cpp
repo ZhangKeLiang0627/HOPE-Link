@@ -312,12 +312,12 @@ void HugoUI::EventSetFlashAddressUI(void)
 
     // Loop
     oled_draw_UTF8(0, FONT_HEIGHT, "『设置Flash起始地址』");
-    oled_draw_UTF8(0, FONT_HEIGHT * 2, ">");
-    oled_set_font(u8g2_font_DigitalDisco_tr);
+    oled_draw_UTF8(0, FONT_HEIGHT * 2 + 1, ">");
+    oled_set_font(u8g2_font_VCR_OSD_mu);
     char addrStr[20];
-    sprintf(addrStr, "0x %X %X %X %X %X %X %X", digits[0], digits[1], digits[2], digits[3], digits[4], digits[5], digits[6]);
-    oled_draw_UTF8(12, FONT_HEIGHT * 2 + 2, addrStr);
-    oled_set_font(u8g2_font_maniac_tn);
+    sprintf(addrStr, "0X%X%X%X%X%X%X%X", digits[0], digits[1], digits[2], digits[3], digits[4], digits[5], digits[6]);
+    oled_draw_UTF8(12, FONT_HEIGHT * 2 + 5, addrStr);
+    oled_set_font(u8g2_font_maniac_tr);
     char digitStr[2];
     sprintf(digitStr, "%X", digits[selectIdx]);
     oled_draw_UTF8(12, FONT_HEIGHT * 4 + 5, digitStr);
@@ -325,7 +325,7 @@ void HugoUI::EventSetFlashAddressUI(void)
 
     oled_set_draw_color(2);
     oled_draw_box(8, 36, 25, 28);
-    oled_draw_box(32 + selectIdx * 14, 17, 12, 15);
+    oled_draw_box(36 + selectIdx * 12, 17, 12, 16);
     oled_set_draw_color(1);
 
     // Ctrl
