@@ -1666,8 +1666,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\3rdParty\CMSIS-DAP\STM32F10x_128.c</PathWithFileName>
-      <FilenameWithoutPath>STM32F10x_128.c</FilenameWithoutPath>
+      <PathWithFileName>..\3rdParty\CMSIS-DAP\GD32F30x_1024.c</PathWithFileName>
+      <FilenameWithoutPath>GD32F30x_1024.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1678,8 +1678,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\3rdParty\CMSIS-DAP\GD32F30x_1024.c</PathWithFileName>
-      <FilenameWithoutPath>GD32F30x_1024.c</FilenameWithoutPath>
+      <PathWithFileName>..\3rdParty\CMSIS-DAP\STM32F10x_512.c</PathWithFileName>
+      <FilenameWithoutPath>STM32F10x_512.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

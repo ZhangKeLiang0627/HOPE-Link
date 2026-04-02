@@ -2093,14 +2093,14 @@
               <FilePath>..\3rdParty\CMSIS-DAP\STM32F4xx_1024.c</FilePath>
             </File>
             <File>
-              <FileName>STM32F10x_128.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdParty\CMSIS-DAP\STM32F10x_128.c</FilePath>
-            </File>
-            <File>
               <FileName>GD32F30x_1024.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\3rdParty\CMSIS-DAP\GD32F30x_1024.c</FilePath>
+            </File>
+            <File>
+              <FileName>STM32F10x_512.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\3rdParty\CMSIS-DAP\STM32F10x_512.c</FilePath>
             </File>
           </Files>
         </Group>

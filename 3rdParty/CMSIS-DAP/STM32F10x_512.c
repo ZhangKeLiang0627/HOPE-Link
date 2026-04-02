@@ -14,26 +14,28 @@ static const uint32_t flash_code[] = {
     0xF0201C48, 0xE0220101, 0x69004813, 0x0001F040, 0x61204C11, 0x80188810, 0x480FBF00, 0xF01068C0,
     0xD1FA0F01, 0x6900480C, 0x0001F020, 0x61204C0A, 0x68C04620, 0x0F14F010, 0x4620D006, 0xF04068C0,
     0x60E00014, 0xBD102001, 0x1C921C9B, 0x29001E89, 0x2000D1DA, 0x0000E7F7, 0x40022000, 0x45670123,
-    0xCDEF89AB, 0x40003000, 0x00000000};
+    0xCDEF89AB, 0x40003000, 0x00000000
+};
 
 const program_target_t flash_algo_STM32F10x = {
-    0x20000021, // Init
-    0x20000053, // UnInit
-    0x20000065, // EraseChip
-    0x2000009F, // EraseSector
-    0x200000DD, // ProgramPage
+    0x20000021,  // Init
+    0x20000053,  // UnInit
+    0x20000065,  // EraseChip
+    0x2000009F,  // EraseSector
+    0x200000DD,  // ProgramPage
 
     // BKPT : start of blob + 1
     // RSB  : address to access global/static data
     // RSP  : stack pointer
     {
         0x20000001,
-        0x20000C00,
-        0x20001000},
+        0x20000148,
+        0x2000094C
+    },
 
-    0x20000400,         // mem buffer location
-    0x20000000,         // location to write prog_blob in target RAM
-    sizeof(flash_code), // prog_blob size
-    flash_code,         // address of prog_blob
-    0x00000400,         // ram_to_flash_bytes_to_be_written
+    0x2000014C,  // mem buffer location
+    0x20000000,  // location to write prog_blob in target RAM
+    sizeof(flash_code),  // prog_blob size
+    flash_code,  // address of prog_blob
+    0x00000400,  // ram_to_flash_bytes_to_be_written
 };
