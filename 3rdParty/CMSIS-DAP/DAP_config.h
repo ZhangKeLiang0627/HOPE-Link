@@ -62,10 +62,10 @@ DAP Hardware I/O Pin Access Functions
 // Configure DAP I/O pins ------------------------------
 
 #define SWCLK_PORT			GPIOA
-#define SWCLK_PIN  			GPIO_PIN_5
+#define SWCLK_PIN  			GPIO_PIN_1
 #define SWDIO_PORT			GPIOA
-#define SWDIO_PIN  			GPIO_PIN_6
-#define SWDIO_PIN_INDEX		6
+#define SWDIO_PIN  			GPIO_PIN_0
+#define SWDIO_PIN_INDEX		0
 
 #define SWDIO_MODE_MASK 	(~(3u << (SWDIO_PIN_INDEX * 2)))
 #define SWDIO_MODE_OUT 		(1u << (SWDIO_PIN_INDEX * 2))
