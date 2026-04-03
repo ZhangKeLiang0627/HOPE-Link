@@ -22,7 +22,7 @@ static char firmwareName[256] = "";
 static bool firmwareFlag[256] = {false};
 // flash算法选择控件变量 / 最大支持64个算法
 static bool flashAlgoFlag[64] = {false};
-
+// flash起始地址变量
 static uint32_t mcuFlashAddress = 0x8000000;
 
 // 算法列表
