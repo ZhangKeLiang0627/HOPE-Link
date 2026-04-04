@@ -46,6 +46,7 @@ namespace HugoUI
     void WidgetDrawPopUp(void);
 
     void WidgetDrawMessageBox(const char *msg, bool isRefreshImme = false);
+    void WidgetDrawProgressBar(const char *msg, float num, bool isRefreshImme = false);
 
 } /* namespace HugoUI */
 

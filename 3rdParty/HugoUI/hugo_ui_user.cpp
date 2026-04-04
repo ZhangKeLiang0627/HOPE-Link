@@ -23,6 +23,7 @@ void EventShowWidgetInfoBar(void);
 void EventShowWidgetInfoBar2(void);
 void EventShowWidgetPopUp(void);
 void EventShowWidgetPopUp2(void);
+void EventShowProgressBarUI(void);
 
 void HugoUI::InitLayout(void)
 {
@@ -80,13 +81,14 @@ void HugoUI::InitLayout(void)
 
     // PageSetting
     pageSetting->AddItem("『系统设置』", ItemType::Description);
-    pageSetting->AddItem("switch的长文本测试demooooooo", ItemType::Switch, &testFlag, nullptr);
+    pageSetting->AddItem("switch的长文本测试demoooo123456", ItemType::Switch, &testFlag, nullptr);
     pageSetting->AddItem("checkbox的长文本测试demoooo123456", ItemType::Checkbox, &testFlag, nullptr);
     pageSetting->AddItem("changevalue的长文本测试demoooo123456", ItemType::Checkbox, &testFlag, nullptr);
     pageSetting->AddItem("weightInfoBar测试1", ItemType::Switch, &testFlag, EventShowWidgetInfoBar);
     pageSetting->AddItem("weightInfoBar测试2", ItemType::Switch, &testFlag, EventShowWidgetInfoBar2);
     pageSetting->AddItem("weightPopUp测试1", ItemType::Switch, &testFlag, EventShowWidgetPopUp);
     pageSetting->AddItem("weightPopUp测试2", ItemType::Switch, &testFlag, EventShowWidgetPopUp2);
+    pageSetting->AddItem("进度条测试", ItemType::CallFunction, EventShowProgressBarUI);
 
     pageSetting->AddItem("反色模式", ItemType::Switch, &inverseModeFlag, EventSetInverseMode);
     pageSetting->AddItem("蜂鸣器音量", ItemType::ChangeValue, nullptr, nullptr);
@@ -187,3 +189,26 @@ void EventShowWidgetPopUp2(void)
     WidgetPushPopUp("测试弹窗功能:p", 2000);
 }
 
+void EventShowProgressBarUI(void)
+{
+    static float num = 0.0f;
+
+    WidgetDrawProgressBar("进度条测试", num, true);
+
+    // Util
+    {
+        delay(500);
+        num += 3;
+        WidgetDrawProgressBar("进度条测试", num, true);
+        if(num >= 100)
+        {
+            uiKeyNumInSide = 2; // Exit
+        }
+    }
+
+    // Exit
+    if (uiKeyNumInSide == 2)
+    {
+        num = 0;
+    }
+}

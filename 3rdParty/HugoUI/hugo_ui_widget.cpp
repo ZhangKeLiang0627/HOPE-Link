@@ -209,3 +209,60 @@ void HugoUI::WidgetDrawMessageBox(const char *msg, bool isRefreshImme)
     if (isRefreshImme)
         oled_send_buffer();
 }
+
+void HugoUI::WidgetDrawProgressBar(const char *msg, float num, bool isRefreshImme)
+{
+    if (isRefreshImme)
+        oled_clear_buffer();
+
+    // Blur
+    int len = 8 * oled_get_buffer_tile_height() * oled_get_buffer_tile_width();
+    uint8_t *p = oled_get_buffer_ptr();
+
+    currentPage->Show(currentItem.get());
+
+    // 给原本的渲染内容打上一层模糊的棋盘格效果
+    for (uint16_t i = 0; i < len; i++)
+    {
+        if (i % 2 == 0)
+        {
+            p[i] = p[i] & (0x55);
+            p[i] = p[i] & (0x00);
+        }
+        else
+            p[i] = p[i] & (0xaa);
+    }
+
+    // Loop
+    // 反色擦除需要绘制的区域
+    oled_set_draw_color(0);
+    oled_draw_box(6, 18, 118, 30);
+    oled_set_draw_color(1);
+
+    // 绘制反色框
+    oled_draw_frame(6, 18, 118, 30);
+
+    // title
+    oled_draw_UTF8(10, 20 + FONT_HEIGHT, msg);
+
+    // desc
+
+    // 进度条
+    oled_draw_frame(10, 24 + FONT_HEIGHT, 70, 6);
+    if (num < 0.0f)
+        num = 0.0f;
+    else if (num > 100.0f)
+        num = 100.0f;
+    int progressWidth = (int)(num * 67.0f / 100.0f + 0.5f);
+    if (progressWidth > 67)
+        progressWidth = 67;
+    oled_draw_box(12, 26 + FONT_HEIGHT, progressWidth, 2); // width: 0 ~ 67
+
+    // float num
+    char numForShow[16] = {0};
+    sprintf(numForShow, "%.2f", num);
+    oled_draw_str(85, 30 + FONT_HEIGHT, numForShow);
+
+    if (isRefreshImme)
+        oled_send_buffer();
+}
