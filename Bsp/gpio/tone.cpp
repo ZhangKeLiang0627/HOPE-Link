@@ -58,6 +58,9 @@ void Tone::Play(const MusicSheet* music)
     // 开启蜂鸣器继续标志位
     config.isContinue = true;
     config.count = 0;
+
+    // 开始
+    HAL_TIM_PWM_Start(htim, TIM_CHANNEL_2);
 }
 
 void Tone::Stop(void)
@@ -81,36 +84,55 @@ void Tone::Update()
             if (!(config.count < 65535))
             {
                 // 给预重装载值赋值，改变音调
-                htim->Instance->ARR = (uint16_t)setNote(frequency[_music[config.schedule].note]);
+                if (_music[config.schedule].note != REST_NOTE)
+                    htim->Instance->ARR = (uint16_t)setNote(frequency[_music[config.schedule].note]);
                 // 给PWM占空比赋值，改变音量
-                htim->Instance->CCR2 = (uint16_t)htim->Instance->ARR / (100 - config.volume);
+                htim->Instance->CCR2 = (uint16_t)(htim->Instance->ARR / (float)(100 - config.volume));
                 // 赋值新的延时长度给count
                 config.count = _music[config.schedule].delay;
                 // 音符表走到下一个音符
                 config.schedule++;
-                HAL_TIM_PWM_Start(htim, TIM_CHANNEL_2);
             }
         }
         // 失能蜂鸣器，清空标志位
         else
+        {
             Stop();
+            config.isContinue = false;
+        }
     }
     else
+    {
         Stop();
+        config.isContinue = false;
+    }
 }
 
 // 乐曲
 const Tone::MusicSheet BEEPER_KEYPRESS[] = {
-    {NOTE_C6, 7},
+    {NOTE_C6, 3},
     {CHECK_NOTE, 0}, // 检查位
 };
 
 const Tone::MusicSheet BEEPER_TRITONE[] = {
-    {NOTE_B5, 6},
-    {REST_NOTE, 2},
-    {NOTE_D6, 6},
-    {REST_NOTE, 2},
-    {NOTE_F6, 6},
+    {NOTE_B5, 3},
+    {REST_NOTE, 1},
+    {NOTE_D6, 3},
+    {REST_NOTE, 1},
+    {NOTE_F6, 3},
+    {CHECK_NOTE, 0}, // 检查位
+};
+
+const Tone::MusicSheet BEEPER_WAKE[] = {
+    {NOTE_F5, 4},
+    {REST_NOTE, 1},
+    {NOTE_A6b, 4},
+    {REST_NOTE, 1},
+    {NOTE_B5, 4},
+    {REST_NOTE, 1},
+    {NOTE_D6, 4},
+    {REST_NOTE, 1},
+    {NOTE_F6, 5},
     {CHECK_NOTE, 0}, // 检查位
 };
 

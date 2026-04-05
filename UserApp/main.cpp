@@ -53,11 +53,7 @@ void Main(void)
     oledSetFont(u8g2_font_wqy13_t_gb2312a);
     HugoUI::InitLayout();
 
-    tone.Play(BEEPER_TRITONE);
-
-    // oledClearBuffer();
-    // oledDrawUTF8(30, 15, "HelloHOPE");
-    // oledSendBuffer();
+    tone.Play(BEEPER_WAKE);
 
     // Start Timer Callbacks.
     timerCtrlLoop.SetCallback(OnTimer4Callback);

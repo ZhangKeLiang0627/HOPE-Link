@@ -2038,9 +2038,9 @@
               <FilePath>..\3rdParty\MultiButton\multi_button.c</FilePath>
             </File>
             <File>
-              <FileName>multi_button_user.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\3rdParty\MultiButton\multi_button_user.c</FilePath>
+              <FileName>multi_button_user.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\3rdParty\MultiButton\multi_button_user.cpp</FilePath>
             </File>
           </Files>
         </Group>

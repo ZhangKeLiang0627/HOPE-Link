@@ -59,7 +59,7 @@ public:
 
     void Start();
     void Stop();
-    
+
     void Play(const MusicSheet *music);
     void Update();
 
@@ -71,5 +71,6 @@ public:
 extern const Tone::MusicSheet BEEPER_KEYPRESS[];
 extern const Tone::MusicSheet BEEPER_TRITONE[];
 extern const Tone::MusicSheet BEEPER_WARNING[];
+extern const Tone::MusicSheet BEEPER_WAKE[];
 
 #endif //_TONE_H_

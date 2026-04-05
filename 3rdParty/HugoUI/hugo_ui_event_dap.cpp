@@ -140,7 +140,7 @@ void HugoUI::EventTestDapUI(void)
     // Enter Anim
     if (!isEnterAnimFinish)
     {
-        oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        oled_draw_box(0, 0,  SCREEN_WIDTH, SCREEN_HEIGHT);
         if (Transition_Blur() == 0)
             isEnterAnimFinish = 1;
         oled_send_buffer();
