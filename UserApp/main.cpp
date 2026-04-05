@@ -3,12 +3,14 @@
 #include "interface_uart.h"
 #include "multi_button_user.h"
 #include "hugo_ui_user.h"
+#include "tone.hpp"
 
 // 5 User-Timers, can choose from htim1/htim2/htim4/htim10/htim11
 Timer timerCtrlLoop(&htim4, 200);
 
 // Encoder
 Encoder encoder(&htim3);
+Tone tone(&htim9);
 
 /* Thread Definitions -----------------------------------------------------*/
 
@@ -16,6 +18,7 @@ Encoder encoder(&htim3);
 /* Timer Callbacks -------------------------------------------------------*/
 static uint32_t encoderTickCount = 0;
 static uint32_t buttonTickCount = 0;
+static uint32_t toneTickCount = 0;
 
 void OnTimer4Callback()
 {
@@ -27,6 +30,13 @@ void OnTimer4Callback()
     {
         encoder.Update();
         encoderTickCount = 0;
+    }
+
+    // Tone
+    if (++toneTickCount >= 2)
+    {
+        tone.Update();
+        toneTickCount = 0;
     }
 }
 
@@ -42,6 +52,8 @@ void Main(void)
     oledInit();
     oledSetFont(u8g2_font_wqy13_t_gb2312a);
     HugoUI::InitLayout();
+
+    tone.Play(BEEPER_TRITONE);
 
     // oledClearBuffer();
     // oledDrawUTF8(30, 15, "HelloHOPE");

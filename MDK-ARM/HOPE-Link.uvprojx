@@ -2137,6 +2137,11 @@
               <FileType>8</FileType>
               <FilePath>..\Bsp\gpio\encoder.cpp</FilePath>
             </File>
+            <File>
+              <FileName>tone.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\Bsp\gpio\tone.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
