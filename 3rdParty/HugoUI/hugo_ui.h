@@ -230,6 +230,6 @@ extern HugoUI::Page::Ptr currentPage; // 当前Page
 extern HugoUI::Page::Ptr lastPage;    // 上一个Page
 extern HugoUI::Item::Ptr currentItem; // 当前Item
 
-extern uint8_t ChangeVal_flag;
+extern uint8_t changeValFlag;
 
 #endif // __HUGO_UI_H

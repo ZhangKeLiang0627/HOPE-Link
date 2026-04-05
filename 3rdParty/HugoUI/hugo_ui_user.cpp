@@ -14,6 +14,9 @@ bool testFlag = false;
 bool inverseModeFlag = false;
 bool autoTriggerFlag = false;
 
+// 改变值控件变量
+float toneVolume = 80.0f;
+
 /* 用户函数 ----------------------------------------------------------- */
 void EventShowAboutUI(void);
 void EventSetInverseMode(void);
@@ -87,7 +90,7 @@ void HugoUI::InitLayout(void)
     // PageSetting
     pageSetting->AddItem("『系统设置』", ItemType::Description);
     pageSetting->AddItem("反色模式", ItemType::Switch, &inverseModeFlag, EventSetInverseMode);
-    pageSetting->AddItem("蜂鸣器音量", ItemType::ChangeValue, nullptr, nullptr);
+    pageSetting->AddItem("蜂鸣器音量", ItemType::ChangeValue, &toneVolume, nullptr);
     pageSetting->AddItem("格式化存储设备", ItemType::CallFunction, nullptr);
     pageSetting->AddItem("恢复出厂设置", ItemType::CallFunction, nullptr);
     pageSetting->AddItem("{关于本机}", ItemType::CallFunction, EventShowAboutUI);

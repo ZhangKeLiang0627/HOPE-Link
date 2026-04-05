@@ -27,7 +27,7 @@ Item::Ptr currentItem;  // 当前Item
 int16_t uiIndex = 0, uiSelect = 0;
 State uiState = State::None;
 
-uint8_t ChangeVal_flag = 0;
+uint8_t changeValFlag = 0;
 
 /* 输入变量 ----------------------------------------------------------- */
 uint8_t uiKeyNum = 0, uiEncoderNum = 0;
@@ -180,7 +180,7 @@ void HugoUI::CommonEventProc(void)
     /* 编码器处理 */
     if (uiEncoderNumInSide == 1) // 向下
     {
-        if (ChangeVal_flag && currentItem->param)
+        if (changeValFlag && currentItem->param)
         {
             // 数值修改逻辑
             #ifdef FPU
@@ -188,7 +188,8 @@ void HugoUI::CommonEventProc(void)
             #else
                 *currentItem->param += 1;
             #endif
-            
+                *currentItem->param = *currentItem->param < 100 ? *currentItem->param : 100;
+
             // 执行回调
             if (currentItem->FuncCallBack)
                 currentItem->FuncCallBack();
@@ -205,7 +206,7 @@ void HugoUI::CommonEventProc(void)
     }
     else if (uiEncoderNumInSide == 2) // 向上
     {
-        if (ChangeVal_flag && currentItem->param)
+        if (changeValFlag && currentItem->param)
         {
             // 数值修改逻辑
             #ifdef FPU
@@ -213,10 +214,11 @@ void HugoUI::CommonEventProc(void)
             #else
                 *currentItem->param -= 1;
             #endif
-            
-            // 执行回调
-            if (currentItem->FuncCallBack)
-                currentItem->FuncCallBack();
+                *currentItem->param = *currentItem->param > 0 ? *currentItem->param : 0;
+
+                // 执行回调
+                if (currentItem->FuncCallBack)
+                    currentItem->FuncCallBack();
         }
         else
         {
@@ -258,7 +260,7 @@ void HugoUI::CommonEventProc(void)
             break;
             
         case ItemType::ChangeValue:
-            ChangeVal_flag = !ChangeVal_flag;
+            changeValFlag = !changeValFlag;
             break;
             
         default:
@@ -274,7 +276,7 @@ void HugoUI::CommonEventProc(void)
             uiIndex = lastPage->pageId;
             uiSelect = 0;
             lastPage = currentPage;
-            ChangeVal_flag = 0;
+            changeValFlag = 0;
         }
     }
 }

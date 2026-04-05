@@ -190,12 +190,12 @@ void PageList::Show(Item *thisitem)
                     oled_draw_str(val_x, item_y, float_str);
 
                     // 当前数值高亮
-                    if (item->lineId == uiSelect && ChangeVal_flag)
+                    if (item->lineId == uiSelect && changeValFlag)
                     {
                         oled_set_draw_color(2);
-                        int16_t box_x = (*item->param < 0) ? (SCREEN_WIDTH - FONT_WIDTH * 7 + item_x) : (SCREEN_WIDTH - FONT_WIDTH * 5 + item_x);
+                        int16_t box_x = (*item->param < 0) ? (SCREEN_WIDTH - FONT_WIDTH * 7 + item_x) : (SCREEN_WIDTH - FONT_WIDTH * 5 + item_x + 3);
                         int16_t box_w = (*item->param < 0) ? (FONT_WIDTH * 6) : (FONT_WIDTH * 4);
-                        oled_draw_box(box_x, item_y - 12 + 2, box_w, 11);
+                        oled_draw_R_box(box_x, item_y - 10, box_w, 11, 0);
                         oled_set_draw_color(1);
                     }
                 }
