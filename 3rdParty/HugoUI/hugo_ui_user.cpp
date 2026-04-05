@@ -34,6 +34,7 @@ void HugoUI::InitLayout(void)
     Page::Ptr pageOflnSelFile = AddPage(PageType::List, "pageOflnSelFile");
     Page::Ptr pageOflnSelChip = AddPage(PageType::List, "pageOflnSelChip");
     Page::Ptr pageWS2812 = AddPage(PageType::List, "pageWS2812");
+    Page::Ptr pageTest = AddPage(PageType::List, "pageTest");
 
     /* 注册 Item */
     // PageMain
@@ -48,6 +49,10 @@ void HugoUI::InitLayout(void)
     pageMain->AddItem("RGB", ItemType::JumpPage)
         ->SetJumpId(pageWS2812->pageId, 0)
         ->SetIconSrc(Unicorn_BMP);
+
+    pageMain->AddItem("Test", ItemType::JumpPage)
+        ->SetJumpId(pageTest->pageId, 0)
+        ->SetIconSrc(TreasureBox_BMP);
 
     pageMain->AddItem("About", ItemType::CallFunction, EventShowAboutUI)
         ->SetIconSrc(Home_BMP);
@@ -81,15 +86,6 @@ void HugoUI::InitLayout(void)
 
     // PageSetting
     pageSetting->AddItem("『系统设置』", ItemType::Description);
-    pageSetting->AddItem("switch的长文本测试demoooo123456", ItemType::Switch, &testFlag, nullptr);
-    pageSetting->AddItem("checkbox的长文本测试demoooo123456", ItemType::Checkbox, &testFlag, nullptr);
-    pageSetting->AddItem("changevalue的长文本测试demoooo123456", ItemType::Checkbox, &testFlag, nullptr);
-    pageSetting->AddItem("weightInfoBar测试1", ItemType::Switch, &testFlag, EventShowWidgetInfoBar);
-    pageSetting->AddItem("weightInfoBar测试2", ItemType::Switch, &testFlag, EventShowWidgetInfoBar2);
-    pageSetting->AddItem("weightPopUp测试1", ItemType::Switch, &testFlag, EventShowWidgetPopUp);
-    pageSetting->AddItem("weightPopUp测试2", ItemType::Switch, &testFlag, EventShowWidgetPopUp2);
-    pageSetting->AddItem("进度条测试", ItemType::CallFunction, EventShowProgressBarUI);
-
     pageSetting->AddItem("反色模式", ItemType::Switch, &inverseModeFlag, EventSetInverseMode);
     pageSetting->AddItem("蜂鸣器音量", ItemType::ChangeValue, nullptr, nullptr);
     pageSetting->AddItem("格式化存储设备", ItemType::CallFunction, nullptr);
@@ -107,6 +103,18 @@ void HugoUI::InitLayout(void)
     pageWS2812->AddItem("Exit", ItemType::JumpPage)
         ->SetJumpId(pageMain->pageId, 2);
 
+    // PageTest
+    pageTest->AddItem("『系统UI测试』", ItemType::Description);
+    pageTest->AddItem("switch的长文本测试demoooo123456", ItemType::Switch, &testFlag, nullptr);
+    pageTest->AddItem("checkbox的长文本测试demoooo123456", ItemType::Checkbox, &testFlag, nullptr);
+    pageTest->AddItem("changevalue的长文本测试demoooo123456", ItemType::Checkbox, &testFlag, nullptr);
+    pageTest->AddItem("weightInfoBar测试1", ItemType::Switch, &testFlag, EventShowWidgetInfoBar);
+    pageTest->AddItem("weightInfoBar测试2", ItemType::Switch, &testFlag, EventShowWidgetInfoBar2);
+    pageTest->AddItem("weightPopUp测试1", ItemType::Switch, &testFlag, EventShowWidgetPopUp);
+    pageTest->AddItem("weightPopUp测试2", ItemType::Switch, &testFlag, EventShowWidgetPopUp2);
+    pageTest->AddItem("进度条测试", ItemType::CallFunction, EventShowProgressBarUI);
+    pageTest->AddItem("返回", ItemType::JumpPage)
+        ->SetJumpId(pageMain->pageId, 3);
 }
 
 /* About的应用事件函数 */
