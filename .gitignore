@@ -55,6 +55,6 @@ dkms.conf
 *.dwo
 .vscode
 
-MDK-ARM/HOPE-Link
+2.Firmware/MDK-ARM/HOPE-Link
 
-MDK-ARM/HOPE-Link.uvguix.*
+2.Firmware/MDK-ARM/HOPE-Link.uvguix.*
