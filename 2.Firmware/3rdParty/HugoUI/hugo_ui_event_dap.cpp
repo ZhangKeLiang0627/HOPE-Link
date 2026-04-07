@@ -1,6 +1,10 @@
 #include "hugo_ui_event_dap.h"
 #include "hugo_ui_widget.h"
 #include "SWD_flash.h"
+#include <cstring>
+#include <cstdlib>
+#include <stdint.h>
+
 // Fatfs
 #include "ff.h"
 
@@ -11,6 +15,8 @@
 
 // test
 #include "interface_uart.h"
+
+
 
 using namespace HugoUI;
 
@@ -48,6 +54,7 @@ static const flash_algo_info_t flashAlgoList[] = {
 static const int flashAlgoCount = sizeof(flashAlgoList) / sizeof(flash_algo_info_t);
 
 /* 用户函数 ----------------------------------------------------------- */
+bool convertHexToBin(const char *hexPath, const char *binPath);
 
 // CMSIS-DAP 页面 批量添加算法
 void HugoUI::AddItemsFromFlashAlgo(Page::Ptr page)
@@ -111,20 +118,20 @@ void HugoUI::AddItemsFromFirmwareFolder(Page::Ptr page, const char *folderPath)
     Usart_debugMsg("[AddItem-DAP] firmwareName:%s, firmwareFlag[0]:%d", firmwareName, firmwareFlag[0]);
 }
 
-// CMSIS-DAP test 的应用事件函数
-void HugoUI::EventTestDapUI(void)
+// CMSIS-DAP 烧录 的应用事件函数
+void HugoUI::EventBurnDapUI(void)
 {
     static uint8_t isTestDapInit = 0;
     static uint8_t isEnterAnimFinish = 0;
     static int8_t isWriteFinish = 0;
 
     // 所有变量都放在函数内部
-    FRESULT Res;
+    FRESULT res;
     FIL fnew;
     uint8_t rData[1024];
-    uint8_t Check_Data[1024];
-    uint8_t readflag;
-    uint32_t Burn_cnt = 0;
+    uint8_t checkData[1024];
+    uint8_t readFlag;
+    uint32_t burnCount = 0;
     char buf[16]; // 专门用来显示数字
 
     // Init
@@ -147,8 +154,20 @@ void HugoUI::EventTestDapUI(void)
         return;
     }
 
+    // TODO 加入hex to bin操作，hex文件转bin文件，再进行烧录
+    /*
+    1. 首先，函数进来，先判断firmwareName是否为hex文件，如果不为hex文件，是bin文件的话，则正常进行烧录
+    2. 如果firmwareName是hex文件，则先查看同目录下，是否存在同名的bin文件，如果存在同名的bin文件，则firmwareName指向这个同名bin文件，进行正常烧录
+    3. 如果不存在同名文件，则需要执行hex2bin的操作，把hex文件转换为同名bin文件保存在同目录下，同时pageOflnSelFile要多增加这个item
+    4. 生成这个bin文件之后，再将firmwareName指向这个同名bin文件，进行正常烧录
+    5. 注意，以上过程均需要在oled上进行信息同步，你得画出来
+    6. 尽可能简约
+    7. hex2bin的操作，可以独立出来一个函数进行，或者你有更加简约的方式，也可以
+    8. 尽可能仅对当前函数进行修改
+    */
+
     // Loop
-    oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP测试』");
+    oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP烧录』");
 
     if (isWriteFinish == 1)
     {
@@ -165,63 +184,97 @@ void HugoUI::EventTestDapUI(void)
         if (swd_init_debug())
         {
             oled_clear_buffer();
-            oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP测试』");
+            oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP烧录』");
             oled_draw_UTF8(0, FONT_HEIGHT * 2, "目标芯片已连接!!!");
             oled_send_buffer();
 
             if (target_flash_init(0x08000000) == ERROR_SUCCESS)
             {
                 oled_clear_buffer();
-                oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP测试』");
+                oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP烧录』");
                 oled_draw_UTF8(0, FONT_HEIGHT * 2, "正在擦除目标芯片!!!");
                 oled_send_buffer();
 
                 if (target_flash_erase_chip() == ERROR_SUCCESS)
                 {
                     oled_clear_buffer();
-                    oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP测试』");
+                    oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP烧录』");
                     oled_draw_UTF8(0, FONT_HEIGHT * 2, "目标芯片已擦除!!!");
                     oled_send_buffer();
 
+                    // 检查是否为HEX文件并转换
+                    const char* ext = strrchr(firmwareName, '.');
+                    if (ext && strcmp(ext, ".hex") == 0) {
+                        char binName[256];
+                        strcpy(binName, firmwareName);
+                        strcpy(strrchr(binName, '.'), ".bin");
+
+                        FIL testFile;
+                        if (f_open(&testFile, (const TCHAR*)binName, FA_READ) == FR_OK) {
+                            f_close(&testFile);
+                            // 同名BIN存在，使用BIN
+                            strcpy(firmwareName, binName);
+                        } else {
+                            // 不存在，转换HEX到BIN
+                            oled_clear_buffer();
+                            oled_draw_UTF8(0, FONT_HEIGHT, "『转换HEX到BIN』");
+                            oled_draw_UTF8(0, FONT_HEIGHT * 2, "正在转换...");
+                            oled_send_buffer();
+
+                            if (convertHexToBin(firmwareName, binName)) {
+                                // 转换成功，使用BIN
+                                strcpy(firmwareName, binName);
+                            } else {
+                                // 转换失败
+                                oled_clear_buffer();
+                                oled_draw_UTF8(0, FONT_HEIGHT, "『转换失败』");
+                                oled_draw_UTF8(0, FONT_HEIGHT * 2, "检查HEX文件!");
+                                oled_send_buffer();
+                                HAL_Delay(2000);
+                                isWriteFinish = -1;
+                                return;
+                            }
+                        }
+                    }
+
                     // 烧录核心内容 begin ------------------------------------------
-                    Res = f_open(&fnew, (const TCHAR *)firmwareName, FA_READ);
-                    if (Res == FR_OK)
+                    res = f_open(&fnew, (const TCHAR *)firmwareName, FA_READ);
+                    if (res == FR_OK)
                     {
-                        uint32_t progess = 0, burn_addr = 0, time1, time2;
-                        UINT bytesread;
-                        readflag = 1;
-                        time1 = HAL_GetTick();
+                        uint32_t progress = 0, burnAddr = 0;
+                        UINT bytesRead;
+                        readFlag = 1;
 
-                        while (readflag)
+                        while (readFlag)
                         {
-                            f_read(&fnew, rData, 1024, &bytesread);
-                            if (bytesread < 1024)
-                                readflag = 0;
+                            f_read(&fnew, rData, 1024, &bytesRead);
+                            if (bytesRead < 1024)
+                                readFlag = 0;
 
-                            if (target_flash_program_page(0x08000000 + burn_addr, rData, 1024) == ERROR_SUCCESS)
+                            if (target_flash_program_page(0x08000000 + burnAddr, rData, 1024) == ERROR_SUCCESS)
                             {
-                                swd_read_memory(0x08000000 + burn_addr, Check_Data, 1024);
-                                if (memcmp(Check_Data, rData, 1024) != 0)
+                                swd_read_memory(0x08000000 + burnAddr, checkData, 1024);
+                                if (memcmp(checkData, rData, 1024) != 0)
                                 {
                                     oled_clear_buffer();
                                     oled_draw_UTF8(20, FONT_HEIGHT * 1, "校验失败!!!");
                                     oled_send_buffer();
                                     HAL_Delay(1000);
-                                    burn_addr = 0;
-                                    readflag = 1;
+                                    burnAddr = 0;
+                                    readFlag = 1;
                                     f_close(&fnew);
                                     return;
                                 }
 
-                                burn_addr += 1024;
-                                progess = ((double)burn_addr / f_size(&fnew)) * 100;
+                                burnAddr += 1024;
+                                progress = ((double)burnAddr / f_size(&fnew)) * 100;
 
                                 // 安全显示进度（无编译错误）
                                 oled_clear_buffer();
-                                oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP测试』");
+                                oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP烧录』");
                                 oled_draw_UTF8(0, FONT_HEIGHT * 2, "烧录中");
                                 oled_draw_UTF8(0, FONT_HEIGHT * 3, "进度:");
-                                sprintf(buf, "%d%%", (int)progess);
+                                sprintf(buf, "%d%%", (int)progress);
                                 oled_draw_str(50, FONT_HEIGHT * 3, buf);
                                 oled_send_buffer();
                             }
@@ -231,11 +284,9 @@ void HugoUI::EventTestDapUI(void)
                                 return;
                             }
                         }
-
-                        time2 = HAL_GetTick();
-                        Burn_cnt++;
+                        burnCount++;
                         oled_clear_buffer();
-                        oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP测试』");
+                        oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP烧录』");
                         oled_draw_UTF8(0, FONT_HEIGHT * 2, "烧录完成!!!");
                         oled_send_buffer();
                         isWriteFinish = 1;
@@ -464,4 +515,109 @@ void HugoUI::EventSelectFlashAlgo(void)
             return;
         }
     }
+}
+
+static uint8_t HexNibble(char c)
+{
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    return 0;
+}
+
+static uint8_t ParseHexByte(const char* p)
+{
+    return (HexNibble(p[0]) << 4) | HexNibble(p[1]);
+}
+
+// Hex to Bin 转换函数
+bool convertHexToBin(const char* hexPath, const char* binPath)
+{
+    FIL hexFile, binFile;
+    FRESULT res;
+
+    // 打开hex文件
+    res = f_open(&hexFile, (const TCHAR*)hexPath, FA_READ);
+    if (res != FR_OK) return false;
+
+    // 打开或创建bin文件
+    res = f_open(&binFile, (const TCHAR*)binPath, FA_WRITE | FA_CREATE_ALWAYS);
+    if (res != FR_OK) {
+        f_close(&hexFile);
+        return false;
+    }
+
+    char line[256];
+    uint32_t baseAddr = 0;
+    uint32_t currentPos = 0;
+    const uint32_t flashBase = 0x08000000;
+
+    // 读取hex文件行
+    while (f_gets((TCHAR*)line, sizeof(line), &hexFile)) {
+        if (line[0] != ':')
+            continue;
+
+        uint8_t len = ParseHexByte(line + 1);
+        uint16_t addr = (uint16_t)((ParseHexByte(line + 3) << 8) | ParseHexByte(line + 5));
+        uint8_t type = ParseHexByte(line + 7);
+
+        if (type == 0) { // 数据记录
+            uint32_t fullAddr = baseAddr + addr;
+            if (fullAddr < flashBase) {
+                f_close(&hexFile);
+                f_close(&binFile);
+                return false;
+            }
+            uint32_t writePos = fullAddr - flashBase;
+
+            // 如果写位置超出当前文件位置，需要填充0xFF
+            if (writePos > currentPos) {
+                if (f_lseek(&binFile, currentPos) != FR_OK) {
+                    f_close(&hexFile);
+                    f_close(&binFile);
+                    return false;
+                }
+                while (currentPos < writePos) {
+                    uint8_t fill = 0xFF;
+                    UINT bw;
+                    if (f_write(&binFile, &fill, 1, &bw) != FR_OK || bw != 1) {
+                        f_close(&hexFile);
+                        f_close(&binFile);
+                        return false;
+                    }
+                    currentPos++;
+                }
+            }
+
+            if (writePos != currentPos) {
+                if (f_lseek(&binFile, writePos) != FR_OK) {
+                    f_close(&hexFile);
+                    f_close(&binFile);
+                    return false;
+                }
+                currentPos = writePos;
+            }
+
+            // 数据写入
+            for (uint8_t i = 0; i < len; i++) {
+                uint8_t byte = ParseHexByte(line + 9 + i * 2);
+                UINT bw;
+                if (f_write(&binFile, &byte, 1, &bw) != FR_OK || bw != 1) {
+                    f_close(&hexFile);
+                    f_close(&binFile);
+                    return false;
+                }
+                currentPos++;
+            }
+        } else if (type == 4) { // 扩展线性地址
+            baseAddr = ((uint32_t)ParseHexByte(line + 9) << 24) | ((uint32_t)ParseHexByte(line + 11) << 16);
+        } else if (type == 1) { // 文件结束
+            break;
+        }
+        // 其他类型忽略
+    }
+
+    f_close(&hexFile);
+    f_close(&binFile);
+    return true;
 }

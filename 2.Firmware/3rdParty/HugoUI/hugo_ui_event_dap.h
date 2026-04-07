@@ -13,7 +13,7 @@ namespace HugoUI
     /* API-Function --------------------------------------------------- */
     void AddItemsFromFirmwareFolder(Page::Ptr page, const char *folderPath);
     void AddItemsFromFlashAlgo(Page::Ptr page);
-    void EventTestDapUI(void);
+    void EventBurnDapUI(void);
     void EventEraseChipUI(void);
     void EventAutoTriggerUI(void);
     void EventSetFlashAddressUI(void);

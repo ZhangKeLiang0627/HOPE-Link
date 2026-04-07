@@ -70,7 +70,7 @@ void HugoUI::InitLayout(void)
     pageOffline->AddItem("全量擦除芯片", ItemType::CallFunction, EventEraseChipUI);
     pageOffline->AddItem("自动触发下载", ItemType::Switch, &autoTriggerFlag, nullptr);
     pageOffline->AddItem("储存当前设置", ItemType::CallFunction, EventAutoTriggerUI);
-    pageOffline->AddItem("> 开始下载", ItemType::CallFunction, EventTestDapUI);
+    pageOffline->AddItem("> 开始下载", ItemType::CallFunction, EventBurnDapUI);
 
     pageOffline->AddItem("返回", ItemType::JumpPage)
         ->SetJumpId(pageMain->pageId, 0);
