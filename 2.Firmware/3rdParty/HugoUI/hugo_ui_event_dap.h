@@ -19,6 +19,7 @@ namespace HugoUI
     void EventSetFlashAddressUI(void);
     void EventSelectFirmware(void);
     void EventSelectFlashAlgo(void);
+    void EventEraseSectorInfoBar(void);
 
 } /* namespace HugoUI */
 

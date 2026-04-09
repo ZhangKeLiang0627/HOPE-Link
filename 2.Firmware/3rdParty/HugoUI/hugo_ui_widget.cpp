@@ -86,7 +86,7 @@ void HugoUI::WidgetDrawInfoBar(void)
 
     oled_set_draw_color(0);
     oled_draw_UTF8(_x_info_bar + 6,
-                   (int16_t)(widgetInfoBar.y_info_bar + oled_get_str_height() - 2),
+                   (int16_t)(widgetInfoBar.y_info_bar + oled_get_str_height() - 4),
                    widgetInfoBar.content);
     oled_set_draw_color(1);
 
@@ -158,7 +158,7 @@ void HugoUI::WidgetDrawPopUp(void)
 
     oled_set_draw_color(0);
     oled_draw_UTF8(_x_pop_up + 3,
-                   (int16_t)(widgetPopUp.y_pop_up + oled_get_str_height() + 1),
+                   (int16_t)(widgetPopUp.y_pop_up + oled_get_str_height()),
                    widgetPopUp.content);
     oled_set_draw_color(1);
 }

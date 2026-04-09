@@ -28,8 +28,13 @@ static char firmwareName[256] = "";
 static bool firmwareFlag[256] = {false};
 // flash算法选择控件变量 / 最大支持64个算法
 static bool flashAlgoFlag[64] = {false};
+// 局部扇区擦除标志变量 / true: 局部扇区擦除, false: 全片擦除
+bool flashEraseSectorFlag = false;
+
 // flash起始地址变量
 static uint32_t mcuFlashAddress = 0x8000000;
+// 扇区大小 (默认1KB, 根据不同MCU调整)
+static uint32_t flashSectorSize = 1024;
 
 // 算法列表
 // 算法对象来自「CMSIS-DAP」目录
@@ -154,18 +159,6 @@ void HugoUI::EventBurnDapUI(void)
         return;
     }
 
-    // TODO 加入hex to bin操作，hex文件转bin文件，再进行烧录
-    /*
-    1. 首先，函数进来，先判断firmwareName是否为hex文件，如果不为hex文件，是bin文件的话，则正常进行烧录
-    2. 如果firmwareName是hex文件，则先查看同目录下，是否存在同名的bin文件，如果存在同名的bin文件，则firmwareName指向这个同名bin文件，进行正常烧录
-    3. 如果不存在同名文件，则需要执行hex2bin的操作，把hex文件转换为同名bin文件保存在同目录下，同时pageOflnSelFile要多增加这个item
-    4. 生成这个bin文件之后，再将firmwareName指向这个同名bin文件，进行正常烧录
-    5. 注意，以上过程均需要在oled上进行信息同步，你得画出来
-    6. 尽可能简约
-    7. hex2bin的操作，可以独立出来一个函数进行，或者你有更加简约的方式，也可以
-    8. 尽可能仅对当前函数进行修改
-    */
-
     // Loop
     oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP烧录』");
 
@@ -190,52 +183,109 @@ void HugoUI::EventBurnDapUI(void)
 
             if (target_flash_init(0x08000000) == ERROR_SUCCESS)
             {
-                oled_clear_buffer();
-                oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP烧录』");
-                oled_draw_UTF8(0, FONT_HEIGHT * 2, "正在擦除目标芯片!!!");
-                oled_send_buffer();
+                // 检查是否为HEX文件并转换（先检查文件获取大小）
+                const char* ext = strrchr(firmwareName, '.');
+                if (ext && strcmp(ext, ".hex") == 0) {
+                    char binName[256];
+                    strcpy(binName, firmwareName);
+                    strcpy(strrchr(binName, '.'), ".bin");
 
-                if (target_flash_erase_chip() == ERROR_SUCCESS)
+                    FIL testFile;
+                    if (f_open(&testFile, (const TCHAR*)binName, FA_READ) == FR_OK) {
+                        f_close(&testFile);
+                        // 同名BIN存在，使用BIN
+                        strcpy(firmwareName, binName);
+                    } else {
+                        // 不存在，转换HEX到BIN
+                        oled_clear_buffer();
+                        oled_draw_UTF8(0, FONT_HEIGHT, "『转换HEX到BIN』");
+                        oled_draw_UTF8(0, FONT_HEIGHT * 2, "正在转换...");
+                        oled_send_buffer();
+
+                        if (convertHexToBin(firmwareName, binName)) {
+                            // 转换成功，使用BIN
+                            strcpy(firmwareName, binName);
+                        } else {
+                            // 转换失败
+                            oled_clear_buffer();
+                            oled_draw_UTF8(0, FONT_HEIGHT, "『转换失败』");
+                            oled_draw_UTF8(0, FONT_HEIGHT * 2, "检查HEX文件!");
+                            oled_send_buffer();
+                            HAL_Delay(2000);
+                            isWriteFinish = -1;
+                            return;
+                        }
+                    }
+                }
+
+                // 获取固件文件大小
+                uint32_t firmwareSize = 0;
+                res = f_open(&fnew, (const TCHAR *)firmwareName, FA_READ);
+                if (res == FR_OK)
+                {
+                    firmwareSize = f_size(&fnew);
+                    f_close(&fnew);
+                }
+
+                // 擦除操作：根据flashEraseSectorFlag选择擦除方式
+                bool eraseSuccess = false;
+                if (flashEraseSectorFlag)
+                {
+                    // 局部扇区擦除模式
+                    oled_clear_buffer();
+                    oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP烧录』");
+                    oled_draw_UTF8(0, FONT_HEIGHT * 2, "局部扇区擦除中...");
+                    oled_send_buffer();
+
+                    // 计算需要擦除的扇区数量
+                    uint32_t sectorCount = (firmwareSize + flashSectorSize - 1) / flashSectorSize;
+                    uint32_t eraseAddr = 0x08000000;
+
+                    for (uint32_t i = 0; i < sectorCount; i++)
+                    {
+                        if (target_flash_erase_sector(eraseAddr) != ERROR_SUCCESS)
+                        {
+                            oled_clear_buffer();
+                            oled_draw_UTF8(0, FONT_HEIGHT, "『扇区擦除失败』");
+                            sprintf(buf, "扇区:%d", i);
+                            oled_draw_str(0, FONT_HEIGHT * 2, buf);
+                            oled_send_buffer();
+                            HAL_Delay(1000);
+                            isWriteFinish = -1;
+                            return;
+                        }
+                        eraseAddr += flashSectorSize;
+
+                        // 显示擦除进度
+                        oled_clear_buffer();
+                        oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP烧录』");
+                        oled_draw_UTF8(0, FONT_HEIGHT * 2, "局部扇区擦除中...");
+                        sprintf(buf, "%d/%d", (int)(i + 1), (int)sectorCount);
+                        oled_draw_str(0, FONT_HEIGHT * 3, buf);
+                        oled_send_buffer();
+                    }
+                    eraseSuccess = true;
+                }
+                else
+                {
+                    // 全片擦除模式
+                    oled_clear_buffer();
+                    oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP烧录』");
+                    oled_draw_UTF8(0, FONT_HEIGHT * 2, "正在擦除目标芯片!!!");
+                    oled_send_buffer();
+
+                    if (target_flash_erase_chip() == ERROR_SUCCESS)
+                    {
+                        eraseSuccess = true;
+                    }
+                }
+
+                if (eraseSuccess)
                 {
                     oled_clear_buffer();
                     oled_draw_UTF8(0, FONT_HEIGHT, "『CMSIS-DAP烧录』");
-                    oled_draw_UTF8(0, FONT_HEIGHT * 2, "目标芯片已擦除!!!");
+                    oled_draw_UTF8(0, FONT_HEIGHT * 2, flashEraseSectorFlag ? "扇区已擦除!!!" : "目标芯片已擦除!!!");
                     oled_send_buffer();
-
-                    // 检查是否为HEX文件并转换
-                    const char* ext = strrchr(firmwareName, '.');
-                    if (ext && strcmp(ext, ".hex") == 0) {
-                        char binName[256];
-                        strcpy(binName, firmwareName);
-                        strcpy(strrchr(binName, '.'), ".bin");
-
-                        FIL testFile;
-                        if (f_open(&testFile, (const TCHAR*)binName, FA_READ) == FR_OK) {
-                            f_close(&testFile);
-                            // 同名BIN存在，使用BIN
-                            strcpy(firmwareName, binName);
-                        } else {
-                            // 不存在，转换HEX到BIN
-                            oled_clear_buffer();
-                            oled_draw_UTF8(0, FONT_HEIGHT, "『转换HEX到BIN』");
-                            oled_draw_UTF8(0, FONT_HEIGHT * 2, "正在转换...");
-                            oled_send_buffer();
-
-                            if (convertHexToBin(firmwareName, binName)) {
-                                // 转换成功，使用BIN
-                                strcpy(firmwareName, binName);
-                            } else {
-                                // 转换失败
-                                oled_clear_buffer();
-                                oled_draw_UTF8(0, FONT_HEIGHT, "『转换失败』");
-                                oled_draw_UTF8(0, FONT_HEIGHT * 2, "检查HEX文件!");
-                                oled_send_buffer();
-                                HAL_Delay(2000);
-                                isWriteFinish = -1;
-                                return;
-                            }
-                        }
-                    }
 
                     // 烧录核心内容 begin ------------------------------------------
                     res = f_open(&fnew, (const TCHAR *)firmwareName, FA_READ);
@@ -456,6 +506,15 @@ void HugoUI::EventEraseChipUI(void)
     if (uiKeyNumInSide == 2)
     {
     }
+}
+
+void HugoUI::EventEraseSectorInfoBar(void)
+{
+    // Show Widget
+    if (flashEraseSectorFlag)
+        WidgetPushInfoBar("局部擦除较慢!", 2000);
+    else
+        WidgetPushInfoBar("全片擦除较快!", 2000);
 }
 
 void HugoUI::EventAutoTriggerUI(void)

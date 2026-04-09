@@ -13,6 +13,7 @@ using namespace HugoUI;
 bool testFlag = false;
 bool inverseModeFlag = false;
 bool autoTriggerFlag = false;
+extern bool flashEraseSectorFlag;
 
 // 改变值控件变量
 float toneVolume = 80.0f;
@@ -70,6 +71,7 @@ void HugoUI::InitLayout(void)
     pageOffline->AddItem("全量擦除芯片", ItemType::CallFunction, EventEraseChipUI);
     pageOffline->AddItem("自动触发下载", ItemType::Switch, &autoTriggerFlag, nullptr);
     pageOffline->AddItem("储存当前设置", ItemType::CallFunction, EventAutoTriggerUI);
+    pageOffline->AddItem("是否局部擦除", ItemType::Checkbox, &flashEraseSectorFlag, EventEraseSectorInfoBar);
     pageOffline->AddItem("> 开始下载", ItemType::CallFunction, EventBurnDapUI);
 
     pageOffline->AddItem("返回", ItemType::JumpPage)
