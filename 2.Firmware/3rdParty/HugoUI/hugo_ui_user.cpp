@@ -102,10 +102,10 @@ void HugoUI::InitLayout(void)
 
     // PageWS2812
     pageWS2812->AddItem("『RGB灯珠测试』", ItemType::Description);
-    pageWS2812->AddItem("SetRed", ItemType::ChangeValue,nullptr, nullptr);
-    pageWS2812->AddItem("SetGreen", ItemType::ChangeValue, nullptr, nullptr);
-    pageWS2812->AddItem("SetBlue", ItemType::ChangeValue,nullptr, nullptr);
-    pageWS2812->AddItem("Exit", ItemType::JumpPage)
+    pageWS2812->AddItem("Set Red", ItemType::ChangeValue,nullptr, nullptr);
+    pageWS2812->AddItem("Set Green", ItemType::ChangeValue, nullptr, nullptr);
+    pageWS2812->AddItem("Set Blue", ItemType::ChangeValue,nullptr, nullptr);
+    pageWS2812->AddItem("返回", ItemType::JumpPage)
         ->SetJumpId(pageMain->pageId, 2);
 
     // PageTest
