@@ -10,7 +10,8 @@ namespace HugoUI
     /* class ------------------------------------------------------- */
 
     /* API-Function ------------------------------------------------ */
-
+    bool LoadConfig(const std::string &file_path);
+    bool SaveConfig(const std::string &file_path);
 
 } /* namespace HugoUI */
 
