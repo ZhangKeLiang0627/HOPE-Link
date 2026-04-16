@@ -12,6 +12,7 @@ using namespace HugoUI;
 // 开关控件变量
 bool testFlag = false;
 bool inverseModeFlag = false;
+bool flipModeFlag = false;
 bool autoTriggerFlag = false;
 extern bool flashEraseSectorFlag;
 
@@ -21,6 +22,7 @@ float toneVolume = 80.0f;
 /* 用户函数 ----------------------------------------------------------- */
 void EventShowAboutUI(void);
 void EventSetInverseMode(void);
+void EventSetFlipScreen(void);
 
 // [test code]
 void EventShowWidgetInfoBar(void);
@@ -92,6 +94,7 @@ void HugoUI::InitLayout(void)
     // PageSetting
     pageSetting->AddItem("『系统设置』", ItemType::Description);
     pageSetting->AddItem("反色模式", ItemType::Switch, &inverseModeFlag, EventSetInverseMode);
+    pageSetting->AddItem("反转屏幕", ItemType::Switch, &flipModeFlag, EventSetFlipScreen);
     pageSetting->AddItem("蜂鸣器音量", ItemType::ChangeValue, &toneVolume, nullptr);
     pageSetting->AddItem("格式化存储设备", ItemType::CallFunction, nullptr);
     pageSetting->AddItem("恢复出厂设置", ItemType::CallFunction, nullptr);
@@ -173,6 +176,12 @@ void EventShowAboutUI(void)
 void EventSetInverseMode(void)
 {
     oledSetInverseColor(inverseModeFlag);
+}
+
+/* 反转屏幕的事件回调 */
+void EventSetFlipScreen(void)
+{
+    oledSetFlipMode(flipModeFlag);
 }
 
 // [test code]
