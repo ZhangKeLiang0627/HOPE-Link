@@ -3,14 +3,14 @@
 
 #include "hugo_ui.h"
 
-/* define ------------------------------------------------------- */
+/* define ---------------------------------------------------------- */
 
 namespace HugoUI
 {
     /* class ------------------------------------------------------- */
 
 
-    /* API-Function --------------------------------------------------- */
+    /* API-Function ------------------------------------------------ */
     void AddItemsFromFirmwareFolder(Page::Ptr page, const char *folderPath);
     void AddItemsFromFlashAlgo(Page::Ptr page);
     void EventBurnDapUI(void);

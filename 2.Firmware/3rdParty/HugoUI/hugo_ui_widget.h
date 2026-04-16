@@ -15,7 +15,7 @@ namespace HugoUI
 {
     /* class ------------------------------------------------------- */
 
-    /* struct ------------------------------------------------------- */
+    /* struct ------------------------------------------------------ */
     typedef struct widget_info_bar_t
     {
         char *content;
@@ -36,7 +36,7 @@ namespace HugoUI
         uint32_t time;
     } widget_pop_up_t;
 
-    /* API-Function --------------------------------------------------- */
+    /* API-Function ------------------------------------------------ */
     void WidgetShow(void);
 
     void WidgetPushInfoBar(const char *_content, const uint16_t _span);
