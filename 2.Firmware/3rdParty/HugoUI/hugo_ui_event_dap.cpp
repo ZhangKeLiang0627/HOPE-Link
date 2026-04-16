@@ -181,7 +181,7 @@ void HugoUI::EventBurnDapUI(void)
             oled_draw_UTF8(0, FONT_HEIGHT * 2, "目标芯片已连接!!!");
             oled_send_buffer();
 
-            if (target_flash_init(0x08000000) == ERROR_SUCCESS)
+            if (target_flash_init(mcuFlashAddress) == ERROR_SUCCESS)
             {
                 // 检查是否为HEX文件并转换（先检查文件获取大小）
                 const char* ext = strrchr(firmwareName, '.');
