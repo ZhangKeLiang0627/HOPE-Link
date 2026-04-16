@@ -32,12 +32,12 @@ void OnTimer4Callback()
         encoderTickCount = 0;
     }
 
-    // Tone
-    if (++toneTickCount >= 2)
-    {
-        tone.Update();
-        toneTickCount = 0;
-    }
+    // // Tone
+    // if (++toneTickCount >= 2)
+    // {
+    //     tone.Update();
+    //     toneTickCount = 0;
+    // }
 }
 
 /* Default Entry -------------------------------------------------------*/
@@ -53,7 +53,7 @@ void Main(void)
     oledSetFont(u8g2_font_wqy13_t_gb2312a);
     HugoUI::InitLayout();
 
-    tone.Play(BEEPER_WAKE);
+    // tone.Play(BEEPER_WAKE);
 
     // Start Timer Callbacks.
     timerCtrlLoop.SetCallback(OnTimer4Callback);
