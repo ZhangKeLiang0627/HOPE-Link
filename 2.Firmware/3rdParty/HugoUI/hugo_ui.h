@@ -123,19 +123,19 @@ public:
     // 设置图标
     Ptr SetIconSrc(const uint8_t* pic) {
         this->pic = pic;
-        return shared_from_this(); // 修复类型转换错误
+        return shared_from_this(); 
     }
 
     // 设置跳转ID
     Ptr SetJumpId(uint8_t pageId, uint8_t itemLineId) {
         this->JumpPageId = pageId;
         this->JumpItemLineId = itemLineId;
-        return shared_from_this(); // 修复类型转换错误
+        return shared_from_this(); 
     }
 
     // 返回自身
     Ptr ReturnThisItem() {
-        return shared_from_this(); // 修复类型转换错误
+        return shared_from_this(); 
     }
 };
 
