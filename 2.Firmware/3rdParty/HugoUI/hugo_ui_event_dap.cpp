@@ -1,5 +1,6 @@
 #include "hugo_ui_event_dap.h"
 #include "hugo_ui_widget.h"
+#include "hugo_ui_config.h"
 #include "SWD_flash.h"
 #include <cstring>
 #include <cstdlib>
@@ -30,6 +31,8 @@ static bool firmwareFlag[256] = {false};
 static bool flashAlgoFlag[64] = {false};
 // 局部扇区擦除标志变量 / true: 局部扇区擦除, false: 全片擦除
 bool flashEraseSectorFlag = false;
+// 自动触发下载标志变量 / true: 自动触发下载, false: 手动触发下载
+bool autoTriggerFlag = false;
 
 // flash起始地址变量
 static uint32_t mcuFlashAddress = 0x8000000;
@@ -463,6 +466,7 @@ void HugoUI::EventSetFlashAddressUI(void)
 
     if(uiKeyNumInSide == 1)
     {
+        // Ctrl
         isSelect = !isSelect;
     }
     else if (uiKeyNumInSide == 2)
@@ -485,7 +489,7 @@ void HugoUI::EventSetFlashAddressUI(void)
 
 void HugoUI::EventEraseChipUI(void)
 {
-
+    // Show Widget
     WidgetDrawMessageBox("擦除芯片...");
 
     // Util
@@ -519,11 +523,21 @@ void HugoUI::EventEraseSectorInfoBar(void)
 
 void HugoUI::EventAutoTriggerUI(void)
 {
+    // Show Widget
+    if (autoTriggerFlag)
+        WidgetPushInfoBar("自动触发下载!", 2000);
+    else
+        WidgetPushInfoBar("手动触发下载!", 2000);
+}
 
-    WidgetDrawMessageBox("文本测试无功能...", true);
+void HugoUI::EventSaveConfigUI(void)
+{
+    // Show Widget
+    WidgetDrawMessageBox("正在储存配置...", true);
 
     // Util
-    delay(3000);
+    SaveConfig();
+    delay(1000);
     uiKeyNumInSide = 2; // 自动退出
 
     // Exit
