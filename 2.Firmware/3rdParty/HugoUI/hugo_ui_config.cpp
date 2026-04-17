@@ -25,12 +25,7 @@ static bool CreateDirectory(const TCHAR* path)
 // 确保所有必需的目录存在
 static bool EnsureDirectoriesExist(void)
 {
-    // 创建根目录 0:/
-    if (!CreateDirectory(_T("0:/"))) {
-        return false;
-    }
-    
-    // 创建子目录
+    // 创建目录
     const TCHAR* dirs[] = {
         _T("0:/Firmware"),
         _T("0:/Config"),
