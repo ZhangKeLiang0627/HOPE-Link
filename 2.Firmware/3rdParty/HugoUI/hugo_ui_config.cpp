@@ -1,14 +1,53 @@
 #include "hugo_ui_config.h"
+#include "ff.h"             // Fatfs
+#include "ArduinoJson.h"    // Json
+#include "interface_uart.h" // test
 
-// Fatfs
-#include "ff.h"
+// 创建目录
+static bool CreateDirectory(const TCHAR* path)
+{
+    FILINFO fno;
+    FRESULT fr = f_stat(path, &fno);
+    
+    if (fr != FR_OK || !(fno.fattrib & AM_DIR)) {
+        // 目录不存在，尝试创建
+        fr = f_mkdir(path);
+        if (fr != FR_OK) {
+            Usart_debugMsg("[Config] Failed to create directory: %s", path);
+            return false;
+        }
+        Usart_debugMsg("[Config] Directory created: %s", path);
+    }
+    
+    return true;
+}
 
-// Json
-#include "ArduinoJson.h"
+// 确保所有必需的目录存在
+static bool EnsureDirectoriesExist(void)
+{
+    // 创建根目录 0:/
+    if (!CreateDirectory(_T("0:/"))) {
+        return false;
+    }
+    
+    // 创建子目录
+    const TCHAR* dirs[] = {
+        _T("0:/Firmware"),
+        _T("0:/Config"),
+        _T("0:/Resource"),
+        _T("0:/Certs")
+    };
+    
+    for (const auto& dir : dirs) {
+        if (!CreateDirectory(dir)) {
+            return false;
+        }
+    }
+    
+    return true;
+}
 
-// test
-#include "interface_uart.h"
-
+// 解析JSON字符串，提取参数
 static bool LoadParams(const char* jsonBuffer)
 {
     // 从目标文件读取完整内容，解析json
@@ -28,6 +67,7 @@ static bool LoadParams(const char* jsonBuffer)
     return true; // 成功加载参数
 }
 
+// 生成JSON字符串
 static bool SaveParams(std::string& jsonString)
 {
     StaticJsonDocument<256> doc;
@@ -52,6 +92,12 @@ bool HugoUI::LoadConfig(const std::string &file_path)
     UINT bytesRead;
     uint8_t buffer[1024] = {0};
     uint32_t fileSize = 0;
+    
+    // 确保所有必需的目录存在
+    if (!EnsureDirectoriesExist()) {
+        Usart_debugMsg("[Config] Failed to create required directories");
+        return false;
+    }
     
     // 打开目标文件
     fr = f_open(&fil, (const TCHAR*)file_path.c_str(), FA_READ);
@@ -97,6 +143,12 @@ bool HugoUI::SaveConfig(const std::string &file_path)
     FIL fil;
     FRESULT fr;
     UINT bytesWritten;
+    
+    // 确保所有必需的目录存在
+    if (!EnsureDirectoriesExist()) {
+        Usart_debugMsg("[Config] Failed to create required directories");
+        return false;
+    }
     
     // SaveParams
     std::string jsonString;
