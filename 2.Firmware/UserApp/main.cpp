@@ -52,7 +52,7 @@ void Main(void)
     oledInit();
     oledSetFont(u8g2_font_wqy13_t_gb2312a);
     HugoUI::InitLayout();
-
+    HugoUI::LoadConfig();
     // tone.Play(BEEPER_WAKE);
 
     // Start Timer Callbacks.

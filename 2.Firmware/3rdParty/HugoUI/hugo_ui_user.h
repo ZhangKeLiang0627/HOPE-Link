@@ -3,6 +3,7 @@
 
 #include "hugo_ui.h"
 #include "hugo_ui_bmp.h"
+#include "hugo_ui_config.h"
 
 namespace HugoUI
 {
