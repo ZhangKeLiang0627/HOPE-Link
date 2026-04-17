@@ -8,13 +8,13 @@ extern "C"
 
 #include "u8g2_init.h"
 
-/* u8g2_SetDrawColor param -----------------------------------------------------*/
+/* Defines ---------------------------------------------------------------------*/
 #define OLED_NORMAL        1
 #define OLED_XOR           2
 #define OLED_SCREEN_WIDTH  128
 #define OLED_SCREEN_HEIGHT 64
 
-/* API ------------------------------------------------------------------------*/
+/* API -------------------------------------------------------------------------*/
 void oledInit(void);
 void oledDrawStr(uint16_t x, uint16_t y, const char *str);
 void oledDrawUTF8(uint16_t x, uint16_t y, const char *str);
