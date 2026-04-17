@@ -10,11 +10,11 @@ namespace HugoUI
     /* class ------------------------------------------------------- */
 
     /* API-Function ------------------------------------------------ */
-    bool LoadConfig(const std::string &file_path);
-    bool SaveConfig(const std::string &file_path);
+    bool LoadConfig(const std::string &file_path = "0:/Config/config.json");
+    bool SaveConfig(const std::string &file_path = "0:/Config/config.json");
 
 } /* namespace HugoUI */
 
-/* 声明变量 ------------------------------------------------------- */
+/* 声明变量 -------------------------------------------------------- */
 
 #endif // __HUGO_UI_CONFIG_H
