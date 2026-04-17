@@ -20,6 +20,9 @@ void PageIcon::Show(Item* thisitem)
     int16_t Item_y = static_cast<int16_t>(this->page_y);
     int16_t Item_x;
 
+    // 指定字体
+    oled_set_font(u8g2_font_wqy13_t_gb2312a);
+
     oled_set_bitmap_mode(1);
     
     // 遍历Item

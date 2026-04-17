@@ -5,6 +5,7 @@
 void oledInit(void)
 {
     u8g2_init(&u8g2);
+    oledSetFont(u8g2_font_wqy13_t_gb2312a);
 }
 
 void oledDrawStr(uint16_t x, uint16_t y, const char *str)
