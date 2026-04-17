@@ -79,13 +79,11 @@ static bool LoadParams(const char* jsonBuffer)
 static bool SaveParams(std::string& jsonString)
 {
     StaticJsonDocument<256> doc;
-    // 设置系统配置
     doc["system"] = JsonObject();
     doc["system"]["tone_volume"] = 80;      // 默认音量
     doc["system"]["encoder_dir"] = true;    // 默认编码器方向
-    // 设置DAP配置
     doc["dap"] = JsonObject();
-    doc["dap"]["address"] = 0x08000000;     // 默认DAP地址
+    doc["dap"]["address"] = 0x8000000;      // 默认DAP地址
     
     // 序列化JSON
     serializeJson(doc, jsonString);
