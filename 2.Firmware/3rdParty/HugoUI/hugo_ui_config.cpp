@@ -1,7 +1,20 @@
-#include "hugo_ui_config.h"     // config
-#include "ff.h"                 // Fatfs
-#include "ArduinoJson.h"        // Json
-#include "interface_uart.h"     // test
+#include "hugo_ui_config.h"    
+
+// Fatfs
+#include "ff.h"  
+
+// Json
+#include "ArduinoJson.h"    
+
+// test
+#include "interface_uart.h"     
+
+using namespace HugoUI;
+
+/* 全局变量 ----------------------------------------------------------- */
+
+
+/* 用户函数 ----------------------------------------------------------- */
 
 // 创建目录
 static bool CreateDirectory(const TCHAR* path)
