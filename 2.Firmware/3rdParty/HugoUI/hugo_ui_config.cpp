@@ -9,6 +9,42 @@
 // test
 #include "interface_uart.h"
 
+static bool LoadParams(const char* jsonBuffer)
+{
+    // 从目标文件读取完整内容，解析json
+    StaticJsonDocument<256> doc;
+    DeserializationError error = deserializeJson(doc, jsonBuffer);
+    
+    if (error) {
+        return false; // JSON解析失败
+    }
+    
+    Usart_debugMsg("LoadParams: %s", jsonBuffer);
+    // 这里可以添加从JSON中提取数据的代码
+    // 例如：toneVolume = doc["system"]["tone_volume"];
+    //      encoderDir = doc["system"]["encoder_dir"];
+    //      dapAddress = doc["dap"]["address"];
+    
+    return true; // 成功加载参数
+}
+
+static bool SaveParams(std::string& jsonString)
+{
+    StaticJsonDocument<256> doc;
+    // 设置系统配置
+    doc["system"] = JsonObject();
+    doc["system"]["tone_volume"] = 80;      // 默认音量
+    doc["system"]["encoder_dir"] = true;    // 默认编码器方向
+    // 设置DAP配置
+    doc["dap"] = JsonObject();
+    doc["dap"]["address"] = 0x08000000;     // 默认DAP地址
+    
+    // 序列化JSON
+    serializeJson(doc, jsonString);
+    
+    return true; // 成功生成JSON字符串
+}
+
 bool HugoUI::LoadConfig(const std::string &file_path)
 {
     FIL fil;
@@ -49,21 +85,11 @@ bool HugoUI::LoadConfig(const std::string &file_path)
     }
     buffer[fileSize] = '\0'; // 确保字符串终止
     
-    // 从目标文件读取完整内容，解析json
-    StaticJsonDocument<256> doc;
-    DeserializationError error = deserializeJson(doc, buffer);
-    
-    if (error) {
-        return false; // JSON解析失败
-    }
-    
+    // log
     Usart_debugMsg("LoadConfig: %s", buffer);
-    // 这里可以添加从JSON中提取数据的代码
-    // 例如：toneVolume = doc["system"]["tone_volume"];
-    //      encoderDir = doc["system"]["encoder_dir"];
-    //      dapAddress = doc["dap"]["address"];
-    
-    return true; // 成功加载配置
+
+    // LoadParams
+    return LoadParams((const char*)buffer);
 }
 
 bool HugoUI::SaveConfig(const std::string &file_path)
@@ -72,24 +98,17 @@ bool HugoUI::SaveConfig(const std::string &file_path)
     FRESULT fr;
     UINT bytesWritten;
     
+    // SaveParams
+    std::string jsonString;
+    if (!SaveParams(jsonString)) {
+        return false; // 生成JSON失败
+    }
+    
     // 打开目标文件
     fr = f_open(&fil, (const TCHAR*)file_path.c_str(), FA_WRITE | FA_CREATE_ALWAYS);
     if (fr != FR_OK) {
         return false; // 无法打开或创建文件
     }
-    
-    StaticJsonDocument<256> doc;
-    // 设置系统配置
-    doc["system"] = JsonObject();
-    doc["system"]["tone_volume"] = 80;      // 默认音量
-    doc["system"]["encoder_dir"] = true;    // 默认编码器方向
-    // 设置DAP配置
-    doc["dap"] = JsonObject();
-    doc["dap"]["address"] = 0x08000000;     // 默认DAP地址
-    
-    // 序列化JSON
-    std::string jsonString;
-    serializeJson(doc, jsonString);
     
     // 将json字符串写入目标文件
     fr = f_write(&fil, jsonString.c_str(), jsonString.length(), &bytesWritten);
@@ -98,6 +117,7 @@ bool HugoUI::SaveConfig(const std::string &file_path)
         return false; // 写入失败
     }
 
+    // log
     Usart_debugMsg("SaveConfig: %s", jsonString.c_str());
     
     // 成功保存配置
