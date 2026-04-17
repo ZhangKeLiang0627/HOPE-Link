@@ -23,6 +23,8 @@ float toneVolume = 80.0f;
 void EventShowAboutUI(void);
 void EventSetInverseMode(void);
 void EventSetFlipScreen(void);
+void EventFactoryResetUI(void);
+void EventFormatStorageUI(void);
 
 // [test code]
 void EventShowWidgetInfoBar(void);
@@ -96,8 +98,8 @@ void HugoUI::InitLayout(void)
     pageSetting->AddItem("反色模式", ItemType::Switch, &inverseModeFlag, EventSetInverseMode);
     pageSetting->AddItem("反转屏幕", ItemType::Switch, &flipModeFlag, EventSetFlipScreen);
     pageSetting->AddItem("蜂鸣器音量", ItemType::ChangeValue, &toneVolume, nullptr);
-    pageSetting->AddItem("格式化存储设备", ItemType::CallFunction, nullptr);
-    pageSetting->AddItem("恢复出厂设置", ItemType::CallFunction, nullptr);
+    pageSetting->AddItem("格式化存储设备", ItemType::CallFunction, EventFormatStorageUI);
+    pageSetting->AddItem("恢复出厂设置", ItemType::CallFunction, EventFactoryResetUI);
     pageSetting->AddItem("{关于本机}", ItemType::CallFunction, EventShowAboutUI);
 
     pageSetting->AddItem("返回", ItemType::JumpPage)
@@ -169,6 +171,38 @@ void EventShowAboutUI(void)
 
         motion_a = 80.0f;
         isEnterAnimFinish = 0;
+    }
+}
+
+void EventFormatStorageUI(void)
+{
+    // Show Widget
+    WidgetDrawMessageBox("当前暂无功能...", true);
+
+    // Util
+    // TODO: 格式化存储设备
+    delay(2000);
+    uiKeyNumInSide = 2; // 自动退出
+
+    // Exit
+    if (uiKeyNumInSide == 2)
+    {
+    }
+}
+
+void EventFactoryResetUI(void)
+{
+    // Show Widget
+    WidgetDrawMessageBox("当前暂无功能...", true);
+
+    // Util
+    // TODO: 恢复出厂设置
+    delay(2000);
+    uiKeyNumInSide = 2; // 自动退出
+
+    // Exit
+    if (uiKeyNumInSide == 2)
+    {
     }
 }
 
