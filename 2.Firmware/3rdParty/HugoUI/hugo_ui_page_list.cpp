@@ -100,6 +100,9 @@ void PageList::Show(Item *thisitem)
     // 长文本滚动参数
     uint8_t bar_h = ceil((float)SCREEN_HEIGHT / this->itemMax);
 
+    // 指定字体
+    oled_set_font(u8g2_font_wqy13_t_gb2312a);
+
     // 遍历页面Item
     for (const auto &item : this->items)
     {
