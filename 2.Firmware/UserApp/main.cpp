@@ -15,7 +15,7 @@ Tone tone(&htim9);
 /* Thread Definitions -----------------------------------------------------*/
 
 
-/* Timer Callbacks -------------------------------------------------------*/
+/* Timer Callbacks --------------------------------------------------------*/
 static uint32_t encoderTickCount = 0;
 static uint32_t buttonTickCount = 0;
 static uint32_t toneTickCount = 0;
@@ -40,7 +40,7 @@ void OnTimer4Callback()
     // }
 }
 
-/* Default Entry -------------------------------------------------------*/
+/* Default Entry ---------------------------------------------------------*/
 void Main(void)
 {
     // give USB_DEVICE some times
