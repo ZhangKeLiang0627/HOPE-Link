@@ -2027,6 +2027,11 @@
               <FileType>8</FileType>
               <FilePath>..\3rdParty\HugoUI\hugo_ui_animation.cpp</FilePath>
             </File>
+            <File>
+              <FileName>hugo_ui_config.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\3rdParty\HugoUI\hugo_ui_config.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
