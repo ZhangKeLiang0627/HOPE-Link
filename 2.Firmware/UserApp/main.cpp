@@ -52,6 +52,7 @@ void Main(void)
     oledInit();
     HugoUI::InitLayout();
     HugoUI::LoadConfig();
+    // HugoUI::SaveConfig();
     // tone.Play(BEEPER_WAKE);
 
     // Start Timer Callbacks.

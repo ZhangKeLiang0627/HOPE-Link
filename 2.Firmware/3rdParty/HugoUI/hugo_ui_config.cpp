@@ -1,4 +1,5 @@
 #include "hugo_ui_config.h"    
+#include "common_inc.h"
 
 // Fatfs
 #include "ff.h"  
@@ -12,7 +13,8 @@
 using namespace HugoUI;
 
 /* 全局变量 ----------------------------------------------------------- */
-
+extern float toneVolume;
+extern uint32_t mcuFlashAddress;
 
 /* 用户函数 ----------------------------------------------------------- */
 
@@ -59,31 +61,35 @@ static bool EnsureDirectoriesExist(void)
 static bool LoadParams(const char* jsonBuffer)
 {
     // 从目标文件读取完整内容，解析json
-    StaticJsonDocument<256> doc;
+    StaticJsonDocument<1024> doc;
     DeserializationError error = deserializeJson(doc, jsonBuffer);
     
     if (error) {
+        Usart_debugMsg("[Config] JSON parse error");
         return false; // JSON解析失败
     }
     
     Usart_debugMsg("LoadParams: %s", jsonBuffer);
+
     // 这里可以添加从JSON中提取数据的代码
     // 例如：toneVolume = doc["system"]["tone_volume"];
     //      encoderDir = doc["system"]["encoder_dir"];
     //      dapAddress = doc["dap"]["address"];
-    
+
+    toneVolume = doc["system"]["tone_volume"];
+
     return true; // 成功加载参数
 }
 
 // 生成JSON字符串
 static bool SaveParams(std::string& jsonString)
 {
-    StaticJsonDocument<256> doc;
-    doc["system"] = JsonObject();
-    doc["system"]["tone_volume"] = 80;      // 默认音量
-    doc["system"]["encoder_dir"] = true;    // 默认编码器方向
-    doc["dap"] = JsonObject();
-    doc["dap"]["address"] = 0x8000000;      // 默认DAP地址
+    // 注意堆大小
+    StaticJsonDocument<1024> doc;
+    doc["serial"] = serialNumberStr;
+    doc["system"]["tone_volume"] = toneVolume;      // 默认音量
+    doc["system"]["encoder_dir"] = true;            // 默认编码器方向
+    doc["dap"]["address"] = mcuFlashAddress;        // 默认DAP地址
     
     // 序列化JSON
     serializeJson(doc, jsonString);
@@ -111,12 +117,14 @@ bool HugoUI::LoadConfig(const std::string &file_path)
     if (fr != FR_OK) {
         // 文件不存在或无法打开，直接调用SaveConfig创建默认配置
         if (!SaveConfig(file_path)) {
+            Usart_debugMsg("[Config] Failed to create default config file: %s", file_path.c_str());
             return false; // 无法创建默认配置
         }
         
         // 重新打开文件以读取刚写入的默认配置
         fr = f_open(&fil, (const TCHAR*)file_path.c_str(), FA_READ);
         if (fr != FR_OK) {
+            Usart_debugMsg("[Config] Failed to create default config file: %s", file_path.c_str());
             return false; // 无法重新打开文件
         }
     }
@@ -133,6 +141,7 @@ bool HugoUI::LoadConfig(const std::string &file_path)
     fr = f_read(&fil, buffer, fileSize, &bytesRead);
     f_close(&fil);
     if (fr != FR_OK || bytesRead != fileSize) {
+        Usart_debugMsg("[Config] Failed to read config file: %s", file_path.c_str());
         return false; // 读取失败
     }
     buffer[fileSize] = '\0'; // 确保字符串终止
@@ -159,12 +168,14 @@ bool HugoUI::SaveConfig(const std::string &file_path)
     // SaveParams
     std::string jsonString;
     if (!SaveParams(jsonString)) {
+        Usart_debugMsg("[Config] Failed to generate JSON string");
         return false; // 生成JSON失败
     }
     
     // 打开目标文件
     fr = f_open(&fil, (const TCHAR*)file_path.c_str(), FA_WRITE | FA_CREATE_ALWAYS);
     if (fr != FR_OK) {
+        Usart_debugMsg("[Config] Failed to open config file: %s", file_path.c_str());
         return false; // 无法打开或创建文件
     }
     
@@ -172,6 +183,7 @@ bool HugoUI::SaveConfig(const std::string &file_path)
     fr = f_write(&fil, jsonString.c_str(), jsonString.length(), &bytesWritten);
     f_close(&fil);    
     if (fr != FR_OK || bytesWritten != jsonString.length()) {
+        Usart_debugMsg("[Config] Failed to write config file: %s", file_path.c_str());
         return false; // 写入失败
     }
 

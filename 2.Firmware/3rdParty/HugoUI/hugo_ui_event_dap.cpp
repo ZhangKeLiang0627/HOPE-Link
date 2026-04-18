@@ -35,7 +35,7 @@ bool flashEraseSectorFlag = false;
 bool autoTriggerFlag = false;
 
 // flash起始地址变量
-static uint32_t mcuFlashAddress = 0x8000000;
+uint32_t mcuFlashAddress = 0x8000000;
 // 扇区大小 (默认1KB, 根据不同MCU调整)
 static uint32_t flashSectorSize = 1024;
 
