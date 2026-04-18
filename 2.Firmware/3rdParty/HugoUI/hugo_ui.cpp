@@ -27,7 +27,7 @@ Item::Ptr currentItem;  // 当前Item
 int16_t uiIndex = 0, uiSelect = 0;
 State uiState = State::None;
 
-uint8_t changeValFlag = 0;
+uint8_t uiChangeValueFlag = 0;
 
 /* 输入变量 ----------------------------------------------------------- */
 uint8_t uiKeyNum = 0, uiEncoderNum = 0;
@@ -180,7 +180,7 @@ void HugoUI::CommonEventProc(void)
     /* 编码器处理 */
     if (uiEncoderNumInSide == 1) // 向下
     {
-        if (changeValFlag && currentItem->param)
+        if (uiChangeValueFlag && currentItem->param)
         {
             // 数值修改逻辑
             #ifdef FPU
@@ -206,7 +206,7 @@ void HugoUI::CommonEventProc(void)
     }
     else if (uiEncoderNumInSide == 2) // 向上
     {
-        if (changeValFlag && currentItem->param)
+        if (uiChangeValueFlag && currentItem->param)
         {
             // 数值修改逻辑
             #ifdef FPU
@@ -260,7 +260,7 @@ void HugoUI::CommonEventProc(void)
             break;
             
         case ItemType::ChangeValue:
-            changeValFlag = !changeValFlag;
+            uiChangeValueFlag = !uiChangeValueFlag;
             break;
             
         default:
@@ -276,7 +276,7 @@ void HugoUI::CommonEventProc(void)
             uiIndex = lastPage->pageId;
             uiSelect = 0;
             lastPage = currentPage;
-            changeValFlag = 0;
+            uiChangeValueFlag = 0;
         }
     }
 }

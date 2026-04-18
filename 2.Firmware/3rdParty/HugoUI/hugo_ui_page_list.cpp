@@ -193,7 +193,7 @@ void PageList::Show(Item *thisitem)
                     oled_draw_str(val_x, item_y, float_str);
 
                     // 当前数值高亮
-                    if (item->lineId == uiSelect && changeValFlag)
+                    if (item->lineId == uiSelect && uiChangeValueFlag)
                     {
                         oled_set_draw_color(2);
                         int16_t box_x = (*item->param < 0) ? (SCREEN_WIDTH - FONT_WIDTH * 7 + item_x) : (SCREEN_WIDTH - FONT_WIDTH * 5 + item_x + 3);
