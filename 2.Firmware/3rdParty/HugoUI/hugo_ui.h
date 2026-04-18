@@ -23,7 +23,7 @@ typedef float       paramType;
 typedef int32_t     paramType;
 #endif
 
-/* 封装宏 ------------------------------------------------------ */
+/* 封装宏 ------------------------------------------------------- */
 #define oled_set_font(font) u8g2_SetFont(&u8g2, font)
 #define oled_draw_str(x, y, str) u8g2_DrawStr(&u8g2, x, y, str)
 #define oled_draw_UTF8(x, y, str) u8g2_DrawUTF8(&u8g2, x, y, str)

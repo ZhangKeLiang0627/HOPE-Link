@@ -5,6 +5,9 @@
 
 #include "ff.h"
 
+// serialNumber
+#include "common_inc.h"
+
 using namespace HugoUI;
 
 /* 全局变量 ----------------------------------------------------------- */
@@ -25,6 +28,7 @@ void EventSetInverseMode(void);
 void EventSetFlipScreen(void);
 void EventFactoryResetUI(void);
 void EventFormatStorageUI(void);
+void EventSerialNumberUI(void);
 
 // [test code]
 void EventShowWidgetInfoBar(void);
@@ -100,6 +104,7 @@ void HugoUI::InitLayout(void)
     pageSetting->AddItem("蜂鸣器音量", ItemType::ChangeValue, &toneVolume, nullptr);
     pageSetting->AddItem("格式化存储设备", ItemType::CallFunction, EventFormatStorageUI);
     pageSetting->AddItem("恢复出厂设置", ItemType::CallFunction, EventFactoryResetUI);
+    pageSetting->AddItem("序列号", ItemType::CallFunction, EventSerialNumberUI);
     pageSetting->AddItem("{关于本机}", ItemType::CallFunction, EventShowAboutUI);
 
     pageSetting->AddItem("返回", ItemType::JumpPage)
@@ -203,6 +208,22 @@ void EventFactoryResetUI(void)
     // Exit
     if (uiKeyNumInSide == 2)
     {
+    }
+}
+
+void EventSerialNumberUI(void)
+{
+    // Show Widget
+    uint8_t serialString[32] = {0};
+    sprintf((char *)serialString, "s:%s", serialNumberStr);
+    WidgetDrawMessageBox((const char *)serialString, true);
+
+    // Util
+
+    // Exit
+    if (uiKeyNumInSide == 2 || uiKeyNumInSide == 1)
+    {
+        uiKeyNumInSide = 2; // 手动退出
     }
 }
 
