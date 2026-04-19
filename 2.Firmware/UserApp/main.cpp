@@ -10,6 +10,8 @@ Timer timerCtrlLoop(&htim4, 200);
 
 // Encoder
 Encoder encoder(&htim3);
+
+// Tone
 Tone tone(&htim9);
 
 /* Thread Definitions -----------------------------------------------------*/
