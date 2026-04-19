@@ -29,6 +29,7 @@ void EventSetFlipScreen(void);
 void EventFactoryResetUI(void);
 void EventFormatStorageUI(void);
 void EventSerialNumberUI(void);
+void EventShowGyroUI(void);
 
 // [test code]
 void EventShowWidgetInfoBar(void);
@@ -66,6 +67,9 @@ void HugoUI::InitLayout(void)
         ->SetJumpId(pageTest->pageId, 0)
         ->SetIconSrc(TreasureBox_BMP);
 
+    pageMain->AddItem("IMU", ItemType::CallFunction, EventShowGyroUI)
+        ->SetIconSrc(Poet_BMP);
+
     pageMain->AddItem("About", ItemType::CallFunction, EventShowAboutUI)
         ->SetIconSrc(Home_BMP);
 
@@ -81,7 +85,6 @@ void HugoUI::InitLayout(void)
     pageOffline->AddItem("储存当前设置", ItemType::CallFunction, EventSaveConfigUI);
     pageOffline->AddItem("是否局部擦除", ItemType::Checkbox, &flashEraseSectorFlag, EventEraseSectorInfoBar);
     pageOffline->AddItem("> 开始下载", ItemType::CallFunction, EventBurnDapUI);
-
     pageOffline->AddItem("返回", ItemType::JumpPage)
         ->SetJumpId(pageMain->pageId, 0);
 
@@ -106,7 +109,6 @@ void HugoUI::InitLayout(void)
     pageSetting->AddItem("恢复出厂设置", ItemType::CallFunction, EventFactoryResetUI);
     pageSetting->AddItem("序列号", ItemType::CallFunction, EventSerialNumberUI);
     pageSetting->AddItem("{关于本机}", ItemType::CallFunction, EventShowAboutUI);
-
     pageSetting->AddItem("返回", ItemType::JumpPage)
         ->SetJumpId(pageMain->pageId, 1);
 
@@ -175,6 +177,71 @@ void EventShowAboutUI(void)
         }
 
         motion_a = 80.0f;
+        isEnterAnimFinish = 0;
+    }
+}
+
+#include "mpu6050.h"
+/* Gyro的应用事件函数 */
+void EventShowGyroUI(void)
+{
+    static uint8_t isEnterAnimFinish = 0;
+    static uint8_t isInit = 0;
+    static float pitch = 0.0f, roll = 0.0f, yaw = 0.0f;
+    // Enter
+    if (!isEnterAnimFinish && isInit)
+    {
+        oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        if (Transition_Blur() == 0)
+            isEnterAnimFinish = 1;
+        return;
+    }
+
+    if(!isInit)
+    {
+        WidgetDrawMessageBox("IMU初始化中...", true);
+
+        if(MPU_DMP_Init_WithTimeout(1000) == 0)
+        {
+            isInit = 1;
+        }
+        else
+        {
+            WidgetDrawMessageBox("IMU初始化失败...", true);
+            return;
+        }
+    }
+    else
+    {
+        oled_draw_str(0, 13, "IMU:");
+        oled_draw_str(100, 13, "OK");
+    }
+
+    // Loop
+    mpu_dmp_get_data(&pitch, &roll, &yaw);
+
+    oled_draw_str(0, 13 * 2, "roll:");
+    oled_draw_str(0, 13 * 3, "yaw:");
+    oled_draw_str(0, 13 * 4, "pitch:");
+
+    oledDrawFloat(50, 13 * 2, -roll, 2, 2);
+    oledDrawFloat(50, 13 * 3, -yaw, 2, 2);
+    oledDrawFloat(50, 13 * 4, -pitch, 2, 2);
+
+    // Exit
+    if (uiKeyNumInSide == 2)
+    {
+        uint8_t isExitAnimFinish = 0;
+        oled_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        oled_send_buffer();
+
+        while (!isExitAnimFinish)
+        {
+            if (Transition_Blur() == 0)
+                isExitAnimFinish = 1;
+            oled_send_buffer();
+        }
+
         isEnterAnimFinish = 0;
     }
 }
