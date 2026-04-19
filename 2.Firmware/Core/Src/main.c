@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "fatfs.h"
 #include "i2c.h"
 #include "spi.h"
@@ -113,6 +114,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART1_UART_Init();
   MX_I2C1_Init();
   MX_SPI2_Init();
@@ -125,6 +127,7 @@ int main(void)
   MX_TIM11_Init();
   MX_TIM3_Init();
   MX_TIM9_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
   // Invoke cpp-version main().
@@ -211,6 +214,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE END Callback 1 */
 }
 
+/**
+ * @brief  PWM Pulse finished callback in non-blocking mode
+ * @param  htim TIM handle
+ * @retval None
+ */
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim == &htim5)
+    {
+      // WS2812B PWM finished, stop DMA
+      HAL_TIM_PWM_Stop_DMA(&htim5, TIM_CHANNEL_3);
+    }
+}
 /* USER CODE END 4 */
 
 /**

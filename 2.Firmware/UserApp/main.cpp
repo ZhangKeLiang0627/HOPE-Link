@@ -4,6 +4,7 @@
 #include "multi_button_user.h"
 #include "hugo_ui_user.h"
 #include "tone.hpp"
+#include "ws2812b.hpp"
 
 // 5 User-Timers, can choose from htim1/htim2/htim4/htim10/htim11
 Timer timerCtrlLoop(&htim4, 200);
@@ -13,6 +14,9 @@ Encoder encoder(&htim3);
 
 // Tone
 Tone tone(&htim9);
+
+// LED
+WS2812B led(&htim5);
 
 /* Thread Definitions -----------------------------------------------------*/
 
@@ -60,6 +64,10 @@ void Main(void)
     // Start Timer Callbacks.
     timerCtrlLoop.SetCallback(OnTimer4Callback);
     timerCtrlLoop.Start();
+
+    // LED
+    led.SetPixels(1, 0x080000);
+    led.UpdatePixels();
 
     for (;;)
     {

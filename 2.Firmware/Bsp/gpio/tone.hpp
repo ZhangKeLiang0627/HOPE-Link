@@ -1,5 +1,5 @@
-#ifndef _TONE_H_
-#define _TONE_H_
+#ifndef __TONE_HPP
+#define __TONE_HPP
 
 #include <cstdint>
 #include <tim.h>
