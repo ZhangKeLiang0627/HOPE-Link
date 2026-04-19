@@ -7,34 +7,34 @@ extern "C"
 #endif
 
 #include "mpuiic.h"
-#include "inv_mpu.h"
-#include "inv_mpu_dmp_motion_driver.h"
+#include "eMPL/inv_mpu.h"
+#include "eMPL/inv_mpu_dmp_motion_driver.h"
 
-/*
-硬件I2C模式
-需要：
-1.I2C
-    I2C
-    (默认设置)
-    标准模式
-    时钟频率100kHz
-    地址长度7bit
-    不用填写设备地址
-取消下方注释
-*/
+    /*
+    硬件I2C模式
+    需要：
+    1.I2C
+        I2C
+        (默认设置)
+        标准模式
+        时钟频率100kHz
+        地址长度7bit
+        不用填写设备地址
+    取消下方注释
+    */
 
-// extern I2C_HandleTypeDef hi2c2;
-// #define MPU6050_I2C_Handle hi2c2
-// #define MPU6050_Hardware_I2C
+    // extern I2C_HandleTypeDef hi2c2;
+    // #define MPU6050_I2C_Handle hi2c2
+    // #define MPU6050_Hardware_I2C
 
-/*
-软件I2C模式
-需要：
-1.GPIO 2个
-    均为开漏输出（上不上拉取决于外部电路）
-    最高等级
-取消下方注释,按照自己的管脚更改即可
-*/
+    /*
+    软件I2C模式
+    需要：
+    1.GPIO 2个
+        均为开漏输出（上不上拉取决于外部电路）
+        最高等级
+    取消下方注释,按照自己的管脚更改即可
+    */
 
 #define MPU6050_Software_I2C
 
