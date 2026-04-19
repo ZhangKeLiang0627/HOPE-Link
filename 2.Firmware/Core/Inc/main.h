@@ -67,6 +67,10 @@ void Error_Handler(void);
 #define DAP_SWDIO_GPIO_Port GPIOA
 #define DAP_nRST_Pin GPIO_PIN_7
 #define DAP_nRST_GPIO_Port GPIOA
+#define SOFT_I2C_SDL_Pin GPIO_PIN_0
+#define SOFT_I2C_SDL_GPIO_Port GPIOB
+#define SOFT_I2C_SDA_Pin GPIO_PIN_1
+#define SOFT_I2C_SDA_GPIO_Port GPIOB
 #define SPI2_CS_Pin GPIO_PIN_12
 #define SPI2_CS_GPIO_Port GPIOB
 
