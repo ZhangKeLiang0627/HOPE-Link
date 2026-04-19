@@ -4,7 +4,6 @@
 #include "multi_button_user.h"
 #include "hugo_ui_user.h"
 #include "tone.hpp"
-#include "mpu6050.h"
 
 // 5 User-Timers, can choose from htim1/htim2/htim4/htim10/htim11
 Timer timerCtrlLoop(&htim4, 200);
