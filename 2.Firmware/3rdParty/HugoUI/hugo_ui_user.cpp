@@ -207,8 +207,8 @@ void EventShowGyroUI(void)
         }
         else
         {
-            WidgetDrawMessageBox("IMU初始化失败...", true);
-            return;
+            WidgetPushInfoBar("IMU初始化失败!", 2000);
+            uiKeyNumInSide = 2;
         }
     }
     else
