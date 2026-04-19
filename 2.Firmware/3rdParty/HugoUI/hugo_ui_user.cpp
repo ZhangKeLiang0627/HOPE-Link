@@ -8,9 +8,12 @@
 // serialNumber
 #include "common_inc.h"
 
+#include "ws2812b.hpp"
+
 using namespace HugoUI;
 
 /* 全局变量 ----------------------------------------------------------- */
+extern WS2812B led;
 
 // 开关控件变量
 bool testFlag = false;
@@ -21,6 +24,9 @@ extern bool autoTriggerFlag;
 
 // 改变值控件变量
 float toneVolume = 80.0f;
+float ledRed = 0.0f;
+float ledGreen = 0.0f;
+float ledBlue = 0.0f;
 
 /* 用户函数 ----------------------------------------------------------- */
 void EventShowAboutUI(void);
@@ -30,6 +36,7 @@ void EventFactoryResetUI(void);
 void EventFormatStorageUI(void);
 void EventSerialNumberUI(void);
 void EventShowGyroUI(void);
+void EventSetLedColor(void);
 
 // [test code]
 void EventShowWidgetInfoBar(void);
@@ -114,9 +121,9 @@ void HugoUI::InitLayout(void)
 
     // PageWS2812
     pageWS2812->AddItem("『RGB灯珠测试』", ItemType::Description);
-    pageWS2812->AddItem("Set Red", ItemType::ChangeValue,nullptr, nullptr);
-    pageWS2812->AddItem("Set Green", ItemType::ChangeValue, nullptr, nullptr);
-    pageWS2812->AddItem("Set Blue", ItemType::ChangeValue,nullptr, nullptr);
+    pageWS2812->AddItem("Set Red", ItemType::ChangeValue, &ledRed, EventSetLedColor);
+    pageWS2812->AddItem("Set Green", ItemType::ChangeValue, &ledGreen, EventSetLedColor);
+    pageWS2812->AddItem("Set Blue", ItemType::ChangeValue, &ledBlue, EventSetLedColor);
     pageWS2812->AddItem("返回", ItemType::JumpPage)
         ->SetJumpId(pageMain->pageId, 2);
 
@@ -304,6 +311,16 @@ void EventSetInverseMode(void)
 void EventSetFlipScreen(void)
 {
     oledSetFlipMode(flipModeFlag);
+}
+
+/* RGB灯珠颜色控制事件函数 */
+void EventSetLedColor(void)
+{
+    led.SetPixels(1, (uint32_t)((uint16_t)ledGreen << 16 | (uint16_t)ledRed << 8 | (uint16_t)ledBlue));
+    led.UpdatePixels();
+
+    // Show Widget
+    WidgetPushInfoBar("UpdatePixels!", 2000);
 }
 
 // [test code]

@@ -66,7 +66,7 @@ void Main(void)
     timerCtrlLoop.Start();
 
     // LED
-    led.SetPixels(1, 0x080000);
+    led.SetPixels(1, 0x020002);
     led.UpdatePixels();
 
     for (;;)
