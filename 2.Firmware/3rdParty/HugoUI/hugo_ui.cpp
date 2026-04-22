@@ -72,6 +72,23 @@ uint8_t HugoUI::ExecuteRate(Rate *er)
     }
 }
 
+int32_t HugoUI::GetRandom(int32_t min, int32_t max)
+{
+    static uint32_t count = 0; // 每次调用递增，增加随机性
+
+    uint32_t ms = get_ticks();
+
+    uint32_t seed = ms ^ (count++);
+
+    // 简单哈希混合（Xorshift + MurmurHash 混合）
+    seed ^= seed >> 13;
+    seed *= 0x85ebca6b;
+    seed ^= seed >> 16;
+
+    uint32_t range = (uint32_t)(max - min + 1);
+    return (int32_t)(seed % range) + min;
+}
+
 /* 核心功能函数 ------------------------------------------------------- */
 
 /**

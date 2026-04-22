@@ -205,8 +205,12 @@ struct Rate {
 Page::Ptr AddPage(PageType mode, const std::string& name);
 
 void TaskHandler(void);
-uint8_t ExecuteRate(Rate *er);
+
 void CommonEventProc(void);
+
+uint8_t ExecuteRate(Rate *er);
+
+int32_t GetRandom(int32_t min, int32_t max);
 
 } /* namespace HugoUI */
 

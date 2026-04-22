@@ -37,6 +37,7 @@ void EventFormatStorageUI(void);
 void EventSerialNumberUI(void);
 void EventShowGyroUI(void);
 void EventSetLedColor(void);
+void EventShowPotCloudUI(void);
 
 // [test code]
 void EventShowWidgetInfoBar(void);
@@ -79,6 +80,9 @@ void HugoUI::InitLayout(void)
 
     pageMain->AddItem("About", ItemType::CallFunction, EventShowAboutUI)
         ->SetIconSrc(Home_BMP);
+
+    pageMain->AddItem("PotCloud", ItemType::CallFunction, EventShowPotCloudUI)
+        ->SetIconSrc(Unicorn_BMP);
 
     // PageOffline
     pageOffline->AddItem("『离线下载固件』", ItemType::Description);
@@ -371,5 +375,78 @@ void EventShowProgressBarUI(void)
     if (uiKeyNumInSide == 2)
     {
         num = 0;
+    }
+}
+
+void EventShowPotCloudUI(void)
+{
+    typedef struct
+    {
+        int8_t x, y;
+    } Dot_t;
+
+    const uint8_t dots_num = 64;
+    const uint8_t cam_f = 64;
+
+    static Dot_t dots[dots_num];
+    static int16_t baseX;
+    static uint8_t baseZ;
+    static uint8_t speed;
+    static int8_t vx;
+    static bool isInit = false;
+
+    // init
+    if (!isInit)
+    {
+        for (int i = 0; i < dots_num; i++)
+        {
+            dots[i].x = GetRandom(-SCREEN_WIDTH, SCREEN_WIDTH);
+            dots[i].y = GetRandom(-SCREEN_HEIGHT / 2, SCREEN_HEIGHT / 2);
+        }
+        baseX = 0;
+        baseZ = 0;
+        speed = 2;
+        vx = 0;
+        isInit = true;
+    }
+
+    // loop
+    static uint8_t vz = speed;
+    // baseX -= vx * 2;
+    baseZ = (baseZ - vz) & (dots_num - 1);
+
+    // draw dots cloud
+    for (int i = 0; i < dots_num; i++)
+    {
+        uint8_t depth = (i + baseZ) & (dots_num - 1);
+        int16_t s = (SCREEN_HEIGHT * cam_f) / (cam_f + depth);
+        int16_t x = SCREEN_WIDTH / 2 + ((dots[i].x + baseX) * s >> 6);
+        int16_t y = SCREEN_HEIGHT / 2 + (dots[i].y * s >> 6);
+        // 只在边缘区域绘制像素
+        if (y < 24 || x < 48 || x >= SCREEN_WIDTH - 48)
+            oled_draw_pixel(x, y);
+    }
+
+    // draw strings
+    oled_draw_str(0, 13, "Point Cloud");
+    oledDrawNum(120, 13, vz);
+
+    if (uiEncoderNumInSide == 1)
+    {
+        vz ++;
+        if (vz > 5)
+            vz = 5;
+    }
+    else if (uiEncoderNumInSide == 2)
+    {
+        vz --;
+        if (vz < 1)
+            vz = 1;
+    }
+
+    // exit
+    if (uiKeyNumInSide == 2)
+    {
+        isInit = false;
     }
 }
