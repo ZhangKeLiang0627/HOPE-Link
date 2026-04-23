@@ -283,16 +283,16 @@ uint8_t HugoUI::Transition_Iris(void)
     static float br = 0.0f;
     static float r_trg = 73.0f;
     
-    if (wr < r_trg - 15) {
+    if (wr < r_trg - 10) {
         oled_draw_disc(64, 32, wr);
     } else {
         oled_draw_disc(64, 32, wr);
         oled_set_draw_color(0);
         oled_draw_disc(64, 32, br);
         oled_set_draw_color(1);
-        Animation_Linear(&br, &r_trg, 45);
+        Animation_Linear(&br, &r_trg, 40);
     }
-    Animation_Linear(&wr, &r_trg, 90);
+    Animation_Linear(&wr, &r_trg, 100);
    
     if (br > r_trg - 5)
     {
