@@ -393,7 +393,8 @@ void EventShowPotCloudUI(void)
     static uint8_t baseZ;
     static uint8_t speed;
     static int8_t vx;
-    static bool isInit = false;
+    static uint8_t isInit = 0;
+    static uint8_t isEnterAnimFinish = 0;
 
     // init
     if (!isInit)
@@ -407,7 +408,15 @@ void EventShowPotCloudUI(void)
         baseZ = 0;
         speed = 2;
         vx = 0;
-        isInit = true;
+        isInit = 1;
+    }
+
+    // Enter
+    if (!isEnterAnimFinish)
+    {
+        if (Transition_Iris() == 0)
+            isEnterAnimFinish = 1;
+        return;
     }
 
     // loop
@@ -447,6 +456,17 @@ void EventShowPotCloudUI(void)
     // exit
     if (uiKeyNumInSide == 2)
     {
-        isInit = false;
+        uint8_t isExitAnimFinish = 0;
+        oled_send_buffer();
+
+        while (!isExitAnimFinish)
+        {
+            if (Transition_Iris() == 0)
+                isExitAnimFinish = 1;
+            oled_send_buffer();
+        }
+
+        isInit = 0;
+        isEnterAnimFinish = 0;
     }
 }

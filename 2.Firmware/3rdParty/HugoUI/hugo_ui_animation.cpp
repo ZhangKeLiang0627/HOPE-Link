@@ -279,27 +279,26 @@ uint8_t HugoUI::Transition_Hourglass(void)
 // 光圈过渡
 uint8_t HugoUI::Transition_Iris(void)
 {
-    static uint8_t phase = 0;
-    static float r = 0.0f;
+    static float wr = 0.0f;
+    static float br = 0.0f;
     static float r_trg = 73.0f;
-    if (phase == 0) {
-        oled_draw_disc(64, 32, (uint8_t)r);
+    
+    if (wr < r_trg - 15) {
+        oled_draw_disc(64, 32, wr);
     } else {
-        oled_draw_disc(64, 32, 73);
+        oled_draw_disc(64, 32, wr);
         oled_set_draw_color(0);
-        oled_draw_disc(64, 32, (uint8_t)r);
+        oled_draw_disc(64, 32, br);
         oled_set_draw_color(1);
+        Animation_Linear(&br, &r_trg, 45);
     }
-    if (!Animation_Linear(&r, &r_trg, 40)) {
-        if (phase == 0) {
-            phase = 1;
-            r = 0.0f;
-            return 1;
-        } else {
-            phase = 0;
-            r = 0.0f;
-            return 0;
-        }
+    Animation_Linear(&wr, &r_trg, 90);
+   
+    if (br > r_trg - 5)
+    {
+        wr = 0.0f;
+        br = 0.0f;
+        return 0;
     }
     return 1;
 }
