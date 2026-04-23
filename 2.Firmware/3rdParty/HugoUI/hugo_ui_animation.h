@@ -17,6 +17,7 @@ namespace HugoUI
 
     uint8_t Transition_Blur(void);
     uint8_t Transition_Hourglass(void);
+    uint8_t Transition_Iris(void);
 
 } /* namespace HugoUI */
 

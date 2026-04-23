@@ -167,6 +167,7 @@ uint8_t HugoUI::Transition_Blur(void)
     return return_flag ? 0 : 1;
 }
 
+// 沙漏过渡
 uint8_t HugoUI::Transition_Hourglass(void)
 {
     // 完成完整的退场动画 _animation_status的取值依次如下
@@ -273,4 +274,32 @@ uint8_t HugoUI::Transition_Hourglass(void)
     }
 
     return 3; // not finish
+}
+
+// 光圈过渡
+uint8_t HugoUI::Transition_Iris(void)
+{
+    static uint8_t phase = 0;
+    static float r = 0.0f;
+    static float r_trg = 73.0f;
+    if (phase == 0) {
+        oled_draw_disc(64, 32, (uint8_t)r);
+    } else {
+        oled_draw_disc(64, 32, 73);
+        oled_set_draw_color(0);
+        oled_draw_disc(64, 32, (uint8_t)r);
+        oled_set_draw_color(1);
+    }
+    if (!Animation_Linear(&r, &r_trg, 40)) {
+        if (phase == 0) {
+            phase = 1;
+            r = 0.0f;
+            return 1;
+        } else {
+            phase = 0;
+            r = 0.0f;
+            return 0;
+        }
+    }
+    return 1;
 }
