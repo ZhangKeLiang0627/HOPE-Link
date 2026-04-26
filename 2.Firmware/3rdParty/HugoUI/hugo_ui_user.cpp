@@ -10,6 +10,8 @@
 
 #include "ws2812b.hpp"
 
+#include "interface_uart.h"
+
 using namespace HugoUI;
 
 /* 全局变量 ----------------------------------------------------------- */
@@ -21,6 +23,8 @@ bool inverseModeFlag = false;
 bool flipModeFlag = false;
 extern bool flashEraseSectorFlag;
 extern bool autoTriggerFlag;
+
+extern uint8_t screenshotPrintFlag; // 是否开启画面投屏标志位
 
 // 改变值控件变量
 float toneVolume = 80.0f;
@@ -38,6 +42,7 @@ void EventSerialNumberUI(void);
 void EventShowGyroUI(void);
 void EventSetLedColor(void);
 void EventShowPotCloudUI(void);
+void EventSetScreenshotPrintUI(void);
 
 // [test code]
 void EventShowWidgetInfoBar(void);
@@ -115,6 +120,7 @@ void HugoUI::InitLayout(void)
     pageSetting->AddItem("『系统设置』", ItemType::Description);
     pageSetting->AddItem("反色模式", ItemType::Switch, &inverseModeFlag, EventSetInverseMode);
     pageSetting->AddItem("反转屏幕", ItemType::Switch, &flipModeFlag, EventSetFlipScreen);
+    pageSetting->AddItem("画面投屏", ItemType::Switch, &screenshotPrintFlag, EventSetScreenshotPrintUI);
     pageSetting->AddItem("蜂鸣器音量", ItemType::ChangeValue, &toneVolume, nullptr);
     pageSetting->AddItem("格式化存储设备", ItemType::CallFunction, EventFormatStorageUI);
     pageSetting->AddItem("恢复出厂设置", ItemType::CallFunction, EventFactoryResetUI);
@@ -302,6 +308,23 @@ void EventSerialNumberUI(void)
     if (uiKeyNumInSide == 2 || uiKeyNumInSide == 1)
     {
         uiKeyNumInSide = 2; // 手动退出
+    }
+}
+
+/* 画面投屏的事件回调 */
+void EventSetScreenshotPrintUI(void)
+{
+    if (screenshotPrintFlag)
+    {
+        WidgetPushInfoBar("投屏很吃性能哦!", 2000);
+        huart1.Init.BaudRate = 921600;
+        HAL_UART_Init(&huart1);
+    }
+    else
+    {
+        WidgetPushInfoBar("投屏已关闭!", 2000);
+        huart1.Init.BaudRate = 115200;
+        HAL_UART_Init(&huart1);
     }
 }
 

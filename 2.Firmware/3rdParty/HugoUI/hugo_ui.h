@@ -47,7 +47,8 @@ typedef int32_t     paramType;
 #define oled_set_font_mode(mode) u8g2_SetFontMode(&u8g2, mode)
 #define oled_set_font_direction(dir) u8g2_SetFontDirection(&u8g2, dir)
 #define oled_clear_buffer() u8g2_ClearBuffer(&u8g2)
-#define oled_send_buffer() u8g2_SendBuffer(&u8g2)
+// #define oled_send_buffer() u8g2_SendBuffer(&u8g2)
+#define oled_send_buffer() oledSendBuffer()
 #define oled_send_area_buffer(x, y, w, h) u8g2_UpdateDisplayArea(&u8g2, x, y, w, h)
 
 #define oled_set_bitmap_mode(mode) u8g2_SetBitmapMode(&u8g2, mode)
@@ -58,7 +59,7 @@ typedef int32_t     paramType;
 #define get_ticks() HAL_GetTick()
 #define delay(ms) HAL_Delay(ms)
 
-namespace HugoUI
+    namespace HugoUI
 {
 
 /* enum ---------------------------------------------------- */

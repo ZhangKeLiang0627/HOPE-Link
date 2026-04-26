@@ -135,9 +135,12 @@ void oledClearBuffer(void)
  * @brief   刷新发送缓冲区
  * @return  void
  */
+uint8_t screenshotPrintFlag = 0; // 是否开启画面投屏标志位
 void oledSendBuffer(void)
 {
     u8g2_SendBuffer(&u8g2);
+    if (screenshotPrintFlag)
+        oledScreenshotPrint();
 }
 
 /**
@@ -314,15 +317,15 @@ void oledSetFont(const uint8_t *font)
 }
 
 /* Oled投屏 */
+#include "interface_uart.h"
 void oledScreenshotPrint(void)
 {
-    // USART_SendData(USART1, 0xA5); // 固定请求头
-    // USART_SendData(USART1, 0xA5); // 固定请求头
-    // uint8_t *p = (uint8_t *)u8g2_GetBufferPtr(&u8g2);
-    // for (uint32_t i = 0; i < 4 * 64; i++)
-    // {
-    //     USART_SendData(USART1, *p++);
-    // }
-    // USART_SendData(USART1, 0x5a); // 固定请求尾
-    // USART_SendData(USART1, 0x5a); // 固定请求尾
+    uint8_t head[] = {0xA5, 0xA5};
+    HAL_UART_Transmit(&huart1, head, 2, 1000); // 固定请求头
+
+    uint8_t *p = (uint8_t *)u8g2_GetBufferPtr(&u8g2);
+    HAL_UART_Transmit(&huart1, p, 1024, 1000);
+
+    uint8_t tail[] = {0x5A, 0x5A};
+    HAL_UART_Transmit(&huart1, tail, 2, 1000); // 固定请求尾
 }
