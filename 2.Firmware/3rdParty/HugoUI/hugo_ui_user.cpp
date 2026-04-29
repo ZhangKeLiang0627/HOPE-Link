@@ -43,6 +43,7 @@ void EventShowGyroUI(void);
 void EventSetLedColor(void);
 void EventShowPotCloudUI(void);
 void EventSetScreenshotPrintUI(void);
+void EventSelectSerialBaudUI(void);
 
 // [test code]
 void EventShowWidgetInfoBar(void);
@@ -61,6 +62,7 @@ void HugoUI::InitLayout(void)
     Page::Ptr pageOflnSelChip = AddPage(PageType::List, "pageOflnSelChip");
     Page::Ptr pageWS2812 = AddPage(PageType::List, "pageWS2812");
     Page::Ptr pageTest = AddPage(PageType::List, "pageTest");
+    Page::Ptr pageBaud = AddPage(PageType::List, "pageBaud");
 
     /* 注册 Item */
     // PageMain
@@ -121,6 +123,8 @@ void HugoUI::InitLayout(void)
     pageSetting->AddItem("反色模式", ItemType::Switch, &inverseModeFlag, EventSetInverseMode);
     pageSetting->AddItem("反转屏幕", ItemType::Switch, &flipModeFlag, EventSetFlipScreen);
     pageSetting->AddItem("画面投屏", ItemType::Switch, &screenshotPrintFlag, EventSetScreenshotPrintUI);
+    pageSetting->AddItem("波特率设置", ItemType::JumpPage)
+        ->SetJumpId(pageBaud->pageId, 0);
     pageSetting->AddItem("蜂鸣器音量", ItemType::ChangeValue, &toneVolume, nullptr);
     pageSetting->AddItem("格式化存储设备", ItemType::CallFunction, EventFormatStorageUI);
     pageSetting->AddItem("恢复出厂设置", ItemType::CallFunction, EventFactoryResetUI);
@@ -149,6 +153,17 @@ void HugoUI::InitLayout(void)
     pageTest->AddItem("进度条测试", ItemType::CallFunction, EventShowProgressBarUI);
     pageTest->AddItem("返回", ItemType::JumpPage)
         ->SetJumpId(pageMain->pageId, 3);
+
+    // PageBaud
+    pageBaud->AddItem("『波特率设置』", ItemType::Description);
+    pageBaud->AddItem("短按设置波特率↓", ItemType::Description);
+    pageBaud->AddItem("9600", ItemType::CallFunction, EventSelectSerialBaudUI);
+    pageBaud->AddItem("115200", ItemType::CallFunction, EventSelectSerialBaudUI);
+    pageBaud->AddItem("230400", ItemType::CallFunction, EventSelectSerialBaudUI);
+    pageBaud->AddItem("460800", ItemType::CallFunction, EventSelectSerialBaudUI);
+    pageBaud->AddItem("921600", ItemType::CallFunction, EventSelectSerialBaudUI);
+    pageBaud->AddItem("返回", ItemType::JumpPage)
+        ->SetJumpId(pageSetting->pageId, 4);
 }
 
 /* About的应用事件函数 */
@@ -348,6 +363,40 @@ void EventSetLedColor(void)
 
     // Show Widget
     WidgetPushInfoBar("UpdatePixels!", 2000);
+}
+
+/* 波特率选择事件函数 */
+void EventSelectSerialBaudUI(void)
+{
+    // 选择波特率
+    // 通过获取当前item的title来判断波特率
+    if (currentItem != nullptr)
+    {
+        const char* title = currentItem->title.c_str();
+
+        if (strcmp(title, "9600") == 0)
+            huart1.Init.BaudRate = 9600;
+        else if (strcmp(title, "115200") == 0)
+            huart1.Init.BaudRate = 115200;
+        else if (strcmp(title, "230400") == 0)
+            huart1.Init.BaudRate = 230400;
+        else if (strcmp(title, "460800") == 0)
+            huart1.Init.BaudRate = 460800;
+        else if (strcmp(title, "921600") == 0)
+            huart1.Init.BaudRate = 921600;
+
+        // 按照选中的波特率重新初始化UART
+        HAL_UART_Init(&huart1);
+    }
+
+    // Show Widget
+    char string[16] = {0};
+    sprintf(string, "StBd:%d", huart1.Init.BaudRate); // set baud
+    WidgetDrawMessageBox((const char *)string, true);
+
+    // Util
+    delay(1000);
+    uiKeyNumInSide = 2; // 自动退出
 }
 
 // [test code]
