@@ -24,7 +24,7 @@
 | PA7 | GPIO — DAP_nRST | 目标板复位（开漏） |
 | PA2 | TIM5_CH3 + DMA | WS2812B RGB 指示灯（800 kHz PWM） |
 | PA3 | TIM9_CH2 | 蜂鸣器（PWM 发声） |
-| PB0 / PB1 | GPIO — 软件 I2C | 预留 MPU6050 惯性传感器 |
+| PB0 / PB1 | GPIO — 软件 I2C | MPU6050 惯性传感器 |
 | PB4 / PB5 | TIM3（编码器模式） | 旋转编码器 |
 | PB6 / PB7 | I2C1 | OLED 128×64（SSD1312）显示屏 |
 | PB12 | GPIO — SPI2_CS | W25Q128 片选 |

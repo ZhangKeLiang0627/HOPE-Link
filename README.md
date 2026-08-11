@@ -8,6 +8,8 @@ An offline SWD with a graphical interface.
 
 # Hardware Resources
 
+Hardware Resources: https://oshwhub.com/hugego/hope-stm32f401-based-mini-devframework
+
 ## Main MCU
 
 | Item | Value |
