@@ -1,6 +1,6 @@
 # HOPE-Link
 
-[English](README.md) | [中文](README_CN.md)
+**English** | [中文](README_CN.md)
 
 # What it does
 

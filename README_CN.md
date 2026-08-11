@@ -1,5 +1,7 @@
 # HOPE-Link
 
+[English](README.md) | **中文**
+
 # 项目简介
 
 一款带图形界面的**离线 SWD 下载器**（基于 CMSIS-DAP），可通过板载 OLED + 编码器 + 按键操作，对目标芯片进行离线烧录。
