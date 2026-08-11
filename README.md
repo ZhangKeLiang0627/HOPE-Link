@@ -26,7 +26,7 @@ Hardware Resources: https://oshwhub.com/hugego/hope-stm32f401-based-mini-devfram
 | PA7 | GPIO — DAP_nRST | Target reset (open-drain) |
 | PA2 | TIM5_CH3 + DMA | WS2812B RGB LED (800 kHz PWM) |
 | PA3 | TIM9_CH2 | Buzzer (PWM tone) |
-| PB0 / PB1 | GPIO — soft I2C | Reserved MPU6050 IMU |
+| PB0 / PB1 | GPIO — soft I2C | MPU6050 IMU |
 | PB4 / PB5 | TIM3 (encoder) | Rotary encoder |
 | PB6 / PB7 | I2C1 | OLED 128×64 (SSD1312) display |
 | PB12 | GPIO — SPI2_CS | W25Q128 chip select |
